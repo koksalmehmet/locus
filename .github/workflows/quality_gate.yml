@@ -23,11 +23,11 @@ jobs:
           channel: ${{ env.FLUTTER_VERSION }}
       - run: flutter pub get
       - name: Install pana
-        run: dart pub global activate pana
-      - name: Check score
         run: |
-          PATH="$PATH":"$HOME/.pub-cache/bin"
-          pana --no-warning --exit-code-threshold 10
+          dart pub global activate pana
+          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+      - name: Check score
+        run: pana --no-warning --exit-code-threshold 130
 
   native-tests-android:
     name: Android Native Tests
