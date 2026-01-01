@@ -15,6 +15,10 @@ env:
   FLUTTER_VERSION: 'stable'
   JAVA_VERSION: '17'
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   # -----------------------------------------------------------------
   # STAGE 1: QUALITY ASSURANCE
@@ -39,7 +43,7 @@ jobs:
         run: dart format --set-exit-if-changed .
         
       - name: Analyze
-        run: flutter analyze --fatal-infos
+        run: flutter analyze --fatal-infos --fatal-warnings
         
       - name: Unit Tests
         run: flutter test --coverage
@@ -96,12 +100,49 @@ jobs:
         run: cd example && flutter build ios --no-codesign --debug
 
   # -----------------------------------------------------------------
-  # STAGE 2: RELEASE
+  # STAGE 2: QUALITY GATE
+  # -----------------------------------------------------------------
+  quality-gate:
+    name: Quality Gate
+    needs: [code-quality, android-check, ios-check]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Final Review
+        run: |
+          if [ "${{ needs.code-quality.result }}" != "success" ]; then
+            echo "::error::Code quality failed"
+            exit 1
+          fi
+          if [ "${{ needs.android-check.result }}" != "success" ]; then
+            echo "::error::Android check failed"
+            exit 1
+          fi
+          if [ "${{ needs.ios-check.result }}" != "success" ]; then
+            echo "::error::iOS check failed"
+            exit 1
+          fi
+          echo "All quality checks passed!"
+
+  # -----------------------------------------------------------------
+  # STAGE 3: APPROVAL
+  # -----------------------------------------------------------------
+  approve-release:
+    name: Approve Release
+    needs: [quality-gate]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    environment: release-gate
+    steps:
+      - name: Release Authorized
+        run: echo "Release authorized by administrator"
+
+  # -----------------------------------------------------------------
+  # STAGE 4: RELEASE
   # -----------------------------------------------------------------
   release:
     name: Release
-    needs: [code-quality, android-check, ios-check]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    needs: [approve-release]
     runs-on: ubuntu-latest
     environment: production
     permissions:
