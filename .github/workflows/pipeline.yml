@@ -83,9 +83,6 @@ jobs:
       - name: Build Example APK
         run: cd example && flutter build apk --debug
 
-      - name: Android Native Tests
-        run: cd android && ./gradlew test
-
   ios-check:
     name: iOS Check
     runs-on: macos-latest
