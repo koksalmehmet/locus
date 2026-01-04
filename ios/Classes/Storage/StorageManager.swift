@@ -3,13 +3,15 @@ import Foundation
 /// Storage manager that provides a unified interface for persistent storage.
 /// Now backed by SQLite for better scalability (previously UserDefaults).
 class StorageManager {
-    static let shared = StorageManager()
-    
     /// The SQLite storage backend (primary storage)
-    private let sqliteStorage = SQLiteStorage.shared
+    private let sqliteStorage: SQLiteStorage
     
     /// UserDefaults is now only used for small scalar values (odometer, config)
     private let odometerKey = "bg_odometer"
+
+    init(sqliteStorage: SQLiteStorage) {
+        self.sqliteStorage = sqliteStorage
+    }
     
     // MARK: - Geofences
     
@@ -130,5 +132,19 @@ class StorageManager {
     
     func clearDeadLetter() {
         sqliteStorage.clearDeadLetter()
+    }
+
+    // MARK: - Logs
+
+    func insertLog(timestampMs: Int64, level: String, message: String, tag: String?) {
+        sqliteStorage.insertLog(timestampMs: timestampMs, level: level, message: message, tag: tag)
+    }
+
+    func pruneLogs(maxDays: Int) {
+        sqliteStorage.pruneLogs(maxDays: maxDays)
+    }
+
+    func readLogs() -> [[String: Any]] {
+        return sqliteStorage.readLogs()
     }
 }

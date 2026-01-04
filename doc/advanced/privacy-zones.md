@@ -5,7 +5,7 @@ Privacy zones allow users to define areas where location tracking behavior is mo
 ## Creating a Privacy Zone
 
 ```dart
-final homeZone = PrivacyZone(
+final homeZone = PrivacyZone.create(
   identifier: 'home',
   latitude: 37.7749,
   longitude: -122.4194,
@@ -13,25 +13,24 @@ final homeZone = PrivacyZone(
   action: PrivacyZoneAction.exclude,
 );
 
-await Locus.addPrivacyZone(homeZone);
+await Locus.privacy.add(homeZone);
 ```
 
 ## Privacy Actions
 
-Privacy zones support three actions:
+Privacy zones support two actions:
 
 | Action | Description |
 |--------|-------------|
 | `exclude` | Completely exclude locations from this zone |
 | `obfuscate` | Randomize location within the zone |
-| `reduce` | Reduce accuracy of locations in this zone |
 
 ### Exclude Action
 
 No location updates are recorded or transmitted while in the zone:
 
 ```dart
-PrivacyZone(
+PrivacyZone.create(
   identifier: 'home',
   latitude: 37.7749,
   longitude: -122.4194,
@@ -45,7 +44,7 @@ PrivacyZone(
 Locations are randomized within the zone to hide the exact position:
 
 ```dart
-PrivacyZone(
+PrivacyZone.create(
   identifier: 'work',
   latitude: 37.7849,
   longitude: -122.4094,
@@ -55,47 +54,32 @@ PrivacyZone(
 )
 ```
 
-### Reduce Action
-
-Location accuracy is reduced (coordinates are rounded):
-
-```dart
-PrivacyZone(
-  identifier: 'neighborhood',
-  latitude: 37.7649,
-  longitude: -122.4294,
-  radius: 500,
-  action: PrivacyZoneAction.reduce,
-)
-```
-
 ## Managing Privacy Zones
 
 ```dart
 // Get all privacy zones
-final zones = await Locus.getPrivacyZones();
+final zones = await Locus.privacy.getAll();
 
-// Check if a zone exists
-final exists = await Locus.privacyZoneExists('home');
+// Get a single zone
+final zone = await Locus.privacy.get('home');
 
 // Remove a zone
-await Locus.removePrivacyZone('home');
+await Locus.privacy.remove('home');
 
 // Remove all zones
-await Locus.removeAllPrivacyZones();
+await Locus.privacy.removeAll();
+
+// Disable or enable a zone
+await Locus.privacy.setEnabled('home', false);
 ```
 
 ## Privacy Zone Events
 
-Listen for when the user enters or exits privacy zones:
+Listen for zone configuration changes:
 
 ```dart
-Locus.onPrivacyZone.listen((event) {
-  if (event.type == PrivacyZoneEventType.enter) {
-    print('Entered privacy zone: ${event.zone.identifier}');
-  } else {
-    print('Exited privacy zone: ${event.zone.identifier}');
-  }
+Locus.privacy.events.listen((event) {
+  print('${event.type.name}: ${event.zone.identifier}');
 });
 ```
 
@@ -112,12 +96,14 @@ await service.addZone(homeZone);
 // Process a location through privacy filtering
 final result = service.processLocation(location);
 
-if (result.wasModified) {
-  print('Location was modified by zone: ${result.zone?.identifier}');
+if (result.wasExcluded) {
+  print('Location excluded by privacy zone');
+} else if (result.wasObfuscated) {
+  print('Location obfuscated by privacy zone');
 }
 
 // Use the filtered location
-final safeLocation = result.location;
+final safeLocation = result.processedLocation;
 ```
 
 ---

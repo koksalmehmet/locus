@@ -1,14 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class TripSummary {
-  final String tripId;
-  final DateTime startedAt;
-  final DateTime endedAt;
-  final double distanceMeters;
-  final int durationSeconds;
-  final int idleSeconds;
-  final double maxSpeedKph;
-  final double averageSpeedKph;
 
   const TripSummary({
     required this.tripId,
@@ -20,17 +12,6 @@ class TripSummary {
     required this.maxSpeedKph,
     required this.averageSpeedKph,
   });
-
-  JsonMap toMap() => {
-        'tripId': tripId,
-        'startedAt': startedAt.toIso8601String(),
-        'endedAt': endedAt.toIso8601String(),
-        'distanceMeters': distanceMeters,
-        'durationSeconds': durationSeconds,
-        'idleSeconds': idleSeconds,
-        'maxSpeedKph': maxSpeedKph,
-        'averageSpeedKph': averageSpeedKph,
-      };
 
   factory TripSummary.fromMap(JsonMap map) {
     return TripSummary(
@@ -44,4 +25,23 @@ class TripSummary {
       averageSpeedKph: (map['averageSpeedKph'] as num?)?.toDouble() ?? 0,
     );
   }
+  final String tripId;
+  final DateTime startedAt;
+  final DateTime endedAt;
+  final double distanceMeters;
+  final int durationSeconds;
+  final int idleSeconds;
+  final double maxSpeedKph;
+  final double averageSpeedKph;
+
+  JsonMap toMap() => {
+        'tripId': tripId,
+        'startedAt': startedAt.toIso8601String(),
+        'endedAt': endedAt.toIso8601String(),
+        'distanceMeters': distanceMeters,
+        'durationSeconds': durationSeconds,
+        'idleSeconds': idleSeconds,
+        'maxSpeedKph': maxSpeedKph,
+        'averageSpeedKph': averageSpeedKph,
+      };
 }

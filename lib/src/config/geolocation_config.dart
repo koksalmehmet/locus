@@ -3,109 +3,18 @@ library;
 import 'package:locus/src/config/config_enums.dart';
 import 'package:locus/src/config/notification_config.dart';
 import 'package:locus/src/config/permission_rationale.dart';
+import 'package:locus/src/features/location/services/spoof_detection.dart'
+    show SpoofDetectionConfig;
 import 'package:locus/src/models.dart';
 
 /// Main configuration class for the background geolocation service.
 class Config {
-  /// SDK version.
-  static const String version = '1.1.0';
 
   /// Fitness/trail preset (high accuracy, frequent updates).
   factory Config.fitness() => ConfigPresets.trail;
 
   /// Passive preset (lowest power usage).
   factory Config.passive() => ConfigPresets.lowPower;
-
-  // Location settings
-  final DesiredAccuracy? desiredAccuracy;
-  final double? distanceFilter;
-  final int? locationUpdateInterval;
-  final int? fastestLocationUpdateInterval;
-  final int? activityRecognitionInterval;
-  final int? stopTimeout;
-  final int? stopAfterElapsedMinutes;
-  final int? stopDetectionDelay;
-  final int? motionTriggerDelay;
-  final int? minimumActivityRecognitionConfidence;
-  final bool? useSignificantChangesOnly;
-  final bool? allowIdenticalLocations;
-  final bool? disableMotionActivityUpdates;
-  final bool? disableStopDetection;
-  final bool? disableProviderChangeRecord;
-  final bool? disableLocationAuthorizationAlert;
-
-  // Background/foreground settings
-  final bool? enableHeadless;
-  final bool? startOnBoot;
-  final bool? stopOnTerminate;
-  final bool? foregroundService;
-  final bool? preventSuspend;
-  final bool? pausesLocationUpdatesAutomatically;
-  final bool? showsBackgroundLocationIndicator;
-
-  // Motion detection settings
-  final double? stationaryRadius;
-  final double? desiredOdometerAccuracy;
-  final double? elasticityMultiplier;
-  final double? speedJumpFilter;
-  final bool? stopOnStationary;
-
-  // Geofencing settings
-  final bool? geofenceModeHighAccuracy;
-  final bool? geofenceInitialTriggerEntry;
-  final int? geofenceProximityRadius;
-  final int? maxMonitoredGeofences;
-
-  // HTTP sync settings
-  final int? locationTimeout;
-  final int? httpTimeout;
-  final int? maxRetry;
-  final int? retryDelay;
-  final double? retryDelayMultiplier;
-  final int? maxRetryDelay;
-  final String? bgTaskId;
-  final String? url;
-  final String? method;
-  final JsonMap? headers;
-  final JsonMap? params;
-  final JsonMap? extras;
-  final bool? autoSync;
-  final bool? batchSync;
-  final int? maxBatchSize;
-  final int? autoSyncThreshold;
-  final bool? disableAutoSyncOnCellular;
-  final int? queueMaxDays;
-  final int? queueMaxRecords;
-  final String? idempotencyHeader;
-
-  // Persistence settings
-  final PersistMode? persistMode;
-  final int? maxDaysToPersist;
-  final int? maxRecordsToPersist;
-  final String? locationTemplate;
-  final String? geofenceTemplate;
-  final String? httpRootProperty;
-
-  // Scheduling settings
-  final List<String>? schedule;
-  final bool? scheduleUseAlarmManager;
-
-  // Force reload settings
-  final bool? forceReloadOnBoot;
-  final bool? forceReloadOnLocationChange;
-  final bool? forceReloadOnMotionChange;
-  final bool? forceReloadOnGeofence;
-  final bool? forceReloadOnHeartbeat;
-  final bool? forceReloadOnSchedule;
-  final bool? enableTimestampMeta;
-
-  // Notification and logging
-  final NotificationConfig? notification;
-  final LogLevel? logLevel;
-  final int? logMaxDays;
-  final int? heartbeatInterval;
-  final PermissionRationale? backgroundPermissionRationale;
-  final List<ActivityType>? triggerActivities;
 
   const Config({
     this.desiredAccuracy,
@@ -181,276 +90,10 @@ class Config {
     this.heartbeatInterval,
     this.backgroundPermissionRationale,
     this.triggerActivities,
+    this.adaptiveTracking,
+    this.lowBattery,
+    this.spoofDetection,
   });
-
-  Config copyWith({
-    DesiredAccuracy? desiredAccuracy,
-    double? distanceFilter,
-    int? locationUpdateInterval,
-    int? fastestLocationUpdateInterval,
-    int? activityRecognitionInterval,
-    int? stopTimeout,
-    int? stopAfterElapsedMinutes,
-    int? stopDetectionDelay,
-    int? motionTriggerDelay,
-    int? minimumActivityRecognitionConfidence,
-    bool? useSignificantChangesOnly,
-    bool? allowIdenticalLocations,
-    bool? disableMotionActivityUpdates,
-    bool? disableStopDetection,
-    bool? disableProviderChangeRecord,
-    bool? disableLocationAuthorizationAlert,
-    bool? enableHeadless,
-    bool? startOnBoot,
-    bool? stopOnTerminate,
-    bool? foregroundService,
-    bool? preventSuspend,
-    bool? pausesLocationUpdatesAutomatically,
-    bool? showsBackgroundLocationIndicator,
-    double? stationaryRadius,
-    double? desiredOdometerAccuracy,
-    double? elasticityMultiplier,
-    double? speedJumpFilter,
-    bool? stopOnStationary,
-    bool? geofenceModeHighAccuracy,
-    bool? geofenceInitialTriggerEntry,
-    int? geofenceProximityRadius,
-    int? maxMonitoredGeofences,
-    int? locationTimeout,
-    int? httpTimeout,
-    int? maxRetry,
-    int? retryDelay,
-    double? retryDelayMultiplier,
-    int? maxRetryDelay,
-    String? bgTaskId,
-    String? url,
-    String? method,
-    JsonMap? headers,
-    JsonMap? params,
-    JsonMap? extras,
-    bool? autoSync,
-    bool? batchSync,
-    int? maxBatchSize,
-    int? autoSyncThreshold,
-    bool? disableAutoSyncOnCellular,
-    int? queueMaxDays,
-    int? queueMaxRecords,
-    String? idempotencyHeader,
-    PersistMode? persistMode,
-    int? maxDaysToPersist,
-    int? maxRecordsToPersist,
-    String? locationTemplate,
-    String? geofenceTemplate,
-    String? httpRootProperty,
-    List<String>? schedule,
-    bool? scheduleUseAlarmManager,
-    bool? forceReloadOnBoot,
-    bool? forceReloadOnLocationChange,
-    bool? forceReloadOnMotionChange,
-    bool? forceReloadOnGeofence,
-    bool? forceReloadOnHeartbeat,
-    bool? forceReloadOnSchedule,
-    bool? enableTimestampMeta,
-    NotificationConfig? notification,
-    LogLevel? logLevel,
-    int? logMaxDays,
-    int? heartbeatInterval,
-    PermissionRationale? backgroundPermissionRationale,
-    List<ActivityType>? triggerActivities,
-  }) {
-    return Config(
-      desiredAccuracy: desiredAccuracy ?? this.desiredAccuracy,
-      distanceFilter: distanceFilter ?? this.distanceFilter,
-      locationUpdateInterval:
-          locationUpdateInterval ?? this.locationUpdateInterval,
-      fastestLocationUpdateInterval:
-          fastestLocationUpdateInterval ?? this.fastestLocationUpdateInterval,
-      activityRecognitionInterval:
-          activityRecognitionInterval ?? this.activityRecognitionInterval,
-      stopTimeout: stopTimeout ?? this.stopTimeout,
-      stopAfterElapsedMinutes:
-          stopAfterElapsedMinutes ?? this.stopAfterElapsedMinutes,
-      stopDetectionDelay: stopDetectionDelay ?? this.stopDetectionDelay,
-      motionTriggerDelay: motionTriggerDelay ?? this.motionTriggerDelay,
-      minimumActivityRecognitionConfidence:
-          minimumActivityRecognitionConfidence ??
-              this.minimumActivityRecognitionConfidence,
-      useSignificantChangesOnly:
-          useSignificantChangesOnly ?? this.useSignificantChangesOnly,
-      allowIdenticalLocations:
-          allowIdenticalLocations ?? this.allowIdenticalLocations,
-      disableMotionActivityUpdates:
-          disableMotionActivityUpdates ?? this.disableMotionActivityUpdates,
-      disableStopDetection: disableStopDetection ?? this.disableStopDetection,
-      disableProviderChangeRecord:
-          disableProviderChangeRecord ?? this.disableProviderChangeRecord,
-      disableLocationAuthorizationAlert: disableLocationAuthorizationAlert ??
-          this.disableLocationAuthorizationAlert,
-      enableHeadless: enableHeadless ?? this.enableHeadless,
-      startOnBoot: startOnBoot ?? this.startOnBoot,
-      stopOnTerminate: stopOnTerminate ?? this.stopOnTerminate,
-      foregroundService: foregroundService ?? this.foregroundService,
-      preventSuspend: preventSuspend ?? this.preventSuspend,
-      pausesLocationUpdatesAutomatically: pausesLocationUpdatesAutomatically ??
-          this.pausesLocationUpdatesAutomatically,
-      showsBackgroundLocationIndicator: showsBackgroundLocationIndicator ??
-          this.showsBackgroundLocationIndicator,
-      stationaryRadius: stationaryRadius ?? this.stationaryRadius,
-      desiredOdometerAccuracy:
-          desiredOdometerAccuracy ?? this.desiredOdometerAccuracy,
-      elasticityMultiplier: elasticityMultiplier ?? this.elasticityMultiplier,
-      speedJumpFilter: speedJumpFilter ?? this.speedJumpFilter,
-      stopOnStationary: stopOnStationary ?? this.stopOnStationary,
-      geofenceModeHighAccuracy:
-          geofenceModeHighAccuracy ?? this.geofenceModeHighAccuracy,
-      geofenceInitialTriggerEntry:
-          geofenceInitialTriggerEntry ?? this.geofenceInitialTriggerEntry,
-      geofenceProximityRadius:
-          geofenceProximityRadius ?? this.geofenceProximityRadius,
-      maxMonitoredGeofences:
-          maxMonitoredGeofences ?? this.maxMonitoredGeofences,
-      locationTimeout: locationTimeout ?? this.locationTimeout,
-      httpTimeout: httpTimeout ?? this.httpTimeout,
-      maxRetry: maxRetry ?? this.maxRetry,
-      retryDelay: retryDelay ?? this.retryDelay,
-      retryDelayMultiplier: retryDelayMultiplier ?? this.retryDelayMultiplier,
-      maxRetryDelay: maxRetryDelay ?? this.maxRetryDelay,
-      bgTaskId: bgTaskId ?? this.bgTaskId,
-      url: url ?? this.url,
-      method: method ?? this.method,
-      headers: headers ?? this.headers,
-      params: params ?? this.params,
-      extras: extras ?? this.extras,
-      autoSync: autoSync ?? this.autoSync,
-      batchSync: batchSync ?? this.batchSync,
-      maxBatchSize: maxBatchSize ?? this.maxBatchSize,
-      autoSyncThreshold: autoSyncThreshold ?? this.autoSyncThreshold,
-      disableAutoSyncOnCellular:
-          disableAutoSyncOnCellular ?? this.disableAutoSyncOnCellular,
-      queueMaxDays: queueMaxDays ?? this.queueMaxDays,
-      queueMaxRecords: queueMaxRecords ?? this.queueMaxRecords,
-      idempotencyHeader: idempotencyHeader ?? this.idempotencyHeader,
-      persistMode: persistMode ?? this.persistMode,
-      maxDaysToPersist: maxDaysToPersist ?? this.maxDaysToPersist,
-      maxRecordsToPersist: maxRecordsToPersist ?? this.maxRecordsToPersist,
-      locationTemplate: locationTemplate ?? this.locationTemplate,
-      geofenceTemplate: geofenceTemplate ?? this.geofenceTemplate,
-      httpRootProperty: httpRootProperty ?? this.httpRootProperty,
-      schedule: schedule ?? this.schedule,
-      scheduleUseAlarmManager:
-          scheduleUseAlarmManager ?? this.scheduleUseAlarmManager,
-      forceReloadOnBoot: forceReloadOnBoot ?? this.forceReloadOnBoot,
-      forceReloadOnLocationChange:
-          forceReloadOnLocationChange ?? this.forceReloadOnLocationChange,
-      forceReloadOnMotionChange:
-          forceReloadOnMotionChange ?? this.forceReloadOnMotionChange,
-      forceReloadOnGeofence:
-          forceReloadOnGeofence ?? this.forceReloadOnGeofence,
-      forceReloadOnHeartbeat:
-          forceReloadOnHeartbeat ?? this.forceReloadOnHeartbeat,
-      forceReloadOnSchedule:
-          forceReloadOnSchedule ?? this.forceReloadOnSchedule,
-      enableTimestampMeta: enableTimestampMeta ?? this.enableTimestampMeta,
-      notification: notification ?? this.notification,
-      logLevel: logLevel ?? this.logLevel,
-      logMaxDays: logMaxDays ?? this.logMaxDays,
-      heartbeatInterval: heartbeatInterval ?? this.heartbeatInterval,
-      backgroundPermissionRationale:
-          backgroundPermissionRationale ?? this.backgroundPermissionRationale,
-      triggerActivities: triggerActivities ?? this.triggerActivities,
-    );
-  }
-
-  JsonMap toMap() {
-    final map = <String, dynamic>{
-      'version': version,
-    };
-
-    void put(String key, dynamic value) {
-      if (value != null) {
-        map[key] = value;
-      }
-    }
-
-    put('desiredAccuracy', desiredAccuracy?.name);
-    put('distanceFilter', distanceFilter);
-    put('locationUpdateInterval', locationUpdateInterval);
-    put('fastestLocationUpdateInterval', fastestLocationUpdateInterval);
-    put('activityRecognitionInterval', activityRecognitionInterval);
-    put('stopTimeout', stopTimeout);
-    put('stopAfterElapsedMinutes', stopAfterElapsedMinutes);
-    put('stopDetectionDelay', stopDetectionDelay);
-    put('motionTriggerDelay', motionTriggerDelay);
-    put('minimumActivityRecognitionConfidence',
-        minimumActivityRecognitionConfidence);
-    put('useSignificantChangesOnly', useSignificantChangesOnly);
-    put('allowIdenticalLocations', allowIdenticalLocations);
-    put('disableMotionActivityUpdates', disableMotionActivityUpdates);
-    put('disableStopDetection', disableStopDetection);
-    put('disableProviderChangeRecord', disableProviderChangeRecord);
-    put('disableLocationAuthorizationAlert', disableLocationAuthorizationAlert);
-    put('enableHeadless', enableHeadless);
-    put('startOnBoot', startOnBoot);
-    put('stopOnTerminate', stopOnTerminate);
-    put('foregroundService', foregroundService);
-    put('preventSuspend', preventSuspend);
-    put('pausesLocationUpdatesAutomatically',
-        pausesLocationUpdatesAutomatically);
-    put('showsBackgroundLocationIndicator', showsBackgroundLocationIndicator);
-    put('stationaryRadius', stationaryRadius);
-    put('desiredOdometerAccuracy', desiredOdometerAccuracy);
-    put('elasticityMultiplier', elasticityMultiplier);
-    put('speedJumpFilter', speedJumpFilter);
-    put('stopOnStationary', stopOnStationary);
-    put('geofenceModeHighAccuracy', geofenceModeHighAccuracy);
-    put('geofenceInitialTriggerEntry', geofenceInitialTriggerEntry);
-    put('geofenceProximityRadius', geofenceProximityRadius);
-    put('maxMonitoredGeofences', maxMonitoredGeofences);
-    put('locationTimeout', locationTimeout);
-    put('httpTimeout', httpTimeout);
-    put('maxRetry', maxRetry);
-    put('retryDelay', retryDelay);
-    put('retryDelayMultiplier', retryDelayMultiplier);
-    put('maxRetryDelay', maxRetryDelay);
-    put('bgTaskId', bgTaskId);
-    put('url', url);
-    put('method', method);
-    put('headers', headers);
-    put('params', params);
-    put('extras', extras);
-    put('autoSync', autoSync);
-    put('batchSync', batchSync);
-    put('maxBatchSize', maxBatchSize);
-    put('autoSyncThreshold', autoSyncThreshold);
-    put('disableAutoSyncOnCellular', disableAutoSyncOnCellular);
-    put('queueMaxDays', queueMaxDays);
-    put('queueMaxRecords', queueMaxRecords);
-    put('idempotencyHeader', idempotencyHeader);
-    put('persistMode', persistMode?.name);
-    put('maxDaysToPersist', maxDaysToPersist);
-    put('maxRecordsToPersist', maxRecordsToPersist);
-    put('locationTemplate', locationTemplate);
-    put('geofenceTemplate', geofenceTemplate);
-    put('httpRootProperty', httpRootProperty);
-    put('schedule', schedule);
-    put('scheduleUseAlarmManager', scheduleUseAlarmManager);
-    put('forceReloadOnBoot', forceReloadOnBoot);
-    put('forceReloadOnLocationChange', forceReloadOnLocationChange);
-    put('forceReloadOnMotionChange', forceReloadOnMotionChange);
-    put('forceReloadOnGeofence', forceReloadOnGeofence);
-    put('forceReloadOnHeartbeat', forceReloadOnHeartbeat);
-    put('forceReloadOnSchedule', forceReloadOnSchedule);
-    put('enableTimestampMeta', enableTimestampMeta);
-    put('notification', notification?.toMap());
-    put('logLevel', logLevel?.name);
-    put('logMaxDays', logMaxDays);
-    put('heartbeatInterval', heartbeatInterval);
-    put('backgroundPermissionRationale',
-        backgroundPermissionRationale?.toMap());
-    put('triggerActivities', triggerActivities?.map((e) => e.name).toList());
-
-    return map;
-  }
 
   factory Config.fromMap(JsonMap map) {
     return Config(
@@ -563,7 +206,397 @@ class Config {
                 orElse: () => ActivityType.unknown,
               ))
           .toList(),
+      adaptiveTracking: map['adaptiveTracking'] != null
+          ? AdaptiveTrackingConfig.fromMap(
+              Map<String, dynamic>.from(map['adaptiveTracking'] as Map))
+          : null,
+      lowBattery: map['lowBattery'] != null
+          ? LowBatteryConfig.fromMap(
+              Map<String, dynamic>.from(map['lowBattery'] as Map))
+          : null,
+      spoofDetection: map['spoofDetection'] != null
+          ? SpoofDetectionConfig.fromMap(
+              Map<String, dynamic>.from(map['spoofDetection'] as Map))
+          : null,
     );
+  }
+  /// SDK version.
+  static const String version = '1.1.0';
+
+  // Location settings
+  final DesiredAccuracy? desiredAccuracy;
+  final double? distanceFilter;
+  final int? locationUpdateInterval;
+  final int? fastestLocationUpdateInterval;
+  final int? activityRecognitionInterval;
+  final int? stopTimeout;
+  final int? stopAfterElapsedMinutes;
+  final int? stopDetectionDelay;
+  final int? motionTriggerDelay;
+  final int? minimumActivityRecognitionConfidence;
+  final bool? useSignificantChangesOnly;
+  final bool? allowIdenticalLocations;
+  final bool? disableMotionActivityUpdates;
+  final bool? disableStopDetection;
+  final bool? disableProviderChangeRecord;
+  final bool? disableLocationAuthorizationAlert;
+
+  // Background/foreground settings
+  final bool? enableHeadless;
+  final bool? startOnBoot;
+  final bool? stopOnTerminate;
+  final bool? foregroundService;
+  final bool? preventSuspend;
+  final bool? pausesLocationUpdatesAutomatically;
+  final bool? showsBackgroundLocationIndicator;
+
+  // Motion detection settings
+  final double? stationaryRadius;
+  final double? desiredOdometerAccuracy;
+  final double? elasticityMultiplier;
+  final double? speedJumpFilter;
+  final bool? stopOnStationary;
+
+  // Geofencing settings
+  final bool? geofenceModeHighAccuracy;
+  final bool? geofenceInitialTriggerEntry;
+  final int? geofenceProximityRadius;
+  final int? maxMonitoredGeofences;
+
+  // HTTP sync settings
+  final int? locationTimeout;
+  final int? httpTimeout;
+  final int? maxRetry;
+  final int? retryDelay;
+  final double? retryDelayMultiplier;
+  final int? maxRetryDelay;
+  final String? bgTaskId;
+  final String? url;
+  final String? method;
+  final JsonMap? headers;
+  final JsonMap? params;
+  final JsonMap? extras;
+  final bool? autoSync;
+  final bool? batchSync;
+  final int? maxBatchSize;
+  final int? autoSyncThreshold;
+  final bool? disableAutoSyncOnCellular;
+  final int? queueMaxDays;
+  final int? queueMaxRecords;
+  final String? idempotencyHeader;
+
+  // Persistence settings
+  final PersistMode? persistMode;
+  final int? maxDaysToPersist;
+  final int? maxRecordsToPersist;
+  final String? locationTemplate;
+  final String? geofenceTemplate;
+  final String? httpRootProperty;
+
+  // Scheduling settings
+  final List<String>? schedule;
+  final bool? scheduleUseAlarmManager;
+
+  // Force reload settings
+  final bool? forceReloadOnBoot;
+  final bool? forceReloadOnLocationChange;
+  final bool? forceReloadOnMotionChange;
+  final bool? forceReloadOnGeofence;
+  final bool? forceReloadOnHeartbeat;
+  final bool? forceReloadOnSchedule;
+  final bool? enableTimestampMeta;
+
+  // Notification and logging
+  final NotificationConfig? notification;
+  final LogLevel? logLevel;
+  final int? logMaxDays;
+  final int? heartbeatInterval;
+  final PermissionRationale? backgroundPermissionRationale;
+  final List<ActivityType>? triggerActivities;
+
+  // Advanced Locus 1.2.0+ features
+  final AdaptiveTrackingConfig? adaptiveTracking;
+  final LowBatteryConfig? lowBattery;
+  final SpoofDetectionConfig? spoofDetection;
+
+  Config copyWith({
+    DesiredAccuracy? desiredAccuracy,
+    double? distanceFilter,
+    int? locationUpdateInterval,
+    int? fastestLocationUpdateInterval,
+    int? activityRecognitionInterval,
+    int? stopTimeout,
+    int? stopAfterElapsedMinutes,
+    int? stopDetectionDelay,
+    int? motionTriggerDelay,
+    int? minimumActivityRecognitionConfidence,
+    bool? useSignificantChangesOnly,
+    bool? allowIdenticalLocations,
+    bool? disableMotionActivityUpdates,
+    bool? disableStopDetection,
+    bool? disableProviderChangeRecord,
+    bool? disableLocationAuthorizationAlert,
+    bool? enableHeadless,
+    bool? startOnBoot,
+    bool? stopOnTerminate,
+    bool? foregroundService,
+    bool? preventSuspend,
+    bool? pausesLocationUpdatesAutomatically,
+    bool? showsBackgroundLocationIndicator,
+    double? stationaryRadius,
+    double? desiredOdometerAccuracy,
+    double? elasticityMultiplier,
+    double? speedJumpFilter,
+    bool? stopOnStationary,
+    bool? geofenceModeHighAccuracy,
+    bool? geofenceInitialTriggerEntry,
+    int? geofenceProximityRadius,
+    int? maxMonitoredGeofences,
+    int? locationTimeout,
+    int? httpTimeout,
+    int? maxRetry,
+    int? retryDelay,
+    double? retryDelayMultiplier,
+    int? maxRetryDelay,
+    String? bgTaskId,
+    String? url,
+    String? method,
+    JsonMap? headers,
+    JsonMap? params,
+    JsonMap? extras,
+    bool? autoSync,
+    bool? batchSync,
+    int? maxBatchSize,
+    int? autoSyncThreshold,
+    bool? disableAutoSyncOnCellular,
+    int? queueMaxDays,
+    int? queueMaxRecords,
+    String? idempotencyHeader,
+    PersistMode? persistMode,
+    int? maxDaysToPersist,
+    int? maxRecordsToPersist,
+    String? locationTemplate,
+    String? geofenceTemplate,
+    String? httpRootProperty,
+    List<String>? schedule,
+    bool? scheduleUseAlarmManager,
+    bool? forceReloadOnBoot,
+    bool? forceReloadOnLocationChange,
+    bool? forceReloadOnMotionChange,
+    bool? forceReloadOnGeofence,
+    bool? forceReloadOnHeartbeat,
+    bool? forceReloadOnSchedule,
+    bool? enableTimestampMeta,
+    NotificationConfig? notification,
+    LogLevel? logLevel,
+    int? logMaxDays,
+    int? heartbeatInterval,
+    PermissionRationale? backgroundPermissionRationale,
+    List<ActivityType>? triggerActivities,
+    AdaptiveTrackingConfig? adaptiveTracking,
+    LowBatteryConfig? lowBattery,
+    SpoofDetectionConfig? spoofDetection,
+  }) {
+    return Config(
+      desiredAccuracy: desiredAccuracy ?? this.desiredAccuracy,
+      distanceFilter: distanceFilter ?? this.distanceFilter,
+      locationUpdateInterval:
+          locationUpdateInterval ?? this.locationUpdateInterval,
+      fastestLocationUpdateInterval:
+          fastestLocationUpdateInterval ?? this.fastestLocationUpdateInterval,
+      activityRecognitionInterval:
+          activityRecognitionInterval ?? this.activityRecognitionInterval,
+      stopTimeout: stopTimeout ?? this.stopTimeout,
+      stopAfterElapsedMinutes:
+          stopAfterElapsedMinutes ?? this.stopAfterElapsedMinutes,
+      stopDetectionDelay: stopDetectionDelay ?? this.stopDetectionDelay,
+      motionTriggerDelay: motionTriggerDelay ?? this.motionTriggerDelay,
+      minimumActivityRecognitionConfidence:
+          minimumActivityRecognitionConfidence ??
+              this.minimumActivityRecognitionConfidence,
+      useSignificantChangesOnly:
+          useSignificantChangesOnly ?? this.useSignificantChangesOnly,
+      allowIdenticalLocations:
+          allowIdenticalLocations ?? this.allowIdenticalLocations,
+      disableMotionActivityUpdates:
+          disableMotionActivityUpdates ?? this.disableMotionActivityUpdates,
+      disableStopDetection: disableStopDetection ?? this.disableStopDetection,
+      disableProviderChangeRecord:
+          disableProviderChangeRecord ?? this.disableProviderChangeRecord,
+      disableLocationAuthorizationAlert: disableLocationAuthorizationAlert ??
+          this.disableLocationAuthorizationAlert,
+      enableHeadless: enableHeadless ?? this.enableHeadless,
+      startOnBoot: startOnBoot ?? this.startOnBoot,
+      stopOnTerminate: stopOnTerminate ?? this.stopOnTerminate,
+      foregroundService: foregroundService ?? this.foregroundService,
+      preventSuspend: preventSuspend ?? this.preventSuspend,
+      pausesLocationUpdatesAutomatically: pausesLocationUpdatesAutomatically ??
+          this.pausesLocationUpdatesAutomatically,
+      showsBackgroundLocationIndicator: showsBackgroundLocationIndicator ??
+          this.showsBackgroundLocationIndicator,
+      stationaryRadius: stationaryRadius ?? this.stationaryRadius,
+      desiredOdometerAccuracy:
+          desiredOdometerAccuracy ?? this.desiredOdometerAccuracy,
+      elasticityMultiplier: elasticityMultiplier ?? this.elasticityMultiplier,
+      speedJumpFilter: speedJumpFilter ?? this.speedJumpFilter,
+      stopOnStationary: stopOnStationary ?? this.stopOnStationary,
+      geofenceModeHighAccuracy:
+          geofenceModeHighAccuracy ?? this.geofenceModeHighAccuracy,
+      geofenceInitialTriggerEntry:
+          geofenceInitialTriggerEntry ?? this.geofenceInitialTriggerEntry,
+      geofenceProximityRadius:
+          geofenceProximityRadius ?? this.geofenceProximityRadius,
+      maxMonitoredGeofences:
+          maxMonitoredGeofences ?? this.maxMonitoredGeofences,
+      locationTimeout: locationTimeout ?? this.locationTimeout,
+      httpTimeout: httpTimeout ?? this.httpTimeout,
+      maxRetry: maxRetry ?? this.maxRetry,
+      retryDelay: retryDelay ?? this.retryDelay,
+      retryDelayMultiplier: retryDelayMultiplier ?? this.retryDelayMultiplier,
+      maxRetryDelay: maxRetryDelay ?? this.maxRetryDelay,
+      bgTaskId: bgTaskId ?? this.bgTaskId,
+      url: url ?? this.url,
+      method: method ?? this.method,
+      headers: headers ?? this.headers,
+      params: params ?? this.params,
+      extras: extras ?? this.extras,
+      autoSync: autoSync ?? this.autoSync,
+      batchSync: batchSync ?? this.batchSync,
+      maxBatchSize: maxBatchSize ?? this.maxBatchSize,
+      autoSyncThreshold: autoSyncThreshold ?? this.autoSyncThreshold,
+      disableAutoSyncOnCellular:
+          disableAutoSyncOnCellular ?? this.disableAutoSyncOnCellular,
+      queueMaxDays: queueMaxDays ?? this.queueMaxDays,
+      queueMaxRecords: queueMaxRecords ?? this.queueMaxRecords,
+      idempotencyHeader: idempotencyHeader ?? this.idempotencyHeader,
+      persistMode: persistMode ?? this.persistMode,
+      maxDaysToPersist: maxDaysToPersist ?? this.maxDaysToPersist,
+      maxRecordsToPersist: maxRecordsToPersist ?? this.maxRecordsToPersist,
+      locationTemplate: locationTemplate ?? this.locationTemplate,
+      geofenceTemplate: geofenceTemplate ?? this.geofenceTemplate,
+      httpRootProperty: httpRootProperty ?? this.httpRootProperty,
+      schedule: schedule ?? this.schedule,
+      scheduleUseAlarmManager:
+          scheduleUseAlarmManager ?? this.scheduleUseAlarmManager,
+      forceReloadOnBoot: forceReloadOnBoot ?? this.forceReloadOnBoot,
+      forceReloadOnLocationChange:
+          forceReloadOnLocationChange ?? this.forceReloadOnLocationChange,
+      forceReloadOnMotionChange:
+          forceReloadOnMotionChange ?? this.forceReloadOnMotionChange,
+      forceReloadOnGeofence:
+          forceReloadOnGeofence ?? this.forceReloadOnGeofence,
+      forceReloadOnHeartbeat:
+          forceReloadOnHeartbeat ?? this.forceReloadOnHeartbeat,
+      forceReloadOnSchedule:
+          forceReloadOnSchedule ?? this.forceReloadOnSchedule,
+      enableTimestampMeta: enableTimestampMeta ?? this.enableTimestampMeta,
+      notification: notification ?? this.notification,
+      logLevel: logLevel ?? this.logLevel,
+      logMaxDays: logMaxDays ?? this.logMaxDays,
+      heartbeatInterval: heartbeatInterval ?? this.heartbeatInterval,
+      backgroundPermissionRationale:
+          backgroundPermissionRationale ?? this.backgroundPermissionRationale,
+      triggerActivities: triggerActivities ?? this.triggerActivities,
+      adaptiveTracking: adaptiveTracking ?? this.adaptiveTracking,
+      lowBattery: lowBattery ?? this.lowBattery,
+      spoofDetection: spoofDetection ?? this.spoofDetection,
+    );
+  }
+
+  /// Converts to map.
+  JsonMap toMap() {
+    final map = <String, dynamic>{
+      'version': version,
+    };
+
+    void put(String key, dynamic value) {
+      if (value != null) {
+        map[key] = value;
+      }
+    }
+
+    put('desiredAccuracy', desiredAccuracy?.name);
+    put('distanceFilter', distanceFilter);
+    put('locationUpdateInterval', locationUpdateInterval);
+    put('fastestLocationUpdateInterval', fastestLocationUpdateInterval);
+    put('activityRecognitionInterval', activityRecognitionInterval);
+    put('stopTimeout', stopTimeout);
+    put('stopAfterElapsedMinutes', stopAfterElapsedMinutes);
+    put('stopDetectionDelay', stopDetectionDelay);
+    put('motionTriggerDelay', motionTriggerDelay);
+    put('minimumActivityRecognitionConfidence',
+        minimumActivityRecognitionConfidence);
+    put('useSignificantChangesOnly', useSignificantChangesOnly);
+    put('allowIdenticalLocations', allowIdenticalLocations);
+    put('disableMotionActivityUpdates', disableMotionActivityUpdates);
+    put('disableStopDetection', disableStopDetection);
+    put('disableProviderChangeRecord', disableProviderChangeRecord);
+    put('disableLocationAuthorizationAlert', disableLocationAuthorizationAlert);
+    put('enableHeadless', enableHeadless);
+    put('startOnBoot', startOnBoot);
+    put('stopOnTerminate', stopOnTerminate);
+    put('foregroundService', foregroundService);
+    put('preventSuspend', preventSuspend);
+    put('pausesLocationUpdatesAutomatically',
+        pausesLocationUpdatesAutomatically);
+    put('showsBackgroundLocationIndicator', showsBackgroundLocationIndicator);
+    put('stationaryRadius', stationaryRadius);
+    put('desiredOdometerAccuracy', desiredOdometerAccuracy);
+    put('elasticityMultiplier', elasticityMultiplier);
+    put('speedJumpFilter', speedJumpFilter);
+    put('stopOnStationary', stopOnStationary);
+    put('geofenceModeHighAccuracy', geofenceModeHighAccuracy);
+    put('geofenceInitialTriggerEntry', geofenceInitialTriggerEntry);
+    put('geofenceProximityRadius', geofenceProximityRadius);
+    put('maxMonitoredGeofences', maxMonitoredGeofences);
+    put('locationTimeout', locationTimeout);
+    put('httpTimeout', httpTimeout);
+    put('maxRetry', maxRetry);
+    put('retryDelay', retryDelay);
+    put('retryDelayMultiplier', retryDelayMultiplier);
+    put('maxRetryDelay', maxRetryDelay);
+    put('bgTaskId', bgTaskId);
+    put('url', url);
+    put('method', method);
+    put('headers', headers);
+    put('params', params);
+    put('extras', extras);
+    put('autoSync', autoSync);
+    put('batchSync', batchSync);
+    put('maxBatchSize', maxBatchSize);
+    put('autoSyncThreshold', autoSyncThreshold);
+    put('disableAutoSyncOnCellular', disableAutoSyncOnCellular);
+    put('queueMaxDays', queueMaxDays);
+    put('queueMaxRecords', queueMaxRecords);
+    put('idempotencyHeader', idempotencyHeader);
+    put('persistMode', persistMode?.name);
+    put('maxDaysToPersist', maxDaysToPersist);
+    put('maxRecordsToPersist', maxRecordsToPersist);
+    put('locationTemplate', locationTemplate);
+    put('geofenceTemplate', geofenceTemplate);
+    put('httpRootProperty', httpRootProperty);
+    put('schedule', schedule);
+    put('scheduleUseAlarmManager', scheduleUseAlarmManager);
+    put('forceReloadOnBoot', forceReloadOnBoot);
+    put('forceReloadOnLocationChange', forceReloadOnLocationChange);
+    put('forceReloadOnMotionChange', forceReloadOnMotionChange);
+    put('forceReloadOnGeofence', forceReloadOnGeofence);
+    put('forceReloadOnHeartbeat', forceReloadOnHeartbeat);
+    put('forceReloadOnSchedule', forceReloadOnSchedule);
+    put('enableTimestampMeta', enableTimestampMeta);
+    put('notification', notification?.toMap());
+    put('logLevel', logLevel?.name);
+    put('logMaxDays', logMaxDays);
+    put('heartbeatInterval', heartbeatInterval);
+    put('backgroundPermissionRationale',
+        backgroundPermissionRationale?.toMap());
+    put('triggerActivities', triggerActivities?.map((e) => e.name).toList());
+
+    put('adaptiveTracking', adaptiveTracking?.toMap());
+    put('lowBattery', lowBattery?.toMap());
+    put('spoofDetection', spoofDetection?.toMap());
+
+    return map;
   }
 
   static T? _parseEnum<T extends Enum>(String? value, List<T> values) {

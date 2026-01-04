@@ -39,7 +39,7 @@ void main() {
 
   group('Config Integration', () {
     test('ready sends validated config to native', () async {
-      final config = Config(
+      const config = Config(
         desiredAccuracy: DesiredAccuracy.high,
         distanceFilter: 10,
         autoSync: false,
@@ -55,7 +55,7 @@ void main() {
     });
 
     test('setConfig updates runtime config', () async {
-      final config = Config(
+      const config = Config(
         distanceFilter: 50,
         stopTimeout: 5,
       );
@@ -70,7 +70,7 @@ void main() {
 
   group('Location Operations', () {
     test('getCurrentPosition returns location', () async {
-      final location = await Locus.getCurrentPosition();
+      final location = await Locus.location.getCurrentPosition();
 
       expect(location, isA<Location>());
       expect(location.coords.latitude, isNot(0));
@@ -79,7 +79,7 @@ void main() {
     });
 
     test('getCurrentPosition with options', () async {
-      final location = await Locus.getCurrentPosition(
+      final location = await Locus.location.getCurrentPosition(
         timeout: 30000, // ms
         maximumAge: 60000, // ms
         desiredAccuracy: 0, // high
@@ -93,7 +93,7 @@ void main() {
     });
 
     test('getLocations returns stored locations', () async {
-      final locations = await Locus.getLocations(limit: 10);
+      final locations = await Locus.location.getLocations(limit: 10);
 
       expect(locations, isA<List<Location>>());
     });
@@ -111,7 +111,7 @@ void main() {
         notifyOnDwell: false,
       );
 
-      await Locus.addGeofence(geofence);
+      await Locus.geofencing.add(geofence);
 
       final call = methodCalls.firstWhere((c) => c.method == 'addGeofence');
       expect(call.arguments['identifier'], 'office');
@@ -135,7 +135,7 @@ void main() {
         ),
       ];
 
-      await Locus.addGeofences(geofences);
+      await Locus.geofencing.addAll(geofences);
 
       final call = methodCalls.firstWhere((c) => c.method == 'addGeofences');
       expect(call.arguments, isA<List>());
@@ -143,14 +143,14 @@ void main() {
     });
 
     test('removeGeofence removes by identifier', () async {
-      await Locus.removeGeofence('office');
+      await Locus.geofencing.remove('office');
 
       final call = methodCalls.firstWhere((c) => c.method == 'removeGeofence');
       expect(call.arguments, 'office');
     });
 
     test('getGeofences returns all geofences', () async {
-      final geofences = await Locus.getGeofences();
+      final geofences = await Locus.geofencing.getAll();
 
       expect(geofences, isA<List<Geofence>>());
     });
@@ -178,7 +178,7 @@ void main() {
     });
 
     test('changePace updates motion state', () async {
-      await Locus.changePace(true);
+      await Locus.location.changePace(true);
 
       final call = methodCalls.firstWhere((c) => c.method == 'changePace');
       expect(call.arguments, true);
@@ -187,13 +187,13 @@ void main() {
 
   group('HTTP Sync', () {
     test('sync triggers server sync', () async {
-      await Locus.sync();
+      await Locus.dataSync.now();
 
       expect(methodCalls.any((c) => c.method == 'sync'), true);
     });
 
     test('destroyLocations clears stored locations', () async {
-      await Locus.destroyLocations();
+      await Locus.location.destroyLocations();
 
       expect(methodCalls.any((c) => c.method == 'destroyLocations'), true);
     });
@@ -209,21 +209,21 @@ void main() {
 
   group('Battery Optimization Integration', () {
     test('adaptive tracking config is applied', () async {
-      await Locus.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
+      await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
 
-      final config = Locus.adaptiveTrackingConfig;
+      final config = Locus.battery.adaptiveTrackingConfig;
       expect(config, isNotNull);
       expect(config!.enabled, true);
     });
 
     test('sync policy is applied', () async {
-      await Locus.setSyncPolicy(SyncPolicy.conservative);
+      await Locus.dataSync.setPolicy(SyncPolicy.conservative);
 
       expect(methodCalls.any((c) => c.method == 'setSyncPolicy'), true);
     });
 
     test('power state can be retrieved', () async {
-      final power = await Locus.getPowerState();
+      final power = await Locus.battery.getPowerState();
 
       expect(power, isA<PowerState>());
       expect(power.batteryLevel, greaterThanOrEqualTo(0));
@@ -231,7 +231,7 @@ void main() {
     });
 
     test('battery stats can be retrieved', () async {
-      final stats = await Locus.getBatteryStats();
+      final stats = await Locus.battery.getStats();
 
       expect(stats, isA<BatteryStats>());
     });
@@ -288,20 +288,20 @@ void main() {
 
   group('Complex Workflows', () {
     test('complete tracking workflow', () async {
-      await Locus.ready(Config(
+      await Locus.ready(const Config(
         desiredAccuracy: DesiredAccuracy.high,
         distanceFilter: 10,
         autoSync: false,
       ));
 
-      await Locus.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
-      await Locus.setSyncPolicy(SyncPolicy.balanced);
+      await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
+      await Locus.dataSync.setPolicy(SyncPolicy.balanced);
 
       Locus.setErrorHandler(ErrorRecoveryConfig.defaults);
 
       await Locus.start();
 
-      final location = await Locus.getCurrentPosition();
+      final location = await Locus.location.getCurrentPosition();
       expect(location, isNotNull);
 
       final state = await Locus.getState();
@@ -322,7 +322,7 @@ void main() {
     });
 
     test('geofence workflow', () async {
-      await Locus.addGeofences([
+      await Locus.geofencing.addAll([
         const Geofence(
           identifier: 'zone_a',
           latitude: 37.0,
@@ -337,23 +337,23 @@ void main() {
         ),
       ]);
 
-      final geofences = await Locus.getGeofences();
+      final geofences = await Locus.geofencing.getAll();
       expect(geofences, isA<List<Geofence>>());
 
       final isIn = await Locus.isInActiveGeofence();
       expect(isIn, isA<bool>());
 
-      await Locus.removeGeofence('zone_a');
-      await Locus.removeGeofences();
+      await Locus.geofencing.remove('zone_a');
+      await Locus.geofencing.removeAll();
 
       expect(methodCalls.where((c) => c.method.contains('Geofence')).length,
           greaterThan(0));
     });
 
     test('battery optimization workflow', () async {
-      final power = await Locus.getPowerState();
+      final power = await Locus.battery.getPowerState();
 
-      await Locus.setAdaptiveTracking(AdaptiveTrackingConfig(
+      await Locus.battery.setAdaptiveTracking(const AdaptiveTrackingConfig(
         enabled: true,
         batteryThresholds: BatteryThresholds(
           lowThreshold: 20,
@@ -361,7 +361,7 @@ void main() {
         ),
       ));
 
-      final settings = await Locus.calculateAdaptiveSettings();
+      final settings = await Locus.battery.calculateAdaptiveSettings();
 
       if (power.batteryLevel < 10) {
         expect(settings.gpsEnabled, false);
@@ -374,7 +374,7 @@ void main() {
   group('Location Processing Integration', () {
     test('polygon geofence service is registered with streams', () async {
       // Adding a polygon geofence should work without errors
-      final polygon = PolygonGeofence(
+      const polygon = PolygonGeofence(
         identifier: 'test-polygon',
         vertices: [
           GeoPoint(latitude: 37.0, longitude: -122.0),
@@ -384,15 +384,15 @@ void main() {
         ],
       );
 
-      final added = await Locus.addPolygonGeofence(polygon);
+      final added = await Locus.geofencing.addPolygon(polygon);
       expect(added, isTrue);
 
-      final polygons = await Locus.getPolygonGeofences();
+      final polygons = await Locus.geofencing.getAllPolygons();
       expect(polygons.length, 1);
       expect(polygons.first.identifier, 'test-polygon');
 
       // Clean up
-      await Locus.removeAllPolygonGeofences();
+      await Locus.geofencing.removeAllPolygons();
     });
 
     test('privacy zone service is registered with streams', () async {
@@ -405,14 +405,14 @@ void main() {
         action: PrivacyZoneAction.obfuscate,
       );
 
-      await Locus.addPrivacyZone(zone);
+      await Locus.privacy.add(zone);
 
-      final zones = await Locus.getPrivacyZones();
+      final zones = await Locus.privacy.getAll();
       expect(zones.length, 1);
       expect(zones.first.identifier, 'test-privacy-zone');
 
       // Clean up
-      await Locus.removeAllPrivacyZones();
+      await Locus.privacy.removeAll();
     });
   });
 }

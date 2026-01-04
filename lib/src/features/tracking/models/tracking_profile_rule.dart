@@ -9,13 +9,6 @@ enum TrackingProfileRuleType {
 }
 
 class TrackingProfileRule {
-  final TrackingProfile profile;
-  final TrackingProfileRuleType type;
-  final ActivityType? activity;
-  final GeofenceAction? geofenceAction;
-  final String? geofenceIdentifier;
-  final double? speedKph;
-  final int cooldownSeconds;
 
   const TrackingProfileRule({
     required this.profile,
@@ -26,4 +19,11 @@ class TrackingProfileRule {
     this.speedKph,
     this.cooldownSeconds = 30,
   });
+  final TrackingProfile profile;
+  final TrackingProfileRuleType type;
+  final ActivityType? activity;
+  final GeofenceAction? geofenceAction;
+  final String? geofenceIdentifier;
+  final double? speedKph;
+  final int cooldownSeconds;
 }

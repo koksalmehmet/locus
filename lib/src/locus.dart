@@ -20,6 +20,30 @@ export 'package:locus/src/features/location/models/location_history.dart'
 /// Main class for interacting with background geolocation services.
 ///
 /// This class serves as a facade for the core Locus modules.
+///
+/// ## v2.0 Service API
+///
+/// Access organized services via static getters:
+/// ```dart
+/// // Location operations
+/// await Locus.location.getCurrentPosition();
+/// Locus.location.stream.listen((loc) => print(loc));
+///
+/// // Geofencing
+/// await Locus.geofencing.add(geofence);
+///
+/// // Privacy zones
+/// await Locus.privacy.add(zone);
+///
+/// // Trip tracking
+/// await Locus.trips.start(config);
+///
+/// // Data sync
+/// await Locus.sync.now();
+///
+/// // Battery optimization
+/// await Locus.battery.estimateRunway();
+/// ```
 class Locus {
   static LocusInterface _instance = MethodChannelLocus();
 
@@ -30,6 +54,65 @@ class Locus {
   static void setMockInstance(LocusInterface mock) {
     _instance = mock;
   }
+
+  // ============================================================
+  // v2.0 Service API
+  // ============================================================
+
+  /// Location service for getting positions, tracking, and history.
+  ///
+  /// Example:
+  /// ```dart
+  /// final position = await Locus.location.getCurrentPosition();
+  /// Locus.location.stream.listen((loc) => print(loc));
+  /// ```
+  static final LocationService location = LocationServiceImpl(() => _instance);
+
+  /// Geofencing service for circular, polygon geofences and workflows.
+  ///
+  /// Example:
+  /// ```dart
+  /// await Locus.geofencing.add(Geofence(...));
+  /// Locus.geofencing.events.listen((event) => print(event));
+  /// ```
+  static final GeofenceService geofencing =
+      GeofenceServiceImpl(() => _instance);
+
+  /// Privacy service for managing privacy zones.
+  ///
+  /// Example:
+  /// ```dart
+  /// await Locus.privacy.add(PrivacyZone.create(...));
+  /// ```
+  static final PrivacyService privacy = PrivacyServiceImpl(() => _instance);
+
+  /// Trip service for tracking journeys.
+  ///
+  /// Example:
+  /// ```dart
+  /// await Locus.trips.start(TripConfig(...));
+  /// final summary = Locus.trips.stop();
+  /// ```
+  static final TripService trips = TripServiceImpl(() => _instance);
+
+  /// Sync service for data synchronization and queue management.
+  ///
+  /// Example:
+  /// ```dart
+  /// await Locus.dataSync.now();
+  /// await Locus.dataSync.enqueue({'type': 'check-in'});
+  /// ```
+  static final SyncService dataSync = SyncServiceImpl(() => _instance);
+
+  /// Battery service for power management and adaptive tracking.
+  ///
+  /// Example:
+  /// ```dart
+  /// final runway = await Locus.battery.estimateRunway();
+  /// await Locus.battery.setAdaptiveTracking(config);
+  /// ```
+  static final BatteryService battery = BatteryServiceImpl(() => _instance);
+
   // ============================================================
   // Event Stream
   // ============================================================
@@ -57,267 +140,6 @@ class Locus {
 
   /// Gets the current state of the service.
   static Future<GeolocationState> getState() => _instance.getState();
-
-  // ============================================================
-  // Location Methods
-  // ============================================================
-
-  /// Gets the current position.
-  static Future<Location> getCurrentPosition({
-    int? samples,
-    int? timeout,
-    int? maximumAge,
-    bool? persist,
-    int? desiredAccuracy,
-    JsonMap? extras,
-  }) {
-    return _instance.getCurrentPosition(
-      samples: samples,
-      timeout: timeout,
-      maximumAge: maximumAge,
-      persist: persist,
-      desiredAccuracy: desiredAccuracy,
-      extras: extras,
-    );
-  }
-
-  /// Gets stored locations.
-  static Future<List<Location>> getLocations({int? limit}) {
-    return _instance.getLocations(limit: limit);
-  }
-
-  /// Queries stored locations with filtering and pagination.
-  ///
-  /// Use [query] to filter locations by time range, accuracy, bounding box,
-  /// and to limit/offset results.
-  ///
-  /// Example:
-  /// ```dart
-  /// // Get high-accuracy locations from the last hour
-  /// final query = LocationQuery(
-  ///   from: DateTime.now().subtract(Duration(hours: 1)),
-  ///   to: DateTime.now(),
-  ///   minAccuracy: 20,
-  ///   limit: 100,
-  /// );
-  /// final locations = await Locus.queryLocations(query);
-  /// ```
-  static Future<List<Location>> queryLocations(LocationQuery query) {
-    return _instance.queryLocations(query);
-  }
-
-  /// Gets a summary of location history.
-  ///
-  /// Returns statistics about locations including total distance traveled,
-  /// time moving vs stationary, frequently visited locations, and more.
-  ///
-  /// If [date] is provided, returns summary for that specific day.
-  /// If [query] is provided, returns summary for locations matching the query.
-  /// If neither is provided, returns summary for today.
-  ///
-  /// Example:
-  /// ```dart
-  /// // Get summary for today
-  /// final summary = await Locus.getLocationSummary();
-  /// print('Distance traveled: ${summary.totalDistance}m');
-  /// print('Time moving: ${summary.movingDuration.inMinutes} min');
-  ///
-  /// // Get summary for a specific date
-  /// final yesterday = DateTime.now().subtract(Duration(days: 1));
-  /// final yesterdaySummary = await Locus.getLocationSummary(date: yesterday);
-  ///
-  /// // Get summary with custom query
-  /// final query = LocationQuery(
-  ///   from: DateTime(2024, 1, 1),
-  ///   to: DateTime(2024, 1, 31),
-  /// );
-  /// final monthSummary = await Locus.getLocationSummary(query: query);
-  /// ```
-  static Future<LocationSummary> getLocationSummary({
-    DateTime? date,
-    LocationQuery? query,
-  }) {
-    return _instance.getLocationSummary(date: date, query: query);
-  }
-
-  /// Changes the motion state (moving/stationary).
-  static Future<bool> changePace(bool isMoving) {
-    return _instance.changePace(isMoving);
-  }
-
-  /// Sets the odometer value.
-  static Future<double> setOdometer(double value) {
-    return _instance.setOdometer(value);
-  }
-
-  // ============================================================
-  // Geofencing Methods
-  // ============================================================
-
-  /// Adds a single geofence.
-  static Future<bool> addGeofence(Geofence geofence) {
-    return _instance.addGeofence(geofence);
-  }
-
-  /// Adds multiple geofences.
-  static Future<bool> addGeofences(List<Geofence> geofences) {
-    return _instance.addGeofences(geofences);
-  }
-
-  /// Removes a geofence by identifier.
-  static Future<bool> removeGeofence(String identifier) {
-    return _instance.removeGeofence(identifier);
-  }
-
-  /// Removes all geofences.
-  static Future<bool> removeGeofences() {
-    return _instance.removeGeofences();
-  }
-
-  /// Gets all registered geofences.
-  static Future<List<Geofence>> getGeofences() {
-    return _instance.getGeofences();
-  }
-
-  /// Gets a geofence by identifier.
-  static Future<Geofence?> getGeofence(String identifier) {
-    return _instance.getGeofence(identifier);
-  }
-
-  /// Checks if a geofence exists.
-  static Future<bool> geofenceExists(String identifier) {
-    return _instance.geofenceExists(identifier);
-  }
-
-  /// Starts geofence-only mode.
-  static Future<bool> startGeofences() {
-    return _instance.startGeofences();
-  }
-
-  // ============================================================
-  // Polygon Geofencing Methods
-  // ============================================================
-
-  /// Adds a polygon geofence.
-  ///
-  /// Polygon geofences allow defining irregular shapes for geofencing,
-  /// such as building outlines, parking lots, or delivery zones.
-  ///
-  /// Example:
-  /// ```dart
-  /// await Locus.addPolygonGeofence(PolygonGeofence(
-  ///   identifier: 'parking-lot',
-  ///   vertices: [
-  ///     GeoPoint(latitude: 37.4219, longitude: -122.0840),
-  ///     GeoPoint(latitude: 37.4220, longitude: -122.0830),
-  ///     GeoPoint(latitude: 37.4215, longitude: -122.0828),
-  ///     GeoPoint(latitude: 37.4214, longitude: -122.0838),
-  ///   ],
-  /// ));
-  /// ```
-  static Future<bool> addPolygonGeofence(PolygonGeofence polygon) {
-    return _instance.addPolygonGeofence(polygon);
-  }
-
-  /// Adds multiple polygon geofences.
-  ///
-  /// Returns the number of polygons successfully added.
-  static Future<int> addPolygonGeofences(List<PolygonGeofence> polygons) {
-    return _instance.addPolygonGeofences(polygons);
-  }
-
-  /// Removes a polygon geofence by identifier.
-  static Future<bool> removePolygonGeofence(String identifier) {
-    return _instance.removePolygonGeofence(identifier);
-  }
-
-  /// Removes all polygon geofences.
-  static Future<void> removeAllPolygonGeofences() {
-    return _instance.removeAllPolygonGeofences();
-  }
-
-  /// Gets all registered polygon geofences.
-  static Future<List<PolygonGeofence>> getPolygonGeofences() {
-    return _instance.getPolygonGeofences();
-  }
-
-  /// Gets a polygon geofence by identifier.
-  static Future<PolygonGeofence?> getPolygonGeofence(String identifier) {
-    return _instance.getPolygonGeofence(identifier);
-  }
-
-  /// Checks if a polygon geofence exists.
-  static Future<bool> polygonGeofenceExists(String identifier) {
-    return _instance.polygonGeofenceExists(identifier);
-  }
-
-  /// Stream of polygon geofence events (enter, exit, dwell).
-  static Stream<PolygonGeofenceEvent> get polygonGeofenceEvents {
-    return _instance.polygonGeofenceEvents;
-  }
-
-  // ============================================================
-  // Privacy Zone Methods
-  // ============================================================
-
-  /// Adds a privacy zone where location data will be obfuscated or excluded.
-  ///
-  /// Privacy zones support GDPR and privacy compliance by allowing users
-  /// to define areas where their location should be protected.
-  ///
-  /// Example:
-  /// ```dart
-  /// await Locus.addPrivacyZone(PrivacyZone.create(
-  ///   identifier: 'home',
-  ///   latitude: 37.7749,
-  ///   longitude: -122.4194,
-  ///   radius: 100.0,
-  ///   action: PrivacyZoneAction.obfuscate,
-  ///   obfuscationRadius: 500.0,
-  /// ));
-  /// ```
-  static Future<void> addPrivacyZone(PrivacyZone zone) {
-    return _instance.addPrivacyZone(zone);
-  }
-
-  /// Adds multiple privacy zones.
-  static Future<void> addPrivacyZones(List<PrivacyZone> zones) {
-    return _instance.addPrivacyZones(zones);
-  }
-
-  /// Removes a privacy zone by identifier.
-  static Future<bool> removePrivacyZone(String identifier) {
-    return _instance.removePrivacyZone(identifier);
-  }
-
-  /// Removes all privacy zones.
-  static Future<void> removeAllPrivacyZones() {
-    return _instance.removeAllPrivacyZones();
-  }
-
-  /// Gets a privacy zone by identifier.
-  static Future<PrivacyZone?> getPrivacyZone(String identifier) {
-    return _instance.getPrivacyZone(identifier);
-  }
-
-  /// Gets all registered privacy zones.
-  static Future<List<PrivacyZone>> getPrivacyZones() {
-    return _instance.getPrivacyZones();
-  }
-
-  /// Enables or disables a privacy zone.
-  static Future<bool> setPrivacyZoneEnabled(String identifier, bool enabled) {
-    return _instance.setPrivacyZoneEnabled(identifier, enabled);
-  }
-
-  /// Stream of privacy zone change events.
-  static Stream<PrivacyZoneEvent> get privacyZoneEvents =>
-      _instance.privacyZoneEvents;
-
-  /// Registers a callback for privacy zone changes.
-  static void onPrivacyZoneChange(void Function(PrivacyZoneEvent) callback) {
-    _instance.privacyZoneEvents.listen(callback);
-  }
 
   // ============================================================
   // Configuration Methods
@@ -350,25 +172,6 @@ class Locus {
   /// Stops the schedule.
   static Future<bool> stopSchedule() {
     return _instance.stopSchedule();
-  }
-
-  // ============================================================
-  // Sync Methods
-  // ============================================================
-
-  /// Triggers an immediate sync of pending locations.
-  static Future<bool> sync() {
-    return _instance.sync();
-  }
-
-  /// Resumes sync after a pause (e.g., 401 token refresh).
-  static Future<bool> resumeSync() {
-    return _instance.resumeSync();
-  }
-
-  /// Destroys all stored locations.
-  static Future<bool> destroyLocations() {
-    return _instance.destroyLocations();
   }
 
   // ============================================================
@@ -464,45 +267,6 @@ class Locus {
     return _instance.getLog();
   }
 
-  /// Emails the log to the given address.
-  static Future<void> emailLog(String email) async {
-    await _instance.emailLog(email);
-  }
-
-  /// Plays a system sound.
-  static Future<void> playSound(String name) async {
-    await _instance.playSound(name);
-  }
-
-  // ============================================================
-  // Queue Methods
-  // ============================================================
-
-  /// Enqueues a custom payload for offline-first delivery.
-  static Future<String> enqueue(
-    JsonMap payload, {
-    String? type,
-    String? idempotencyKey,
-  }) {
-    return _instance.enqueue(payload,
-        type: type, idempotencyKey: idempotencyKey);
-  }
-
-  /// Returns queued payloads.
-  static Future<List<QueueItem>> getQueue({int? limit}) {
-    return _instance.getQueue(limit: limit);
-  }
-
-  /// Clears all queued payloads.
-  static Future<void> clearQueue() {
-    return _instance.clearQueue();
-  }
-
-  /// Attempts to sync queued payloads immediately.
-  static Future<int> syncQueue({int? limit}) {
-    return _instance.syncQueue(limit: limit);
-  }
-
   // ============================================================
   // Permissions
   // ============================================================
@@ -510,60 +274,6 @@ class Locus {
   /// Requests all required permissions.
   static Future<bool> requestPermission() {
     return _instance.requestPermission();
-  }
-
-  // ============================================================
-  // State-Agnostic Streams
-  // ============================================================
-
-  /// Stream of location updates.
-  static Stream<Location> get locationStream {
-    return _instance.locationStream;
-  }
-
-  /// Stream of motion change events (moving/stationary transitions).
-  static Stream<Location> get motionChangeStream {
-    return _instance.motionChangeStream;
-  }
-
-  /// Stream of activity recognition updates.
-  static Stream<Activity> get activityStream {
-    return _instance.activityStream;
-  }
-
-  /// Stream of geofence crossing events.
-  static Stream<GeofenceEvent> get geofenceStream {
-    return _instance.geofenceStream;
-  }
-
-  /// Stream of provider state changes.
-  static Stream<ProviderChangeEvent> get providerStream {
-    return _instance.providerStream;
-  }
-
-  /// Stream of connectivity changes.
-  static Stream<ConnectivityChangeEvent> get connectivityStream {
-    return _instance.connectivityStream;
-  }
-
-  /// Stream of heartbeat events.
-  static Stream<Location> get heartbeatStream {
-    return _instance.heartbeatStream;
-  }
-
-  /// Stream of HTTP sync events.
-  static Stream<HttpEvent> get httpStream {
-    return _instance.httpStream;
-  }
-
-  /// Stream of enabled state changes.
-  static Stream<bool> get enabledStream {
-    return _instance.enabledStream;
-  }
-
-  /// Stream of power save mode changes.
-  static Stream<bool> get powerSaveStream {
-    return _instance.powerSaveStream;
   }
 
   // ============================================================
@@ -585,121 +295,6 @@ class Locus {
   /// Manually triggers a header update.
   static Future<void> refreshHeaders() async {
     await _instance.refreshHeaders();
-  }
-
-  // ============================================================
-  // Typed Event Subscriptions
-  // ============================================================
-
-  static StreamSubscription<Location> onLocation(
-    void Function(Location) callback, {
-    Function? onError,
-  }) {
-    return _instance.onLocation(callback, onError: onError);
-  }
-
-  static StreamSubscription<Location> onMotionChange(
-    void Function(Location) callback, {
-    Function? onError,
-  }) {
-    return _instance.onMotionChange(callback, onError: onError);
-  }
-
-  static StreamSubscription<Activity> onActivityChange(
-    void Function(Activity) callback, {
-    Function? onError,
-  }) {
-    return _instance.onActivityChange(callback, onError: onError);
-  }
-
-  static StreamSubscription<ProviderChangeEvent> onProviderChange(
-    void Function(ProviderChangeEvent) callback, {
-    Function? onError,
-  }) {
-    return _instance.onProviderChange(callback, onError: onError);
-  }
-
-  static StreamSubscription<GeofenceEvent> onGeofence(
-    void Function(GeofenceEvent) callback, {
-    Function? onError,
-  }) {
-    return _instance.onGeofence(callback, onError: onError);
-  }
-
-  static StreamSubscription<dynamic> onGeofencesChange(
-    void Function(dynamic) callback, {
-    Function? onError,
-  }) {
-    return _instance.onGeofencesChange(callback, onError: onError);
-  }
-
-  static StreamSubscription<Location> onHeartbeat(
-    void Function(Location) callback, {
-    Function? onError,
-  }) {
-    return _instance.onHeartbeat(callback, onError: onError);
-  }
-
-  static StreamSubscription<Location> onSchedule(
-    void Function(Location) callback, {
-    Function? onError,
-  }) {
-    return _instance.onSchedule(callback, onError: onError);
-  }
-
-  static StreamSubscription<ConnectivityChangeEvent> onConnectivityChange(
-    void Function(ConnectivityChangeEvent) callback, {
-    Function? onError,
-  }) {
-    return _instance.onConnectivityChange(callback, onError: onError);
-  }
-
-  static StreamSubscription<bool> onPowerSaveChange(
-    void Function(bool) callback, {
-    Function? onError,
-  }) {
-    return _instance.onPowerSaveChange(callback, onError: onError);
-  }
-
-  static StreamSubscription<bool> onEnabledChange(
-    void Function(bool) callback, {
-    Function? onError,
-  }) {
-    return _instance.onEnabledChange(callback, onError: onError);
-  }
-
-  static StreamSubscription<String> onNotificationAction(
-    void Function(String) callback, {
-    Function? onError,
-  }) {
-    return _instance.onNotificationAction(callback, onError: onError);
-  }
-
-  static StreamSubscription<HttpEvent> onHttp(
-    void Function(HttpEvent) callback, {
-    Function? onError,
-  }) {
-    return _instance.onHttp(callback, onError: onError);
-  }
-
-  // ============================================================
-  // Trip Lifecycle
-  // ============================================================
-
-  static Future<void> startTrip(TripConfig config) =>
-      _instance.startTrip(config);
-
-  static TripSummary? stopTrip() => _instance.stopTrip();
-
-  static TripState? getTripState() => _instance.getTripState();
-
-  static Stream<TripEvent> get tripEvents => _instance.tripEvents;
-
-  static StreamSubscription<TripEvent> onTripEvent(
-    void Function(TripEvent event) callback, {
-    Function? onError,
-  }) {
-    return _instance.onTripEvent(callback, onError: onError);
   }
 
   // ============================================================
@@ -730,77 +325,6 @@ class Locus {
   static void stopTrackingAutomation() => _instance.stopTrackingAutomation();
 
   static void clearTrackingProfiles() => _instance.clearTrackingProfiles();
-
-  // ============================================================
-  // Geofence Workflows
-  // ============================================================
-
-  static Stream<GeofenceWorkflowEvent> get workflowEvents =>
-      _instance.workflowEvents;
-
-  static StreamSubscription<GeofenceWorkflowEvent> onWorkflowEvent(
-    void Function(GeofenceWorkflowEvent event) callback, {
-    Function? onError,
-  }) {
-    return _instance.onWorkflowEvent(callback, onError: onError);
-  }
-
-  static void registerGeofenceWorkflows(List<GeofenceWorkflow> workflows) =>
-      _instance.registerGeofenceWorkflows(workflows);
-
-  static GeofenceWorkflowState? getWorkflowState(String workflowId) =>
-      _instance.getWorkflowState(workflowId);
-
-  static void clearGeofenceWorkflows() => _instance.clearGeofenceWorkflows();
-
-  static void stopGeofenceWorkflows() => _instance.stopGeofenceWorkflows();
-
-  // ============================================================
-  // Battery Optimization
-  // ============================================================
-
-  static Future<BatteryStats> getBatteryStats() => _instance.getBatteryStats();
-
-  static Future<PowerState> getPowerState() => _instance.getPowerState();
-
-  /// Estimates remaining battery runway for location tracking.
-  ///
-  /// Returns predictions for how long tracking can continue at current
-  /// and low power consumption rates, along with actionable recommendations.
-  ///
-  /// Example:
-  /// ```dart
-  /// final runway = await Locus.estimateBatteryRunway();
-  /// print('Current rate: ${runway.formattedDuration}');
-  /// print('Low power mode: ${runway.formattedLowPowerDuration}');
-  /// print('Recommendation: ${runway.recommendation}');
-  ///
-  /// if (runway.shouldSwitchToLowPower) {
-  ///   // Consider switching to a more battery-efficient profile
-  /// }
-  /// ```
-  static Future<BatteryRunway> estimateBatteryRunway() =>
-      _instance.estimateBatteryRunway();
-
-  static Stream<PowerStateChangeEvent> get powerStateStream =>
-      _instance.powerStateStream;
-
-  static StreamSubscription<PowerStateChangeEvent> onPowerStateChangeWithObj(
-    void Function(PowerStateChangeEvent event) callback, {
-    Function? onError,
-  }) {
-    return _instance.onPowerStateChangeWithObj(callback, onError: onError);
-  }
-
-  static Future<void> setAdaptiveTracking(AdaptiveTrackingConfig config) =>
-      _instance.setAdaptiveTracking(config);
-
-  static AdaptiveTrackingConfig? get adaptiveTrackingConfig =>
-      _instance.adaptiveTrackingConfig;
-
-  /// Calculates optimal settings based on current conditions.
-  static Future<AdaptiveSettings> calculateAdaptiveSettings() =>
-      _instance.calculateAdaptiveSettings();
 
   // ============================================================
   // Advanced Features
@@ -918,10 +442,6 @@ class Locus {
   // ============================================================
   // Sync Policy
   // ============================================================
-
-  static Future<void> setSyncPolicy(SyncPolicy policy) async {
-    await _instance.setSyncPolicy(policy);
-  }
 
   static Future<SyncDecision> evaluateSyncPolicy({
     required SyncPolicy policy,

@@ -15,18 +15,6 @@ enum TripEventType {
 }
 
 class TripEvent {
-  final TripEventType type;
-  final String tripId;
-  final DateTime timestamp;
-  final Location? location;
-  final TripSummary? summary;
-  final double? distanceFromRouteMeters;
-  final bool? isMoving;
-  final String? message;
-  final JsonMap? data;
-
-  /// Index of reached waypoint (present for waypointReached events).
-  final int? waypointIndex;
 
   const TripEvent({
     required this.type,
@@ -71,6 +59,18 @@ class TripEvent {
       isMoving: true,
     );
   }
+  final TripEventType type;
+  final String tripId;
+  final DateTime timestamp;
+  final Location? location;
+  final TripSummary? summary;
+  final double? distanceFromRouteMeters;
+  final bool? isMoving;
+  final String? message;
+  final JsonMap? data;
+
+  /// Index of reached waypoint (present for waypointReached events).
+  final int? waypointIndex;
 
   JsonMap toMap() => {
         'type': type.name,

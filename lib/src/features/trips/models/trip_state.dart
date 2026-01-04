@@ -3,16 +3,6 @@ import 'package:locus/src/features/location/models/location.dart';
 import 'package:locus/src/features/trips/models/trip_summary.dart';
 
 class TripState {
-  final String tripId;
-  final DateTime createdAt;
-  final DateTime? startedAt;
-  final Location? startLocation;
-  final Location? lastLocation;
-  final double distanceMeters;
-  final int idleSeconds;
-  final double maxSpeedKph;
-  final bool started;
-  final bool ended;
 
   const TripState({
     required this.tripId,
@@ -26,19 +16,6 @@ class TripState {
     required this.started,
     required this.ended,
   });
-
-  JsonMap toMap() => {
-        'tripId': tripId,
-        'createdAt': createdAt.toIso8601String(),
-        if (startedAt != null) 'startedAt': startedAt!.toIso8601String(),
-        if (startLocation != null) 'startLocation': startLocation!.toMap(),
-        if (lastLocation != null) 'lastLocation': lastLocation!.toMap(),
-        'distanceMeters': distanceMeters,
-        'idleSeconds': idleSeconds,
-        'maxSpeedKph': maxSpeedKph,
-        'started': started,
-        'ended': ended,
-      };
 
   factory TripState.fromMap(JsonMap map) {
     final startLoc = map['startLocation'];
@@ -65,6 +42,29 @@ class TripState {
       ended: map['ended'] as bool? ?? false,
     );
   }
+  final String tripId;
+  final DateTime createdAt;
+  final DateTime? startedAt;
+  final Location? startLocation;
+  final Location? lastLocation;
+  final double distanceMeters;
+  final int idleSeconds;
+  final double maxSpeedKph;
+  final bool started;
+  final bool ended;
+
+  JsonMap toMap() => {
+        'tripId': tripId,
+        'createdAt': createdAt.toIso8601String(),
+        if (startedAt != null) 'startedAt': startedAt!.toIso8601String(),
+        if (startLocation != null) 'startLocation': startLocation!.toMap(),
+        if (lastLocation != null) 'lastLocation': lastLocation!.toMap(),
+        'distanceMeters': distanceMeters,
+        'idleSeconds': idleSeconds,
+        'maxSpeedKph': maxSpeedKph,
+        'started': started,
+        'ended': ended,
+      };
 
   TripSummary? toSummary(DateTime endedAt) {
     if (startedAt == null) {

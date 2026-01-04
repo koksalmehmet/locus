@@ -1,10 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class HttpEvent {
-  final int status;
-  final bool ok;
-  final String? responseText;
-  final JsonMap? response;
 
   const HttpEvent({
     required this.status,
@@ -12,13 +8,6 @@ class HttpEvent {
     this.responseText,
     this.response,
   });
-
-  JsonMap toMap() => {
-        'status': status,
-        'ok': ok,
-        if (responseText != null) 'responseText': responseText,
-        if (response != null) 'response': response,
-      };
 
   factory HttpEvent.fromMap(JsonMap map) {
     return HttpEvent(
@@ -28,4 +17,15 @@ class HttpEvent {
       response: map['response'] as JsonMap?,
     );
   }
+  final int status;
+  final bool ok;
+  final String? responseText;
+  final JsonMap? response;
+
+  JsonMap toMap() => {
+        'status': status,
+        'ok': ok,
+        if (responseText != null) 'responseText': responseText,
+        if (response != null) 'response': response,
+      };
 }

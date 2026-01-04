@@ -3,15 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:locus/src/shared/models/json_map.dart';
 
 class Geofence {
-  final String identifier;
-  final double radius;
-  final double latitude;
-  final double longitude;
-  final bool notifyOnEntry;
-  final bool notifyOnExit;
-  final bool notifyOnDwell;
-  final int? loiteringDelay;
-  final JsonMap? extras;
 
   const Geofence({
     required this.identifier,
@@ -24,33 +15,6 @@ class Geofence {
     this.loiteringDelay,
     this.extras,
   });
-
-  /// Returns true if this geofence has valid configuration.
-  ///
-  /// A geofence is valid if:
-  /// - identifier is not empty
-  /// - radius is greater than 0
-  /// - latitude is between -90 and 90
-  /// - longitude is between -180 and 180
-  bool get isValid =>
-      identifier.isNotEmpty &&
-      radius > 0 &&
-      latitude >= -90 &&
-      latitude <= 90 &&
-      longitude >= -180 &&
-      longitude <= 180;
-
-  JsonMap toMap() => {
-        'identifier': identifier,
-        'radius': radius,
-        'latitude': latitude,
-        'longitude': longitude,
-        'notifyOnEntry': notifyOnEntry,
-        'notifyOnExit': notifyOnExit,
-        'notifyOnDwell': notifyOnDwell,
-        if (loiteringDelay != null) 'loiteringDelay': loiteringDelay,
-        if (extras != null) 'extras': extras,
-      };
 
   factory Geofence.fromMap(JsonMap map) {
     final identifier = map['identifier'];
@@ -85,6 +49,42 @@ class Geofence {
       extras: extrasData is Map ? Map<String, dynamic>.from(extrasData) : null,
     );
   }
+  final String identifier;
+  final double radius;
+  final double latitude;
+  final double longitude;
+  final bool notifyOnEntry;
+  final bool notifyOnExit;
+  final bool notifyOnDwell;
+  final int? loiteringDelay;
+  final JsonMap? extras;
+
+  /// Returns true if this geofence has valid configuration.
+  ///
+  /// A geofence is valid if:
+  /// - identifier is not empty
+  /// - radius is greater than 0
+  /// - latitude is between -90 and 90
+  /// - longitude is between -180 and 180
+  bool get isValid =>
+      identifier.isNotEmpty &&
+      radius > 0 &&
+      latitude >= -90 &&
+      latitude <= 90 &&
+      longitude >= -180 &&
+      longitude <= 180;
+
+  JsonMap toMap() => {
+        'identifier': identifier,
+        'radius': radius,
+        'latitude': latitude,
+        'longitude': longitude,
+        'notifyOnEntry': notifyOnEntry,
+        'notifyOnExit': notifyOnExit,
+        'notifyOnDwell': notifyOnDwell,
+        if (loiteringDelay != null) 'loiteringDelay': loiteringDelay,
+        if (extras != null) 'extras': extras,
+      };
 
   @override
   String toString() =>

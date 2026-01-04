@@ -12,3 +12,14 @@ linter:
     avoid_print: true
     avoid_relative_lib_imports: true
     always_use_package_imports: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+    use_super_parameters: true
+    unnecessary_late: true
+    prefer_single_quotes: true
+    sort_constructors_first: true
+    unawaited_futures: true
+    cancel_subscriptions: true
+    close_sinks: true

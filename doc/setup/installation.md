@@ -61,22 +61,20 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _startTracking() async {
     // Request permissions
-    final hasPermission = await Locus.permission.request();
+    final hasPermission = await Locus.requestPermission();
     if (!hasPermission) return;
 
     // Configure geolocation
-    await Locus.config.set(
-      GeolocationConfig(
-        accuracy: Accuracy.best,
-        distanceFilter: 10,
-      ),
-    );
+    await Locus.ready(const Config(
+      desiredAccuracy: DesiredAccuracy.high,
+      distanceFilter: 10,
+    ));
 
     // Start tracking
     await Locus.start();
 
     // Listen to location updates
-    Locus.onLocation((location) {
+    Locus.location.stream.listen((location) {
       print('${location.coords.latitude}, ${location.coords.longitude}');
     });
   }

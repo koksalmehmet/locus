@@ -2,18 +2,11 @@ import 'package:locus/src/shared/models/enums.dart';
 import 'package:locus/src/shared/models/json_map.dart';
 
 class Activity {
-  final ActivityType type;
-  final int confidence;
 
   const Activity({
     required this.type,
     required this.confidence,
   });
-
-  JsonMap toMap() => {
-        'type': type.name,
-        'confidence': confidence,
-      };
 
   factory Activity.fromMap(JsonMap map) {
     return Activity(
@@ -24,4 +17,11 @@ class Activity {
       confidence: (map['confidence'] as num?)?.toInt() ?? 0,
     );
   }
+  final ActivityType type;
+  final int confidence;
+
+  JsonMap toMap() => {
+        'type': type.name,
+        'confidence': confidence,
+      };
 }

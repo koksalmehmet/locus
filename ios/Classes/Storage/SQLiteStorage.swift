@@ -4,13 +4,12 @@ import SQLite3
 /// SQLite-based storage for locations, geofences, and queue items.
 /// Replaces UserDefaults to support larger datasets and better performance.
 class SQLiteStorage {
-    static let shared = SQLiteStorage()
     
     private var db: OpaquePointer?
     private let dbName = "locus_storage.sqlite"
     private let queue = DispatchQueue(label: "dev.locus.sqlite", qos: .utility)
     
-    private init() {
+    init() {
         openDatabase()
         createTables()
         migrateFromUserDefaults()

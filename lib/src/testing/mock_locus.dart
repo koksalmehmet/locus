@@ -28,6 +28,9 @@ import 'package:locus/src/shared/events.dart';
 import 'package:locus/src/models.dart';
 import 'package:locus/src/services.dart';
 
+// Testing module exports the full LocusInterface for mock implementations.
+// The main library only exports: SyncBodyBuilder, SyncBodyContext, HeadlessEventCallback
+// Tests need the full interface to create custom mock implementations.
 export 'package:locus/src/core/locus_interface.dart';
 
 /// Mock implementation of Locus for unit testing.
@@ -195,6 +198,19 @@ class MockLocus implements LocusInterface {
   /// Emits a trip event.
   void emitTripEvent(TripEvent event) {
     _tripEventController.add(event);
+  }
+
+  /// Emits a power save mode change event.
+  void emitPowerSaveChange(bool isPowerSaveMode) {
+    _powerSaveController.add(isPowerSaveMode);
+    _emitEvent(EventType.powerSaveChange, isPowerSaveMode);
+  }
+
+  /// Emits a power state change event.
+  void emitPowerStateChange(PowerStateChangeEvent event) {
+    _powerState = event.current;
+    _powerStateController.add(event);
+    // Note: No generic event type for power state changes
   }
 
   /// Simulates a sequence of locations over time.
@@ -657,16 +673,6 @@ class MockLocus implements LocusInterface {
   }
 
   @override
-  Future<void> emailLog(String email) async {
-    _methodCalls.add('emailLog:$email');
-  }
-
-  @override
-  Future<void> playSound(String name) async {
-    _methodCalls.add('playSound:$name');
-  }
-
-  @override
   Future<int> syncQueue({int? limit}) async {
     _methodCalls.add('syncQueue');
     return _queue.length;
@@ -680,16 +686,19 @@ class MockLocus implements LocusInterface {
 
   @override
   void setHeadersCallback(Future<Map<String, String>> Function()? callback) {
+    _methodCalls.add('setHeadersCallback');
     _headersCallback = callback;
   }
 
   @override
   void clearHeadersCallback() {
+    _methodCalls.add('clearHeadersCallback');
     _headersCallback = null;
   }
 
   @override
   Future<void> refreshHeaders() async {
+    _methodCalls.add('refreshHeaders');
     if (_headersCallback == null) return;
     await _headersCallback!();
   }
@@ -1114,7 +1123,7 @@ class MockLocus implements LocusInterface {
   Stream<LocationAnomaly> locationAnomalies({
     LocationAnomalyConfig config = const LocationAnomalyConfig(),
   }) {
-    return Stream.empty();
+    return const Stream.empty();
   }
 
   @override
@@ -1130,7 +1139,7 @@ class MockLocus implements LocusInterface {
   Stream<LocationQuality> locationQuality({
     LocationQualityConfig config = const LocationQualityConfig(),
   }) {
-    return Stream.empty();
+    return const Stream.empty();
   }
 
   @override
@@ -1144,12 +1153,14 @@ class MockLocus implements LocusInterface {
 
   @override
   Future<void> startBatteryBenchmark() async {
+    _methodCalls.add('startBatteryBenchmark');
     _activeBenchmark = BatteryBenchmark();
     _activeBenchmark!.start(initialBattery: _powerState.batteryLevel);
   }
 
   @override
   Future<BenchmarkResult?> stopBatteryBenchmark() async {
+    _methodCalls.add('stopBatteryBenchmark');
     if (_activeBenchmark == null || !_activeBenchmark!.isRunning) {
       return null;
     }
@@ -1162,16 +1173,19 @@ class MockLocus implements LocusInterface {
 
   @override
   void recordBenchmarkLocationUpdate({double? accuracy}) {
+    _methodCalls.add('recordBenchmarkLocationUpdate');
     _activeBenchmark?.recordLocationUpdate(accuracy: accuracy);
   }
 
   @override
   void recordBenchmarkSync() {
+    _methodCalls.add('recordBenchmarkSync');
     _activeBenchmark?.recordSync();
   }
 
   @override
   Future<void> setSyncPolicy(SyncPolicy policy) async {
+    _methodCalls.add('setSyncPolicy');
     _syncPolicy = policy;
   }
 

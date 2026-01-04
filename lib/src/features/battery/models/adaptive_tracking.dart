@@ -25,6 +25,56 @@ import 'package:locus/src/models.dart';
 /// );
 /// ```
 class AdaptiveTrackingConfig {
+
+  /// Creates an adaptive tracking configuration.
+  const AdaptiveTrackingConfig({
+    this.enabled = true,
+    this.speedTiers = const SpeedTiers(),
+    this.batteryThresholds = const BatteryThresholds(),
+    this.activityOptimization = true,
+    this.stationaryGpsOff = true,
+    this.stationaryDelay = const Duration(minutes: 1),
+    this.minAccuracyMeters = 100,
+    this.filterDuplicates = true,
+    this.duplicateDistanceMeters = 5,
+    this.geofenceOptimization = true,
+    this.smartHeartbeat = true,
+    this.maxHeartbeatInterval = const Duration(minutes: 15),
+    this.minHeartbeatInterval = const Duration(minutes: 1),
+  });
+
+  /// Creates from a map.
+  factory AdaptiveTrackingConfig.fromMap(JsonMap map) {
+    return AdaptiveTrackingConfig(
+      enabled: map['enabled'] as bool? ?? true,
+      speedTiers: map['speedTiers'] is Map
+          ? SpeedTiers.fromMap(
+              Map<String, dynamic>.from(map['speedTiers'] as Map))
+          : const SpeedTiers(),
+      batteryThresholds: map['batteryThresholds'] is Map
+          ? BatteryThresholds.fromMap(
+              Map<String, dynamic>.from(map['batteryThresholds'] as Map))
+          : const BatteryThresholds(),
+      activityOptimization: map['activityOptimization'] as bool? ?? true,
+      stationaryGpsOff: map['stationaryGpsOff'] as bool? ?? true,
+      stationaryDelay: Duration(
+        milliseconds: (map['stationaryDelayMs'] as num?)?.toInt() ?? 60000,
+      ),
+      minAccuracyMeters: (map['minAccuracyMeters'] as num?)?.toDouble() ?? 100,
+      filterDuplicates: map['filterDuplicates'] as bool? ?? true,
+      duplicateDistanceMeters:
+          (map['duplicateDistanceMeters'] as num?)?.toDouble() ?? 5,
+      geofenceOptimization: map['geofenceOptimization'] as bool? ?? true,
+      smartHeartbeat: map['smartHeartbeat'] as bool? ?? true,
+      maxHeartbeatInterval: Duration(
+        milliseconds:
+            (map['maxHeartbeatIntervalMs'] as num?)?.toInt() ?? 900000,
+      ),
+      minHeartbeatInterval: Duration(
+        milliseconds: (map['minHeartbeatIntervalMs'] as num?)?.toInt() ?? 60000,
+      ),
+    );
+  }
   /// Whether adaptive tracking is enabled.
   final bool enabled;
 
@@ -71,23 +121,6 @@ class AdaptiveTrackingConfig {
 
   /// Minimum heartbeat interval when moving.
   final Duration minHeartbeatInterval;
-
-  /// Creates an adaptive tracking configuration.
-  const AdaptiveTrackingConfig({
-    this.enabled = true,
-    this.speedTiers = const SpeedTiers(),
-    this.batteryThresholds = const BatteryThresholds(),
-    this.activityOptimization = true,
-    this.stationaryGpsOff = true,
-    this.stationaryDelay = const Duration(minutes: 1),
-    this.minAccuracyMeters = 100,
-    this.filterDuplicates = true,
-    this.duplicateDistanceMeters = 5,
-    this.geofenceOptimization = true,
-    this.smartHeartbeat = true,
-    this.maxHeartbeatInterval = const Duration(minutes: 15),
-    this.minHeartbeatInterval = const Duration(minutes: 1),
-  });
 
   /// Disabled - no adaptive optimization.
   static const AdaptiveTrackingConfig disabled = AdaptiveTrackingConfig(
@@ -193,7 +226,7 @@ class AdaptiveTrackingConfig {
 
     // Geofence optimization
     if (isInGeofence && geofenceOptimization && !isMoving) {
-      return AdaptiveSettings(
+      return const AdaptiveSettings(
         distanceFilter: 25,
         desiredAccuracy: DesiredAccuracy.medium,
         heartbeatInterval: 180,
@@ -332,59 +365,12 @@ class AdaptiveTrackingConfig {
         'maxHeartbeatIntervalMs': maxHeartbeatInterval.inMilliseconds,
         'minHeartbeatIntervalMs': minHeartbeatInterval.inMilliseconds,
       };
-
-  /// Creates from a map.
-  factory AdaptiveTrackingConfig.fromMap(JsonMap map) {
-    return AdaptiveTrackingConfig(
-      enabled: map['enabled'] as bool? ?? true,
-      speedTiers: map['speedTiers'] is Map
-          ? SpeedTiers.fromMap(
-              Map<String, dynamic>.from(map['speedTiers'] as Map))
-          : const SpeedTiers(),
-      batteryThresholds: map['batteryThresholds'] is Map
-          ? BatteryThresholds.fromMap(
-              Map<String, dynamic>.from(map['batteryThresholds'] as Map))
-          : const BatteryThresholds(),
-      activityOptimization: map['activityOptimization'] as bool? ?? true,
-      stationaryGpsOff: map['stationaryGpsOff'] as bool? ?? true,
-      stationaryDelay: Duration(
-        milliseconds: (map['stationaryDelayMs'] as num?)?.toInt() ?? 60000,
-      ),
-      minAccuracyMeters: (map['minAccuracyMeters'] as num?)?.toDouble() ?? 100,
-      filterDuplicates: map['filterDuplicates'] as bool? ?? true,
-      duplicateDistanceMeters:
-          (map['duplicateDistanceMeters'] as num?)?.toDouble() ?? 5,
-      geofenceOptimization: map['geofenceOptimization'] as bool? ?? true,
-      smartHeartbeat: map['smartHeartbeat'] as bool? ?? true,
-      maxHeartbeatInterval: Duration(
-        milliseconds:
-            (map['maxHeartbeatIntervalMs'] as num?)?.toInt() ?? 900000,
-      ),
-      minHeartbeatInterval: Duration(
-        milliseconds: (map['minHeartbeatIntervalMs'] as num?)?.toInt() ?? 60000,
-      ),
-    );
-  }
 }
 
 /// Speed-based update interval tiers.
 ///
 /// Configures how update intervals change based on current speed.
 class SpeedTiers {
-  /// Tier for stationary (0 km/h).
-  final SpeedTier stationary;
-
-  /// Tier for walking speed (<5 km/h).
-  final SpeedTier walking;
-
-  /// Tier for city driving (5-30 km/h).
-  final SpeedTier city;
-
-  /// Tier for suburban driving (30-80 km/h).
-  final SpeedTier suburban;
-
-  /// Tier for highway driving (>80 km/h).
-  final SpeedTier highway;
 
   /// Creates speed tiers.
   const SpeedTiers({
@@ -429,6 +415,77 @@ class SpeedTiers {
       accuracy: DesiredAccuracy.high,
     ),
   });
+
+  /// Creates from a map.
+  factory SpeedTiers.fromMap(JsonMap map) {
+    return SpeedTiers(
+      stationary: map['stationary'] is Map
+          ? SpeedTier.fromMap(
+              Map<String, dynamic>.from(map['stationary'] as Map))
+          : const SpeedTier(
+              name: 'stationary',
+              minSpeedKph: 0,
+              maxSpeedKph: 0,
+              updateInterval: 60,
+              distanceFilter: 50,
+              accuracy: DesiredAccuracy.low,
+            ),
+      walking: map['walking'] is Map
+          ? SpeedTier.fromMap(Map<String, dynamic>.from(map['walking'] as Map))
+          : const SpeedTier(
+              name: 'walking',
+              minSpeedKph: 0,
+              maxSpeedKph: 5,
+              updateInterval: 20,
+              distanceFilter: 15,
+              accuracy: DesiredAccuracy.medium,
+            ),
+      city: map['city'] is Map
+          ? SpeedTier.fromMap(Map<String, dynamic>.from(map['city'] as Map))
+          : const SpeedTier(
+              name: 'city',
+              minSpeedKph: 5,
+              maxSpeedKph: 30,
+              updateInterval: 10,
+              distanceFilter: 10,
+              accuracy: DesiredAccuracy.high,
+            ),
+      suburban: map['suburban'] is Map
+          ? SpeedTier.fromMap(Map<String, dynamic>.from(map['suburban'] as Map))
+          : const SpeedTier(
+              name: 'suburban',
+              minSpeedKph: 30,
+              maxSpeedKph: 80,
+              updateInterval: 7,
+              distanceFilter: 15,
+              accuracy: DesiredAccuracy.high,
+            ),
+      highway: map['highway'] is Map
+          ? SpeedTier.fromMap(Map<String, dynamic>.from(map['highway'] as Map))
+          : const SpeedTier(
+              name: 'highway',
+              minSpeedKph: 80,
+              maxSpeedKph: 999,
+              updateInterval: 5,
+              distanceFilter: 25,
+              accuracy: DesiredAccuracy.high,
+            ),
+    );
+  }
+  /// Tier for stationary (0 km/h).
+  final SpeedTier stationary;
+
+  /// Tier for walking speed (<5 km/h).
+  final SpeedTier walking;
+
+  /// Tier for city driving (5-30 km/h).
+  final SpeedTier city;
+
+  /// Tier for suburban driving (30-80 km/h).
+  final SpeedTier suburban;
+
+  /// Tier for highway driving (>80 km/h).
+  final SpeedTier highway;
 
   /// Balanced preset - good for most use cases.
   static const SpeedTiers balanced = SpeedTiers();
@@ -514,67 +571,35 @@ class SpeedTiers {
         'suburban': suburban.toMap(),
         'highway': highway.toMap(),
       };
-
-  /// Creates from a map.
-  factory SpeedTiers.fromMap(JsonMap map) {
-    return SpeedTiers(
-      stationary: map['stationary'] is Map
-          ? SpeedTier.fromMap(
-              Map<String, dynamic>.from(map['stationary'] as Map))
-          : const SpeedTier(
-              name: 'stationary',
-              minSpeedKph: 0,
-              maxSpeedKph: 0,
-              updateInterval: 60,
-              distanceFilter: 50,
-              accuracy: DesiredAccuracy.low,
-            ),
-      walking: map['walking'] is Map
-          ? SpeedTier.fromMap(Map<String, dynamic>.from(map['walking'] as Map))
-          : const SpeedTier(
-              name: 'walking',
-              minSpeedKph: 0,
-              maxSpeedKph: 5,
-              updateInterval: 20,
-              distanceFilter: 15,
-              accuracy: DesiredAccuracy.medium,
-            ),
-      city: map['city'] is Map
-          ? SpeedTier.fromMap(Map<String, dynamic>.from(map['city'] as Map))
-          : const SpeedTier(
-              name: 'city',
-              minSpeedKph: 5,
-              maxSpeedKph: 30,
-              updateInterval: 10,
-              distanceFilter: 10,
-              accuracy: DesiredAccuracy.high,
-            ),
-      suburban: map['suburban'] is Map
-          ? SpeedTier.fromMap(Map<String, dynamic>.from(map['suburban'] as Map))
-          : const SpeedTier(
-              name: 'suburban',
-              minSpeedKph: 30,
-              maxSpeedKph: 80,
-              updateInterval: 7,
-              distanceFilter: 15,
-              accuracy: DesiredAccuracy.high,
-            ),
-      highway: map['highway'] is Map
-          ? SpeedTier.fromMap(Map<String, dynamic>.from(map['highway'] as Map))
-          : const SpeedTier(
-              name: 'highway',
-              minSpeedKph: 80,
-              maxSpeedKph: 999,
-              updateInterval: 5,
-              distanceFilter: 25,
-              accuracy: DesiredAccuracy.high,
-            ),
-    );
-  }
 }
 
 /// Configuration for a single speed tier.
 class SpeedTier {
+
+  /// Creates a speed tier.
+  const SpeedTier({
+    required this.name,
+    required this.minSpeedKph,
+    required this.maxSpeedKph,
+    required this.updateInterval,
+    required this.distanceFilter,
+    required this.accuracy,
+  });
+
+  /// Creates from a map.
+  factory SpeedTier.fromMap(JsonMap map) {
+    return SpeedTier(
+      name: map['name'] as String? ?? 'unknown',
+      minSpeedKph: (map['minSpeedKph'] as num?)?.toDouble() ?? 0,
+      maxSpeedKph: (map['maxSpeedKph'] as num?)?.toDouble() ?? 999,
+      updateInterval: (map['updateInterval'] as num?)?.toInt() ?? 10,
+      distanceFilter: (map['distanceFilter'] as num?)?.toInt() ?? 10,
+      accuracy: DesiredAccuracy.values.firstWhere(
+        (e) => e.name == map['accuracy'],
+        orElse: () => DesiredAccuracy.high,
+      ),
+    );
+  }
   /// Descriptive name for this tier.
   final String name;
 
@@ -593,16 +618,6 @@ class SpeedTier {
   /// Desired accuracy for this tier.
   final DesiredAccuracy accuracy;
 
-  /// Creates a speed tier.
-  const SpeedTier({
-    required this.name,
-    required this.minSpeedKph,
-    required this.maxSpeedKph,
-    required this.updateInterval,
-    required this.distanceFilter,
-    required this.accuracy,
-  });
-
   /// Converts to a JSON-serializable map.
   JsonMap toMap() => {
         'name': name,
@@ -612,36 +627,29 @@ class SpeedTier {
         'distanceFilter': distanceFilter,
         'accuracy': accuracy.name,
       };
-
-  /// Creates from a map.
-  factory SpeedTier.fromMap(JsonMap map) {
-    return SpeedTier(
-      name: map['name'] as String? ?? 'unknown',
-      minSpeedKph: (map['minSpeedKph'] as num?)?.toDouble() ?? 0,
-      maxSpeedKph: (map['maxSpeedKph'] as num?)?.toDouble() ?? 999,
-      updateInterval: (map['updateInterval'] as num?)?.toInt() ?? 10,
-      distanceFilter: (map['distanceFilter'] as num?)?.toInt() ?? 10,
-      accuracy: DesiredAccuracy.values.firstWhere(
-        (e) => e.name == map['accuracy'],
-        orElse: () => DesiredAccuracy.high,
-      ),
-    );
-  }
 }
 
 /// Battery level thresholds for optimization.
 class BatteryThresholds {
-  /// Battery percentage below which is considered low.
-  final int lowThreshold;
-
-  /// Battery percentage below which is considered critical.
-  final int criticalThreshold;
 
   /// Creates battery thresholds.
   const BatteryThresholds({
     this.lowThreshold = 20,
     this.criticalThreshold = 10,
   });
+
+  /// Creates from a map.
+  factory BatteryThresholds.fromMap(JsonMap map) {
+    return BatteryThresholds(
+      lowThreshold: (map['lowThreshold'] as num?)?.toInt() ?? 20,
+      criticalThreshold: (map['criticalThreshold'] as num?)?.toInt() ?? 10,
+    );
+  }
+  /// Battery percentage below which is considered low.
+  final int lowThreshold;
+
+  /// Battery percentage below which is considered critical.
+  final int criticalThreshold;
 
   /// Balanced thresholds.
   static const BatteryThresholds balanced = BatteryThresholds(
@@ -667,14 +675,6 @@ class BatteryThresholds {
         'lowThreshold': lowThreshold,
         'criticalThreshold': criticalThreshold,
       };
-
-  /// Creates from a map.
-  factory BatteryThresholds.fromMap(JsonMap map) {
-    return BatteryThresholds(
-      lowThreshold: (map['lowThreshold'] as num?)?.toInt() ?? 20,
-      criticalThreshold: (map['criticalThreshold'] as num?)?.toInt() ?? 10,
-    );
-  }
 }
 
 /// Battery level categories.
@@ -691,6 +691,15 @@ enum BatteryLevel {
 
 /// Calculated adaptive settings based on current conditions.
 class AdaptiveSettings {
+
+  /// Creates adaptive settings.
+  const AdaptiveSettings({
+    required this.distanceFilter,
+    required this.desiredAccuracy,
+    required this.heartbeatInterval,
+    required this.gpsEnabled,
+    required this.reason,
+  });
   /// Recommended distance filter in meters.
   final double distanceFilter;
 
@@ -705,15 +714,6 @@ class AdaptiveSettings {
 
   /// Reason for these settings.
   final String reason;
-
-  /// Creates adaptive settings.
-  const AdaptiveSettings({
-    required this.distanceFilter,
-    required this.desiredAccuracy,
-    required this.heartbeatInterval,
-    required this.gpsEnabled,
-    required this.reason,
-  });
 
   /// Converts to a JSON-serializable map.
   JsonMap toMap() => {

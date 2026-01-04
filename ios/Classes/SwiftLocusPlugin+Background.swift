@@ -33,8 +33,9 @@ extension SwiftLocusPlugin {
     if heartbeatTimer != nil {
       return
     }
-    heartbeatTimer = Timer.scheduledTimer(withTimeInterval: configManager.heartbeatInterval, repeats: true) { [weak self] _ in
+    heartbeatTimer = Timer.scheduledTimer(withTimeInterval: configManager.heartbeatInterval, repeats: true) { [weak self] timer in
       guard let self = self, self.isEnabled, let location = self.lastLocation else {
+        timer.invalidate()
         return
       }
       self.emitLocationEvent(location, eventName: "heartbeat")

@@ -18,6 +18,73 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// print('Drain estimate: ${stats.estimatedDrainPerHour}%/hr');
 /// ```
 class BatteryStats {
+
+  /// Creates battery statistics.
+  const BatteryStats({
+    this.gpsOnTimePercent = 0,
+    this.locationUpdatesCount = 0,
+    this.syncRequestsCount = 0,
+    this.averageAccuracyMeters = 0,
+    this.trackingDurationMinutes = 0,
+    this.estimatedDrainPercent,
+    this.optimizationLevel = OptimizationLevel.none,
+    this.timeByState = const {},
+    this.currentBatteryLevel,
+    this.isCharging,
+    this.accuracyDowngradeCount = 0,
+    this.gpsDisabledCount = 0,
+  });
+
+  /// Creates an empty stats object.
+  const BatteryStats.empty()
+      : gpsOnTimePercent = 0,
+        locationUpdatesCount = 0,
+        syncRequestsCount = 0,
+        averageAccuracyMeters = 0,
+        trackingDurationMinutes = 0,
+        estimatedDrainPercent = null,
+        optimizationLevel = OptimizationLevel.none,
+        timeByState = const {},
+        currentBatteryLevel = null,
+        isCharging = null,
+        accuracyDowngradeCount = 0,
+        gpsDisabledCount = 0;
+
+  /// Creates from a map.
+  factory BatteryStats.fromMap(JsonMap map) {
+    final timeByStateRaw = map['timeByState'];
+    final timeByState = <String, Duration>{};
+    if (timeByStateRaw is Map) {
+      for (final entry in timeByStateRaw.entries) {
+        final seconds = entry.value as num?;
+        if (seconds != null) {
+          timeByState[entry.key.toString()] =
+              Duration(seconds: seconds.toInt());
+        }
+      }
+    }
+
+    return BatteryStats(
+      gpsOnTimePercent: (map['gpsOnTimePercent'] as num?)?.toDouble() ?? 0,
+      locationUpdatesCount: (map['locationUpdatesCount'] as num?)?.toInt() ?? 0,
+      syncRequestsCount: (map['syncRequestsCount'] as num?)?.toInt() ?? 0,
+      averageAccuracyMeters:
+          (map['averageAccuracyMeters'] as num?)?.toDouble() ?? 0,
+      trackingDurationMinutes:
+          (map['trackingDurationMinutes'] as num?)?.toInt() ?? 0,
+      estimatedDrainPercent: (map['estimatedDrainPercent'] as num?)?.toDouble(),
+      optimizationLevel: OptimizationLevel.values.firstWhere(
+        (e) => e.name == map['optimizationLevel'],
+        orElse: () => OptimizationLevel.none,
+      ),
+      timeByState: timeByState,
+      currentBatteryLevel: (map['currentBatteryLevel'] as num?)?.toInt(),
+      isCharging: map['isCharging'] as bool?,
+      accuracyDowngradeCount:
+          (map['accuracyDowngradeCount'] as num?)?.toInt() ?? 0,
+      gpsDisabledCount: (map['gpsDisabledCount'] as num?)?.toInt() ?? 0,
+    );
+  }
   /// Percentage of tracking time GPS was actively acquiring locations.
   ///
   /// Lower is better - indicates effective use of motion detection
@@ -83,37 +150,6 @@ class BatteryStats {
     return (trackingDurationMinutes * 60) / (locationUpdatesCount - 1);
   }
 
-  /// Creates battery statistics.
-  const BatteryStats({
-    this.gpsOnTimePercent = 0,
-    this.locationUpdatesCount = 0,
-    this.syncRequestsCount = 0,
-    this.averageAccuracyMeters = 0,
-    this.trackingDurationMinutes = 0,
-    this.estimatedDrainPercent,
-    this.optimizationLevel = OptimizationLevel.none,
-    this.timeByState = const {},
-    this.currentBatteryLevel,
-    this.isCharging,
-    this.accuracyDowngradeCount = 0,
-    this.gpsDisabledCount = 0,
-  });
-
-  /// Creates an empty stats object.
-  const BatteryStats.empty()
-      : gpsOnTimePercent = 0,
-        locationUpdatesCount = 0,
-        syncRequestsCount = 0,
-        averageAccuracyMeters = 0,
-        trackingDurationMinutes = 0,
-        estimatedDrainPercent = null,
-        optimizationLevel = OptimizationLevel.none,
-        timeByState = const {},
-        currentBatteryLevel = null,
-        isCharging = null,
-        accuracyDowngradeCount = 0,
-        gpsDisabledCount = 0;
-
   /// Converts to a JSON-serializable map.
   JsonMap toMap() => {
         'gpsOnTimePercent': gpsOnTimePercent,
@@ -135,42 +171,6 @@ class BatteryStats {
         'accuracyDowngradeCount': accuracyDowngradeCount,
         'gpsDisabledCount': gpsDisabledCount,
       };
-
-  /// Creates from a map.
-  factory BatteryStats.fromMap(JsonMap map) {
-    final timeByStateRaw = map['timeByState'];
-    final timeByState = <String, Duration>{};
-    if (timeByStateRaw is Map) {
-      for (final entry in timeByStateRaw.entries) {
-        final seconds = entry.value as num?;
-        if (seconds != null) {
-          timeByState[entry.key.toString()] =
-              Duration(seconds: seconds.toInt());
-        }
-      }
-    }
-
-    return BatteryStats(
-      gpsOnTimePercent: (map['gpsOnTimePercent'] as num?)?.toDouble() ?? 0,
-      locationUpdatesCount: (map['locationUpdatesCount'] as num?)?.toInt() ?? 0,
-      syncRequestsCount: (map['syncRequestsCount'] as num?)?.toInt() ?? 0,
-      averageAccuracyMeters:
-          (map['averageAccuracyMeters'] as num?)?.toDouble() ?? 0,
-      trackingDurationMinutes:
-          (map['trackingDurationMinutes'] as num?)?.toInt() ?? 0,
-      estimatedDrainPercent: (map['estimatedDrainPercent'] as num?)?.toDouble(),
-      optimizationLevel: OptimizationLevel.values.firstWhere(
-        (e) => e.name == map['optimizationLevel'],
-        orElse: () => OptimizationLevel.none,
-      ),
-      timeByState: timeByState,
-      currentBatteryLevel: (map['currentBatteryLevel'] as num?)?.toInt(),
-      isCharging: map['isCharging'] as bool?,
-      accuracyDowngradeCount:
-          (map['accuracyDowngradeCount'] as num?)?.toInt() ?? 0,
-      gpsDisabledCount: (map['gpsDisabledCount'] as num?)?.toInt() ?? 0,
-    );
-  }
 
   @override
   String toString() {
@@ -342,6 +342,17 @@ class BatteryBenchmark {
 
 /// Result of a battery benchmark session.
 class BenchmarkResult {
+
+  /// Creates a benchmark result.
+  const BenchmarkResult({
+    required this.duration,
+    required this.drainPercent,
+    required this.locationUpdates,
+    required this.syncRequests,
+    required this.gpsOnPercent,
+    required this.averageAccuracy,
+    required this.timeByState,
+  });
   /// Total benchmark duration.
   final Duration duration;
 
@@ -368,17 +379,6 @@ class BenchmarkResult {
     if (duration.inMinutes < 1) return 0;
     return drainPercent / (duration.inMinutes / 60);
   }
-
-  /// Creates a benchmark result.
-  const BenchmarkResult({
-    required this.duration,
-    required this.drainPercent,
-    required this.locationUpdates,
-    required this.syncRequests,
-    required this.gpsOnPercent,
-    required this.averageAccuracy,
-    required this.timeByState,
-  });
 
   /// Converts to a JSON-serializable map.
   JsonMap toMap() => {

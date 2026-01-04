@@ -174,7 +174,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
   }
 
   void _configureWorkflow() {
-    Locus.registerGeofenceWorkflows(const [
+    Locus.geofencing.registerWorkflows(const [
       GeofenceWorkflow(
         id: 'pickup_dropoff',
         steps: [
@@ -215,7 +215,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
   }
 
   void _setupListeners() {
-    _locationSubscription = Locus.onLocation((location) {
+    _locationSubscription = Locus.location.stream.listen((location) {
       _recordEvent(
         'location',
         _formatLocationEvent(location, 'location'),
@@ -223,7 +223,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       );
     }, onError: _onError);
 
-    _motionSubscription = Locus.onMotionChange((location) {
+    _motionSubscription = Locus.location.motionChanges.listen((location) {
       _recordEvent(
         'motionchange',
         _formatLocationEvent(location, 'motionchange'),
@@ -231,7 +231,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       );
     }, onError: _onError);
 
-    _activitySubscription = Locus.onActivityChange((activity) {
+    _activitySubscription = Locus.instance.activityStream.listen((activity) {
       _recordEvent(
         'activitychange',
         'activity ${activity.type.name} (${activity.confidence}%)',
@@ -254,7 +254,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       onError: _onError,
     );
 
-    _tripSubscription = Locus.onTripEvent((event) {
+    _tripSubscription = Locus.trips.events.listen((event) {
       _recordEvent('trip', 'trip ${event.type.name}');
       if (event.summary != null) {
         setState(() {
@@ -263,14 +263,14 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       }
     }, onError: _onError);
 
-    _workflowSubscription = Locus.onWorkflowEvent((event) {
+    _workflowSubscription = Locus.geofencing.workflowEvents.listen((event) {
       _recordEvent(
         'workflow',
         'workflow ${event.workflowId} ${event.status.name}',
       );
     }, onError: _onError);
 
-    _providerSubscription = Locus.onProviderChange((event) {
+    _providerSubscription = Locus.instance.providerStream.listen((event) {
       _recordEvent(
         'providerchange',
         'provider enabled=${event.enabled} auth=${event.authorizationStatus.name}',
@@ -278,7 +278,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       );
     }, onError: _onError);
 
-    _geofenceSubscription = Locus.onGeofence((event) {
+    _geofenceSubscription = Locus.geofencing.events.listen((event) {
       _recordEvent(
         'geofence',
         'geofence ${event.geofence.identifier} ${event.action.name}',
@@ -286,19 +286,19 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       );
     }, onError: _onError);
 
-    _geofencesChangeSubscription = Locus.onGeofencesChange((event) {
+    _geofencesChangeSubscription = Locus.geofencing.onGeofencesChange((event) {
       _recordEvent('geofenceschange', 'geofences change: $event');
     }, onError: _onError);
 
-    _heartbeatSubscription = Locus.onHeartbeat((location) {
+    _heartbeatSubscription = Locus.location.heartbeats.listen((location) {
       _recordEvent('heartbeat', _formatLocationEvent(location, 'heartbeat'));
     }, onError: _onError);
 
-    _scheduleSubscription = Locus.onSchedule((location) {
+    _scheduleSubscription = Locus.instance.onSchedule((location) {
       _recordEvent('schedule', _formatLocationEvent(location, 'schedule'));
     }, onError: _onError);
 
-    _connectivitySubscription = Locus.onConnectivityChange((event) {
+    _connectivitySubscription = Locus.dataSync.connectivityEvents.listen((event) {
       _recordEvent(
         'connectivity',
         'connectivity ${event.networkType ?? 'unknown'} connected=${event.connected}',
@@ -306,11 +306,11 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       );
     }, onError: _onError);
 
-    _powerSaveSubscription = Locus.onPowerSaveChange((enabled) {
+    _powerSaveSubscription = Locus.instance.powerSaveStream.listen((enabled) {
       _recordEvent('powersave', 'powersave enabled=$enabled');
     }, onError: _onError);
 
-    _enabledSubscription = Locus.onEnabledChange((enabled) {
+    _enabledSubscription = Locus.instance.enabledStream.listen((enabled) {
       _recordEvent(
         'enabledchange',
         'enabled=$enabled',
@@ -318,7 +318,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       );
     }, onError: _onError);
 
-    _httpSubscription = Locus.onHttp((event) {
+    _httpSubscription = Locus.dataSync.events.listen((event) {
       _recordEvent(
         'http',
         'http status=${event.status} ok=${event.ok}',
@@ -326,7 +326,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       );
     }, onError: _onError);
 
-    _notificationActionSubscription = Locus.onNotificationAction((action) {
+    _notificationActionSubscription = Locus.instance.onNotificationAction((action) {
       _recordEvent(
         'notification',
         'notification action=$action',
@@ -359,7 +359,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
 
   Future<void> _getCurrentPosition() async {
     try {
-      final location = await Locus.getCurrentPosition();
+      final location = await Locus.location.getCurrentPosition();
       _showSnackbar(
         'Position: ${location.coords.latitude.toStringAsFixed(5)}, ${location.coords.longitude.toStringAsFixed(5)}',
       );
@@ -385,21 +385,21 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
   }
 
   Future<void> _loadStoredLocations() async {
-    final locations = await Locus.getLocations(limit: 50);
+    final locations = await Locus.location.getLocations(limit: 50);
     setState(() {
       _storedLocations = locations;
     });
   }
 
   Future<void> _clearStoredLocations() async {
-    await Locus.destroyLocations();
+    await Locus.location.destroyLocations();
     setState(() {
       _storedLocations = [];
     });
   }
 
   Future<void> _startTrip() async {
-    await Locus.startTrip(const TripConfig(
+    await Locus.trips.start(const TripConfig(
       startOnMoving: true,
       updateIntervalSeconds: 30,
       route: [
@@ -411,8 +411,8 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
     _recordEvent('trip', 'trip start requested');
   }
 
-  Future<void> _stopTrip() async {
-    final summary = Locus.stopTrip();
+  void _stopTrip() {
+    final summary = Locus.trips.stop();
     setState(() {
       _lastTripSummary = summary;
     });
@@ -420,7 +420,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
   }
 
   Future<void> _addDemoGeofence() async {
-    await Locus.addGeofence(const Geofence(
+    await Locus.geofencing.add(const Geofence(
       identifier: 'demo_geofence',
       radius: 100,
       latitude: 37.4219983,
@@ -435,7 +435,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
   }
 
   Future<void> _removeAllGeofences() async {
-    await Locus.removeGeofences();
+    await Locus.geofencing.removeAll();
     _showSnackbar('Geofences cleared');
   }
 
@@ -444,11 +444,6 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
     setState(() {
       _lastLog = log;
     });
-  }
-
-  Future<void> _emailLog() async {
-    await Locus.emailLog('logs@example.com');
-    _showSnackbar('Requested log email');
   }
 
   void _clearEvents() {
@@ -1019,11 +1014,6 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
                   icon: const Icon(Icons.article_outlined),
                   label: const Text('Load Log'),
                 ),
-                OutlinedButton.icon(
-                  onPressed: _emailLog,
-                  icon: const Icon(Icons.email_outlined),
-                  label: const Text('Email Log'),
-                ),
               ],
             ),
             if (_lastLog != null) ...[
@@ -1209,8 +1199,8 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
   }
 
   Future<void> _refreshBatteryStats() async {
-    final state = await Locus.getPowerState();
-    final stats = await Locus.getBatteryStats();
+    final state = await Locus.battery.getPowerState();
+    final stats = await Locus.battery.getStats();
     setState(() {
       _powerState = state;
       _batteryStats = stats;
@@ -1251,7 +1241,7 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
   }
 
   Future<void> _simulateError() async {
-    Locus.handleError(LocusError.networkError(
+    await Locus.handleError(LocusError.networkError(
       message: 'Simulated connection failure',
       originalError: 'Simulated',
     ));

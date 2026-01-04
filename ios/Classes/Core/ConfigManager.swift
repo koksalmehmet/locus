@@ -2,7 +2,6 @@ import Foundation
 import CoreLocation
 
 class ConfigManager {
-    static let shared = ConfigManager()
     
     // Location settings
     var desiredAccuracy: CLLocationAccuracy = kCLLocationAccuracyBest
@@ -80,7 +79,7 @@ class ConfigManager {
     static let enableHeadlessKey = "bg_enable_headless"
     static let lastConfigKey = "bg_last_config"
     
-    private init() {
+    init() {
         // Load persisted critical flags
         if let config = UserDefaults.standard.dictionary(forKey: ConfigManager.lastConfigKey) {
             apply(config)
@@ -184,4 +183,3 @@ class ConfigManager {
         if let val = config["geofenceProximityRadius"] as? NSNumber { geofenceProximityRadius = val.intValue }
     }
 }
-

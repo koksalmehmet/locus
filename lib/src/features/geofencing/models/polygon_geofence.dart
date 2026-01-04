@@ -6,16 +6,23 @@ import 'package:locus/src/shared/models/json_map.dart';
 
 /// A geographic coordinate point (vertex) for polygon geofences.
 class GeoPoint {
-  /// Latitude in degrees (-90 to 90).
-  final double latitude;
-
-  /// Longitude in degrees (-180 to 180).
-  final double longitude;
 
   const GeoPoint({
     required this.latitude,
     required this.longitude,
   });
+
+  factory GeoPoint.fromMap(JsonMap map) {
+    return GeoPoint(
+      latitude: (map['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+  /// Latitude in degrees (-90 to 90).
+  final double latitude;
+
+  /// Longitude in degrees (-180 to 180).
+  final double longitude;
 
   /// Returns true if this point has valid coordinates.
   bool get isValid =>
@@ -28,13 +35,6 @@ class GeoPoint {
         'latitude': latitude,
         'longitude': longitude,
       };
-
-  factory GeoPoint.fromMap(JsonMap map) {
-    return GeoPoint(
-      latitude: (map['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
-    );
-  }
 
   @override
   String toString() => 'GeoPoint($latitude, $longitude)';
@@ -60,6 +60,50 @@ class GeoPoint {
 /// Vertices should be defined in order (clockwise or counter-clockwise).
 /// The polygon is automatically closed (last vertex connects to first).
 class PolygonGeofence {
+
+  const PolygonGeofence({
+    required this.identifier,
+    required this.vertices,
+    this.notifyOnEntry = true,
+    this.notifyOnExit = true,
+    this.notifyOnDwell = false,
+    this.loiteringDelay,
+    this.extras,
+  });
+
+  factory PolygonGeofence.fromMap(JsonMap map) {
+    final identifier = map['identifier'];
+    final verticesRaw = map['vertices'];
+
+    if (identifier is! String || identifier.isEmpty) {
+      debugPrint('[PolygonGeofence] Warning: Invalid or missing identifier');
+    }
+    if (verticesRaw is! List || verticesRaw.length < 3) {
+      debugPrint(
+          '[PolygonGeofence] Warning: Invalid vertices (need at least 3)');
+    }
+
+    final vertices = <GeoPoint>[];
+    if (verticesRaw is List) {
+      for (final v in verticesRaw) {
+        if (v is Map) {
+          vertices.add(GeoPoint.fromMap(Map<String, dynamic>.from(v)));
+        }
+      }
+    }
+
+    final extrasData = map['extras'];
+
+    return PolygonGeofence(
+      identifier: identifier is String ? identifier : '',
+      vertices: vertices,
+      notifyOnEntry: map['notifyOnEntry'] as bool? ?? true,
+      notifyOnExit: map['notifyOnExit'] as bool? ?? true,
+      notifyOnDwell: map['notifyOnDwell'] as bool? ?? false,
+      loiteringDelay: (map['loiteringDelay'] as num?)?.toInt(),
+      extras: extrasData is Map ? Map<String, dynamic>.from(extrasData) : null,
+    );
+  }
   /// Unique identifier for this geofence.
   final String identifier;
 
@@ -81,16 +125,6 @@ class PolygonGeofence {
 
   /// Additional metadata for this geofence.
   final JsonMap? extras;
-
-  const PolygonGeofence({
-    required this.identifier,
-    required this.vertices,
-    this.notifyOnEntry = true,
-    this.notifyOnExit = true,
-    this.notifyOnDwell = false,
-    this.loiteringDelay,
-    this.extras,
-  });
 
   /// Returns true if this polygon geofence has valid configuration.
   ///
@@ -123,7 +157,7 @@ class PolygonGeofence {
     );
   }
 
-  /// Returns the bounding box of the polygon as [minLat, minLng, maxLat, maxLng].
+  /// Returns the bounding box of the polygon as `minLat, minLng, maxLat, maxLng`.
   List<double> get boundingBox {
     if (vertices.isEmpty) {
       return [0, 0, 0, 0];
@@ -265,40 +299,6 @@ class PolygonGeofence {
         if (extras != null) 'extras': extras,
       };
 
-  factory PolygonGeofence.fromMap(JsonMap map) {
-    final identifier = map['identifier'];
-    final verticesRaw = map['vertices'];
-
-    if (identifier is! String || identifier.isEmpty) {
-      debugPrint('[PolygonGeofence] Warning: Invalid or missing identifier');
-    }
-    if (verticesRaw is! List || verticesRaw.length < 3) {
-      debugPrint(
-          '[PolygonGeofence] Warning: Invalid vertices (need at least 3)');
-    }
-
-    final vertices = <GeoPoint>[];
-    if (verticesRaw is List) {
-      for (final v in verticesRaw) {
-        if (v is Map) {
-          vertices.add(GeoPoint.fromMap(Map<String, dynamic>.from(v)));
-        }
-      }
-    }
-
-    final extrasData = map['extras'];
-
-    return PolygonGeofence(
-      identifier: identifier is String ? identifier : '',
-      vertices: vertices,
-      notifyOnEntry: map['notifyOnEntry'] as bool? ?? true,
-      notifyOnExit: map['notifyOnExit'] as bool? ?? true,
-      notifyOnDwell: map['notifyOnDwell'] as bool? ?? false,
-      loiteringDelay: (map['loiteringDelay'] as num?)?.toInt(),
-      extras: extrasData is Map ? Map<String, dynamic>.from(extrasData) : null,
-    );
-  }
-
   /// Creates a copy with the given fields replaced.
   PolygonGeofence copyWith({
     String? identifier,
@@ -337,17 +337,6 @@ class PolygonGeofence {
 
 /// Event emitted when polygon geofence state changes.
 class PolygonGeofenceEvent {
-  /// The polygon geofence that triggered this event.
-  final PolygonGeofence geofence;
-
-  /// The type of event (enter, exit, dwell).
-  final PolygonGeofenceEventType type;
-
-  /// Timestamp when the event occurred.
-  final DateTime timestamp;
-
-  /// The location that triggered this event, if available.
-  final GeoPoint? triggerLocation;
 
   const PolygonGeofenceEvent({
     required this.geofence,
@@ -355,14 +344,6 @@ class PolygonGeofenceEvent {
     required this.timestamp,
     this.triggerLocation,
   });
-
-  JsonMap toMap() => {
-        'geofence': geofence.toMap(),
-        'type': type.name,
-        'timestamp': timestamp.toIso8601String(),
-        if (triggerLocation != null)
-          'triggerLocation': triggerLocation!.toMap(),
-      };
 
   factory PolygonGeofenceEvent.fromMap(JsonMap map) {
     return PolygonGeofenceEvent(
@@ -379,6 +360,25 @@ class PolygonGeofenceEvent {
           : null,
     );
   }
+  /// The polygon geofence that triggered this event.
+  final PolygonGeofence geofence;
+
+  /// The type of event (enter, exit, dwell).
+  final PolygonGeofenceEventType type;
+
+  /// Timestamp when the event occurred.
+  final DateTime timestamp;
+
+  /// The location that triggered this event, if available.
+  final GeoPoint? triggerLocation;
+
+  JsonMap toMap() => {
+        'geofence': geofence.toMap(),
+        'type': type.name,
+        'timestamp': timestamp.toIso8601String(),
+        if (triggerLocation != null)
+          'triggerLocation': triggerLocation!.toMap(),
+      };
 }
 
 /// Types of polygon geofence events.

@@ -27,3 +27,19 @@ enum PersistMode {
   geofence,
   all,
 }
+
+/// Tracking profile for adaptive behavior.
+enum LocusProfile {
+  stationary,
+  walking,
+  driving,
+  navigation,
+  off,
+}
+
+/// Action to take when spoofing is detected.
+enum SpoofDetectionAction {
+  flag,
+  ignore,
+  stop,
+}

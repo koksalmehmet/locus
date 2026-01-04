@@ -1,6 +1,30 @@
 /// Services barrel - exports all services from features.
 library;
 
+// ============================================================
+// v2.0 Service API
+// ============================================================
+
+// Service interfaces
+export 'services/location_service.dart';
+export 'services/geofence_service.dart';
+export 'services/privacy_service.dart';
+export 'services/trip_service.dart';
+export 'services/sync_service.dart';
+export 'services/battery_service.dart';
+
+// Service implementations
+export 'services/location_service_impl.dart';
+export 'services/geofence_service_impl.dart';
+export 'services/privacy_service_impl.dart';
+export 'services/trip_service_impl.dart';
+export 'services/sync_service_impl.dart';
+export 'services/battery_service_impl.dart';
+
+// ============================================================
+// Feature Services
+// ============================================================
+
 // Location services
 export 'features/location/services/locus_location.dart';
 export 'features/location/services/location_anomaly_detector.dart';

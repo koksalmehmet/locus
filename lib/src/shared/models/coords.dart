@@ -2,20 +2,14 @@ import 'package:locus/src/shared/models/json_map.dart';
 
 /// Exception thrown when coordinate data is invalid.
 class InvalidCoordsException implements Exception {
-  final String message;
   const InvalidCoordsException(this.message);
+  final String message;
 
   @override
   String toString() => 'InvalidCoordsException: $message';
 }
 
 class Coords {
-  final double latitude;
-  final double longitude;
-  final double accuracy;
-  final double? speed;
-  final double? heading;
-  final double? altitude;
 
   const Coords({
     required this.latitude,
@@ -25,39 +19,6 @@ class Coords {
     this.heading,
     this.altitude,
   });
-
-  /// Whether these coordinates are within valid Earth ranges.
-  bool get isValid =>
-      latitude >= -90 &&
-      latitude <= 90 &&
-      longitude >= -180 &&
-      longitude <= 180;
-
-  /// Whether these coordinates are at the null island (0,0).
-  /// This is often a sign of missing/invalid data.
-  bool get isNullIsland => latitude == 0.0 && longitude == 0.0;
-
-  /// Validates that coordinates are within valid ranges.
-  /// Throws [InvalidCoordsException] if invalid.
-  void validateRange() {
-    if (latitude < -90 || latitude > 90) {
-      throw InvalidCoordsException(
-          'Latitude must be between -90 and 90, got: $latitude');
-    }
-    if (longitude < -180 || longitude > 180) {
-      throw InvalidCoordsException(
-          'Longitude must be between -180 and 180, got: $longitude');
-    }
-  }
-
-  JsonMap toMap() => {
-        'latitude': latitude,
-        'longitude': longitude,
-        'accuracy': accuracy,
-        if (speed != null) 'speed': speed,
-        if (heading != null) 'heading': heading,
-        if (altitude != null) 'altitude': altitude,
-      };
 
   /// Creates Coords from a map.
   ///
@@ -94,6 +55,45 @@ class Coords {
       altitude: (map['altitude'] as num?)?.toDouble(),
     );
   }
+  final double latitude;
+  final double longitude;
+  final double accuracy;
+  final double? speed;
+  final double? heading;
+  final double? altitude;
+
+  /// Whether these coordinates are within valid Earth ranges.
+  bool get isValid =>
+      latitude >= -90 &&
+      latitude <= 90 &&
+      longitude >= -180 &&
+      longitude <= 180;
+
+  /// Whether these coordinates are at the null island (0,0).
+  /// This is often a sign of missing/invalid data.
+  bool get isNullIsland => latitude == 0.0 && longitude == 0.0;
+
+  /// Validates that coordinates are within valid ranges.
+  /// Throws [InvalidCoordsException] if invalid.
+  void validateRange() {
+    if (latitude < -90 || latitude > 90) {
+      throw InvalidCoordsException(
+          'Latitude must be between -90 and 90, got: $latitude');
+    }
+    if (longitude < -180 || longitude > 180) {
+      throw InvalidCoordsException(
+          'Longitude must be between -180 and 180, got: $longitude');
+    }
+  }
+
+  JsonMap toMap() => {
+        'latitude': latitude,
+        'longitude': longitude,
+        'accuracy': accuracy,
+        if (speed != null) 'speed': speed,
+        if (heading != null) 'heading': heading,
+        if (altitude != null) 'altitude': altitude,
+      };
 
   /// Creates Coords from a map, returning null if data is invalid.
   /// Use this when you want to gracefully handle invalid data.

@@ -5,16 +5,16 @@ import 'package:locus/src/models.dart';
 
 /// A generic geolocation event with typed payload.
 class GeolocationEvent<T> {
-  /// The type of event.
-  final EventType type;
-
-  /// The event payload data.
-  final T data;
 
   const GeolocationEvent({
     required this.type,
     required this.data,
   });
+  /// The type of event.
+  final EventType type;
+
+  /// The event payload data.
+  final T data;
 
   static EventType _parseType(String? raw) {
     switch (raw) {

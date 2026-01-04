@@ -30,6 +30,45 @@ import 'package:locus/src/shared/location_utils.dart';
 /// await Locus.setSpoofDetection(config);
 /// ```
 class SpoofDetectionConfig {
+
+  /// Creates spoof detection configuration.
+  const SpoofDetectionConfig({
+    this.enabled = true,
+    this.blockMockLocations = false,
+    this.sensitivity = SpoofSensitivity.balanced,
+    this.maxPossibleSpeedKph = kMaxPossibleSpeedKph,
+    this.maxAltitudeChangePerSecond = kMaxAltitudeChangePerSecondMeters,
+    this.minFactorsForDetection = kDefaultMinSpoofFactors,
+    this.onSpoofDetected,
+    this.checkMockProvider = true,
+    this.checkDeveloperOptions = false,
+    this.checkMockMode = true,
+    this.trustedMockProviders = const [],
+  });
+
+  /// Creates from a map.
+  factory SpoofDetectionConfig.fromMap(JsonMap map) {
+    return SpoofDetectionConfig(
+      enabled: map['enabled'] as bool? ?? true,
+      blockMockLocations: map['blockMockLocations'] as bool? ?? false,
+      sensitivity: SpoofSensitivity.values.firstWhere(
+        (e) => e.name == map['sensitivity'],
+        orElse: () => SpoofSensitivity.balanced,
+      ),
+      maxPossibleSpeedKph:
+          (map['maxPossibleSpeedKph'] as num?)?.toDouble() ?? 1200,
+      maxAltitudeChangePerSecond:
+          (map['maxAltitudeChangePerSecond'] as num?)?.toDouble() ?? 100,
+      minFactorsForDetection:
+          (map['minFactorsForDetection'] as num?)?.toInt() ?? 2,
+      checkMockProvider: map['checkMockProvider'] as bool? ?? true,
+      checkDeveloperOptions: map['checkDeveloperOptions'] as bool? ?? false,
+      checkMockMode: map['checkMockMode'] as bool? ?? true,
+      trustedMockProviders: map['trustedMockProviders'] is List
+          ? List<String>.from(map['trustedMockProviders'] as List)
+          : const [],
+    );
+  }
   /// Whether spoof detection is enabled.
   final bool enabled;
 
@@ -74,21 +113,6 @@ class SpoofDetectionConfig {
   /// Apps with these signatures won't trigger mock provider detection.
   /// Useful for allowing specific approved testing apps.
   final List<String> trustedMockProviders;
-
-  /// Creates spoof detection configuration.
-  const SpoofDetectionConfig({
-    this.enabled = true,
-    this.blockMockLocations = false,
-    this.sensitivity = SpoofSensitivity.balanced,
-    this.maxPossibleSpeedKph = kMaxPossibleSpeedKph,
-    this.maxAltitudeChangePerSecond = kMaxAltitudeChangePerSecondMeters,
-    this.minFactorsForDetection = kDefaultMinSpoofFactors,
-    this.onSpoofDetected,
-    this.checkMockProvider = true,
-    this.checkDeveloperOptions = false,
-    this.checkMockMode = true,
-    this.trustedMockProviders = const [],
-  });
 
   /// Disabled detection.
   static const SpoofDetectionConfig disabled = SpoofDetectionConfig(
@@ -176,30 +200,6 @@ class SpoofDetectionConfig {
         'checkMockMode': checkMockMode,
         'trustedMockProviders': trustedMockProviders,
       };
-
-  /// Creates from a map.
-  factory SpoofDetectionConfig.fromMap(JsonMap map) {
-    return SpoofDetectionConfig(
-      enabled: map['enabled'] as bool? ?? true,
-      blockMockLocations: map['blockMockLocations'] as bool? ?? false,
-      sensitivity: SpoofSensitivity.values.firstWhere(
-        (e) => e.name == map['sensitivity'],
-        orElse: () => SpoofSensitivity.balanced,
-      ),
-      maxPossibleSpeedKph:
-          (map['maxPossibleSpeedKph'] as num?)?.toDouble() ?? 1200,
-      maxAltitudeChangePerSecond:
-          (map['maxAltitudeChangePerSecond'] as num?)?.toDouble() ?? 100,
-      minFactorsForDetection:
-          (map['minFactorsForDetection'] as num?)?.toInt() ?? 2,
-      checkMockProvider: map['checkMockProvider'] as bool? ?? true,
-      checkDeveloperOptions: map['checkDeveloperOptions'] as bool? ?? false,
-      checkMockMode: map['checkMockMode'] as bool? ?? true,
-      trustedMockProviders: map['trustedMockProviders'] is List
-          ? List<String>.from(map['trustedMockProviders'] as List)
-          : const [],
-    );
-  }
 }
 
 /// Sensitivity level for spoof detection.
@@ -219,6 +219,18 @@ enum SpoofSensitivity {
 
 /// Event emitted when spoofing is detected.
 class SpoofDetectionEvent {
+
+  /// Creates a spoof detection event.
+  SpoofDetectionEvent({
+    required this.location,
+    this.previousLocation,
+    required this.factors,
+    required this.confidence,
+    this.wasBlocked = false,
+    Map<String, dynamic>? details,
+    DateTime? timestamp,
+  })  : details = details ?? const {},
+        timestamp = timestamp ?? DateTime.now();
   /// The suspicious location.
   final Location location;
 
@@ -239,18 +251,6 @@ class SpoofDetectionEvent {
 
   /// Additional details about detection.
   final Map<String, dynamic> details;
-
-  /// Creates a spoof detection event.
-  SpoofDetectionEvent({
-    required this.location,
-    this.previousLocation,
-    required this.factors,
-    required this.confidence,
-    this.wasBlocked = false,
-    Map<String, dynamic>? details,
-    DateTime? timestamp,
-  })  : details = details ?? const {},
-        timestamp = timestamp ?? DateTime.now();
 
   /// Human-readable description of the detection.
   String get description {
@@ -353,13 +353,13 @@ extension SpoofFactorDescription on SpoofFactor {
 
 /// Analyzer for detecting spoofed locations.
 class SpoofDetector {
+
+  /// Creates a spoof detector with the given configuration.
+  SpoofDetector(this.config);
   final SpoofDetectionConfig config;
   Location? _previousLocation;
   int _repeatedCoordCount = 0;
   static const _repeatedThreshold = 3;
-
-  /// Creates a spoof detector with the given configuration.
-  SpoofDetector(this.config);
 
   /// Analyzes a location for spoofing indicators.
   ///

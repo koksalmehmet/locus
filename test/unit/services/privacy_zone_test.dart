@@ -644,56 +644,56 @@ void main() {
     });
 
     test('addPrivacyZone adds a zone', () async {
-      await Locus.addPrivacyZone(PrivacyZone.create(
+      await Locus.privacy.add(PrivacyZone.create(
         identifier: 'home',
         latitude: 37.7749,
         longitude: -122.4194,
         radius: 100.0,
       ));
 
-      final zones = await Locus.getPrivacyZones();
+      final zones = await Locus.privacy.getAll();
       expect(zones.length, 1);
       expect(mock.methodCalls, contains('addPrivacyZone:home'));
     });
 
     test('removePrivacyZone removes a zone', () async {
-      await Locus.addPrivacyZone(PrivacyZone.create(
+      await Locus.privacy.add(PrivacyZone.create(
         identifier: 'home',
         latitude: 37.7749,
         longitude: -122.4194,
         radius: 100.0,
       ));
 
-      final result = await Locus.removePrivacyZone('home');
+      final result = await Locus.privacy.remove('home');
       expect(result, true);
 
-      final zones = await Locus.getPrivacyZones();
+      final zones = await Locus.privacy.getAll();
       expect(zones.length, 0);
     });
 
     test('getPrivacyZone retrieves specific zone', () async {
-      await Locus.addPrivacyZone(PrivacyZone.create(
+      await Locus.privacy.add(PrivacyZone.create(
         identifier: 'home',
         latitude: 37.7749,
         longitude: -122.4194,
         radius: 100.0,
       ));
 
-      final zone = await Locus.getPrivacyZone('home');
+      final zone = await Locus.privacy.get('home');
       expect(zone?.identifier, 'home');
     });
 
     test('setPrivacyZoneEnabled toggles zone', () async {
-      await Locus.addPrivacyZone(PrivacyZone.create(
+      await Locus.privacy.add(PrivacyZone.create(
         identifier: 'home',
         latitude: 37.7749,
         longitude: -122.4194,
         radius: 100.0,
       ));
 
-      await Locus.setPrivacyZoneEnabled('home', false);
+      await Locus.privacy.setEnabled('home', false);
 
-      final zone = await Locus.getPrivacyZone('home');
+      final zone = await Locus.privacy.get('home');
       expect(zone?.enabled, false);
     });
   });

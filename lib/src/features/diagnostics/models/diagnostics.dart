@@ -3,11 +3,6 @@ import 'package:locus/src/shared/models/geolocation_state.dart';
 import 'package:locus/src/features/sync/models/queue_item.dart';
 
 class DiagnosticsSnapshot {
-  final DateTime capturedAt;
-  final GeolocationState? state;
-  final JsonMap? config;
-  final List<QueueItem> queue;
-  final JsonMap? metadata;
 
   const DiagnosticsSnapshot({
     required this.capturedAt,
@@ -16,6 +11,11 @@ class DiagnosticsSnapshot {
     required this.queue,
     required this.metadata,
   });
+  final DateTime capturedAt;
+  final GeolocationState? state;
+  final JsonMap? config;
+  final List<QueueItem> queue;
+  final JsonMap? metadata;
 
   JsonMap toMap() => {
         'capturedAt': capturedAt.toIso8601String(),
@@ -29,15 +29,11 @@ class DiagnosticsSnapshot {
 enum RemoteCommandType {
   setConfig,
   syncQueue,
-  emailLog,
   setOdometer,
   resetOdometer,
 }
 
 class RemoteCommand {
-  final String id;
-  final RemoteCommandType type;
-  final JsonMap? payload;
 
   const RemoteCommand({
     required this.id,
@@ -57,4 +53,7 @@ class RemoteCommand {
           : null,
     );
   }
+  final String id;
+  final RemoteCommandType type;
+  final JsonMap? payload;
 }

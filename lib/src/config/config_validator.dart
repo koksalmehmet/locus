@@ -8,14 +8,6 @@ import 'package:locus/src/config/geolocation_config.dart';
 
 /// Result of a configuration validation.
 class ConfigValidationResult {
-  /// Whether the configuration is valid.
-  final bool isValid;
-
-  /// List of validation errors (if any).
-  final List<ConfigValidationError> errors;
-
-  /// List of validation warnings (if any).
-  final List<ConfigValidationWarning> warnings;
 
   const ConfigValidationResult({
     required this.isValid,
@@ -31,6 +23,14 @@ class ConfigValidationResult {
   /// Creates a failed validation result.
   const ConfigValidationResult.failure(this.errors, {this.warnings = const []})
       : isValid = false;
+  /// Whether the configuration is valid.
+  final bool isValid;
+
+  /// List of validation errors (if any).
+  final List<ConfigValidationError> errors;
+
+  /// List of validation warnings (if any).
+  final List<ConfigValidationWarning> warnings;
 
   @override
   String toString() {
@@ -56,6 +56,13 @@ class ConfigValidationResult {
 
 /// A configuration validation error.
 class ConfigValidationError {
+
+  const ConfigValidationError({
+    required this.field,
+    required this.message,
+    this.suggestion,
+    this.example,
+  });
   /// The configuration field that is invalid.
   final String field;
 
@@ -67,13 +74,6 @@ class ConfigValidationError {
 
   /// Example of valid configuration.
   final String? example;
-
-  const ConfigValidationError({
-    required this.field,
-    required this.message,
-    this.suggestion,
-    this.example,
-  });
 
   @override
   String toString() {
@@ -90,6 +90,12 @@ class ConfigValidationError {
 
 /// A configuration validation warning.
 class ConfigValidationWarning {
+
+  const ConfigValidationWarning({
+    required this.field,
+    required this.message,
+    this.suggestion,
+  });
   /// The configuration field with a potential issue.
   final String field;
 
@@ -98,12 +104,6 @@ class ConfigValidationWarning {
 
   /// Suggestion on how to improve.
   final String? suggestion;
-
-  const ConfigValidationWarning({
-    required this.field,
-    required this.message,
-    this.suggestion,
-  });
 
   @override
   String toString() {
@@ -217,7 +217,7 @@ class ConfigValidator {
     if (config.url != null && config.url!.isNotEmpty) {
       if (!config.url!.startsWith('http://') &&
           !config.url!.startsWith('https://')) {
-        errors.add(ConfigValidationError(
+        errors.add(const ConfigValidationError(
           field: 'url',
           message: 'URL must start with http:// or https://',
           suggestion: 'Add the protocol prefix to your URL',
@@ -499,10 +499,10 @@ class ConfigValidator {
 
 /// Exception thrown when configuration validation fails.
 class ConfigValidationException implements Exception {
-  /// The validation errors that caused this exception.
-  final List<ConfigValidationError> errors;
 
   const ConfigValidationException(this.errors);
+  /// The validation errors that caused this exception.
+  final List<ConfigValidationError> errors;
 
   @override
   String toString() {

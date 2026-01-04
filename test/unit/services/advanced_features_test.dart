@@ -246,7 +246,7 @@ void main() {
       expect(
           permissionError.suggestedRecovery, RecoveryAction.requestUserAction);
 
-      final timeoutError = LocusError.timeout(timeout: Duration(seconds: 30));
+      final timeoutError = LocusError.timeout(timeout: const Duration(seconds: 30));
       expect(timeoutError.type, LocusErrorType.locationTimeout);
       expect(timeoutError.suggestedRecovery, RecoveryAction.retry);
       expect(timeoutError.details?['timeoutMs'], 30000);

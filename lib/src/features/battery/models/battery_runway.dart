@@ -19,6 +19,57 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// print('Recommendation: ${runway.recommendation}');
 /// ```
 class BatteryRunway {
+
+  /// Creates a battery runway estimation.
+  const BatteryRunway({
+    required this.duration,
+    required this.lowPowerDuration,
+    required this.recommendation,
+    required this.currentLevel,
+    this.isCharging = false,
+    this.drainRatePerHour,
+    this.lowPowerDrainRatePerHour,
+    this.confidence = 0.0,
+  });
+
+  /// Creates an estimation indicating insufficient data.
+  const BatteryRunway.insufficientData({
+    required this.currentLevel,
+    this.isCharging = false,
+  })  : duration = Duration.zero,
+        lowPowerDuration = Duration.zero,
+        recommendation = 'Insufficient tracking data for estimation',
+        drainRatePerHour = null,
+        lowPowerDrainRatePerHour = null,
+        confidence = 0.0;
+
+  /// Creates an estimation for a charging device.
+  const BatteryRunway.charging({
+    required this.currentLevel,
+  })  : duration = const Duration(hours: 999),
+        lowPowerDuration = const Duration(hours: 999),
+        recommendation = 'Device is charging - unlimited tracking available',
+        isCharging = true,
+        drainRatePerHour = 0.0,
+        lowPowerDrainRatePerHour = 0.0,
+        confidence = 1.0;
+
+  /// Creates from a map.
+  factory BatteryRunway.fromMap(JsonMap map) {
+    return BatteryRunway(
+      duration:
+          Duration(minutes: (map['durationMinutes'] as num?)?.toInt() ?? 0),
+      lowPowerDuration: Duration(
+          minutes: (map['lowPowerDurationMinutes'] as num?)?.toInt() ?? 0),
+      recommendation: map['recommendation'] as String? ?? '',
+      currentLevel: (map['currentLevel'] as num?)?.toInt() ?? 0,
+      isCharging: map['isCharging'] as bool? ?? false,
+      drainRatePerHour: (map['drainRatePerHour'] as num?)?.toDouble(),
+      lowPowerDrainRatePerHour:
+          (map['lowPowerDrainRatePerHour'] as num?)?.toDouble(),
+      confidence: (map['confidence'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
   /// Estimated remaining tracking duration at current drain rate.
   ///
   /// Returns [Duration.zero] if battery is depleted or estimation
@@ -72,40 +123,6 @@ class BatteryRunway {
   /// At or below this level, immediate action is recommended.
   static const int criticalLevel = 5;
 
-  /// Creates a battery runway estimation.
-  const BatteryRunway({
-    required this.duration,
-    required this.lowPowerDuration,
-    required this.recommendation,
-    required this.currentLevel,
-    this.isCharging = false,
-    this.drainRatePerHour,
-    this.lowPowerDrainRatePerHour,
-    this.confidence = 0.0,
-  });
-
-  /// Creates an estimation indicating insufficient data.
-  const BatteryRunway.insufficientData({
-    required this.currentLevel,
-    this.isCharging = false,
-  })  : duration = Duration.zero,
-        lowPowerDuration = Duration.zero,
-        recommendation = 'Insufficient tracking data for estimation',
-        drainRatePerHour = null,
-        lowPowerDrainRatePerHour = null,
-        confidence = 0.0;
-
-  /// Creates an estimation for a charging device.
-  const BatteryRunway.charging({
-    required this.currentLevel,
-  })  : duration = const Duration(hours: 999),
-        lowPowerDuration = const Duration(hours: 999),
-        recommendation = 'Device is charging - unlimited tracking available',
-        isCharging = true,
-        drainRatePerHour = 0.0,
-        lowPowerDrainRatePerHour = 0.0,
-        confidence = 1.0;
-
   /// Whether the battery level is critical.
   bool get isCritical => currentLevel <= criticalLevel && !isCharging;
 
@@ -149,23 +166,6 @@ class BatteryRunway {
         'formattedDuration': formattedDuration,
         'formattedLowPowerDuration': formattedLowPowerDuration,
       };
-
-  /// Creates from a map.
-  factory BatteryRunway.fromMap(JsonMap map) {
-    return BatteryRunway(
-      duration:
-          Duration(minutes: (map['durationMinutes'] as num?)?.toInt() ?? 0),
-      lowPowerDuration: Duration(
-          minutes: (map['lowPowerDurationMinutes'] as num?)?.toInt() ?? 0),
-      recommendation: map['recommendation'] as String? ?? '',
-      currentLevel: (map['currentLevel'] as num?)?.toInt() ?? 0,
-      isCharging: map['isCharging'] as bool? ?? false,
-      drainRatePerHour: (map['drainRatePerHour'] as num?)?.toDouble(),
-      lowPowerDrainRatePerHour:
-          (map['lowPowerDrainRatePerHour'] as num?)?.toDouble(),
-      confidence: (map['confidence'] as num?)?.toDouble() ?? 0.0,
-    );
-  }
 
   @override
   String toString() {

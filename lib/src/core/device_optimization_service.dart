@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:locus/src/core/locus_channels.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Helpers for device-specific background execution behavior.
 class DeviceOptimizationService {
@@ -32,10 +31,13 @@ class DeviceOptimizationService {
     return result == true;
   }
 
-  /// Opens manufacturer-specific guidance (Android only).
-  static Future<void> showManufacturerInstructions() async {
+  /// Returns the URL for manufacturer-specific guidance (Android only).
+  ///
+  /// Returns `null` on non-Android platforms. The caller is responsible for
+  /// launching the URL using their preferred method (e.g., url_launcher).
+  static Future<String?> getManufacturerInstructionsUrl() async {
     if (!Platform.isAndroid) {
-      return;
+      return null;
     }
     String manufacturer = 'android';
     final diagnosticsManufacturer = await _readManufacturerFromDiagnostics();
@@ -50,12 +52,7 @@ class DeviceOptimizationService {
         // Fallback to generic page.
       }
     }
-    final url =
-        _manufacturerLinks[manufacturer] ?? 'https://dontkillmyapp.com/';
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+    return _manufacturerLinks[manufacturer] ?? 'https://dontkillmyapp.com/';
   }
 
   /// High-level guidance about OS background limits.

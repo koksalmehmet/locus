@@ -51,13 +51,6 @@ class LocusDiagnostics {
       case RemoteCommandType.syncQueue:
         await LocusSync.syncQueue();
         return true;
-      case RemoteCommandType.emailLog:
-        final email = command.payload?['email'] as String?;
-        if (email == null || email.isEmpty) {
-          return false;
-        }
-        await LocusChannels.methods.invokeMethod('emailLog', email);
-        return true;
       case RemoteCommandType.setOdometer:
         final value = command.payload?['value'] as num?;
         if (value == null) {

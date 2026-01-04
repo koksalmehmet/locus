@@ -22,16 +22,6 @@ typedef SyncBodyBuilder = Future<JsonMap> Function(
 
 /// Context passed to headless sync body builder.
 class SyncBodyContext {
-  const SyncBodyContext({
-    required this.locations,
-    required this.extras,
-  });
-
-  /// Pending locations to sync.
-  final List<Location> locations;
-
-  /// Extras from Config.
-  final JsonMap extras;
 
   /// Creates from a map (for headless deserialization).
   factory SyncBodyContext.fromMap(Map<String, dynamic> map) {
@@ -42,6 +32,16 @@ class SyncBodyContext {
     final extras = Map<String, dynamic>.from(map['extras'] as Map? ?? {});
     return SyncBodyContext(locations: locations, extras: extras);
   }
+  const SyncBodyContext({
+    required this.locations,
+    required this.extras,
+  });
+
+  /// Pending locations to sync.
+  final List<Location> locations;
+
+  /// Extras from Config.
+  final JsonMap extras;
 }
 
 /// Contract for Locus implementations (method-channel or mock).
@@ -209,8 +209,6 @@ abstract class LocusInterface {
   // Logging Methods
   // ============================================================
   Future<List<LogEntry>> getLog();
-  Future<void> emailLog(String email);
-  Future<void> playSound(String name);
 
   // ============================================================
   // Queue Methods

@@ -14,35 +14,21 @@ Adaptive tracking automatically adjusts location accuracy and update frequency b
 ### Enabling Adaptive Tracking
 
 ```dart
-await Locus.ready(Config.balanced(
-  url: 'https://api.example.com/locations',
-  enableAdaptiveTracking: true,
-));
+await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
 ```
 
 ### Adaptive Configuration
 
 ```dart
 final adaptiveConfig = AdaptiveTrackingConfig(
-  // Battery thresholds
-  lowBatteryThreshold: 20,
-  criticalBatteryThreshold: 10,
-  
-  // Behavior when stationary
-  stationaryDistanceFilter: 50,
-  stationaryAccuracy: Accuracy.low,
-  stationaryHeartbeat: Duration(minutes: 5),
-  
-  // Behavior when moving
-  movingDistanceFilter: 10,
-  movingAccuracy: Accuracy.high,
-  
-  // Speed-based adjustments
-  walkingSpeedThreshold: 2.0,  // m/s
-  drivingSpeedThreshold: 10.0, // m/s
+  speedTiers: SpeedTiers.driving,
+  batteryThresholds: BatteryThresholds.conservative,
+  stationaryGpsOff: true,
+  stationaryDelay: Duration(minutes: 2),
+  smartHeartbeat: true,
 );
 
-await Locus.configureAdaptiveTracking(adaptiveConfig);
+await Locus.battery.setAdaptiveTracking(adaptiveConfig);
 ```
 
 ## Battery Runway
@@ -50,8 +36,8 @@ await Locus.configureAdaptiveTracking(adaptiveConfig);
 Battery runway estimates how long tracking can continue at current power consumption:
 
 ```dart
-final runway = await Locus.getBatteryRunway();
-print('Estimated tracking time remaining: ${runway.duration}');
+final runway = await Locus.battery.estimateRunway();
+print('Estimated tracking time remaining: ${runway.formattedDuration}');
 print('Current drain rate: ${runway.drainRatePerHour}%/hr');
 ```
 
@@ -60,16 +46,15 @@ print('Current drain rate: ${runway.drainRatePerHour}%/hr');
 For more detailed estimates:
 
 ```dart
-final calculator = BatteryRunwayCalculator();
-
-final estimate = calculator.estimate(
+final estimate = BatteryRunwayCalculator.calculate(
   currentLevel: 75,
   isCharging: false,
-  currentConfig: myConfig,
+  drainPercent: 4.0,
+  trackingMinutes: 60,
 );
 
 print('At current settings: ${estimate.duration}');
-print('Recommended config: ${estimate.recommendedConfig}');
+print('Recommendation: ${estimate.recommendation}');
 ```
 
 ## Power State Monitoring
@@ -77,8 +62,9 @@ print('Recommended config: ${estimate.recommendedConfig}');
 Monitor device power state changes:
 
 ```dart
-Locus.onPowerStateChange.listen((state) {
-  print('Battery: ${state.level}%');
+Locus.battery.powerStateEvents.listen((event) {
+  final state = event.current;
+  print('Battery: ${state.batteryLevel}%');
   print('Charging: ${state.isCharging}');
   print('Power save mode: ${state.isPowerSaveMode}');
 });
@@ -89,14 +75,13 @@ Locus.onPowerStateChange.listen((state) {
 Pre-defined profiles optimize for different use cases:
 
 ```dart
-// High accuracy for fitness apps
-await Locus.setTrackingProfile(TrackingProfile.fitness);
-
-// Battery-saving for long trips
-await Locus.setTrackingProfile(TrackingProfile.passive);
-
-// Balanced for general use
-await Locus.setTrackingProfile(TrackingProfile.balanced);
+await Locus.setTrackingProfiles(
+  {
+    TrackingProfile.standby: ConfigPresets.lowPower,
+    TrackingProfile.enRoute: ConfigPresets.tracking,
+  },
+  initialProfile: TrackingProfile.standby,
+);
 ```
 
 ### Custom Profiles
@@ -104,27 +89,27 @@ await Locus.setTrackingProfile(TrackingProfile.balanced);
 Create custom profiles with automatic switching rules:
 
 ```dart
-final customProfile = TrackingProfile(
-  identifier: 'delivery_mode',
-  distanceFilter: 25,
-  desiredAccuracy: Accuracy.balanced,
+await Locus.setTrackingProfiles(
+  {
+    TrackingProfile.standby: ConfigPresets.lowPower,
+    TrackingProfile.enRoute: ConfigPresets.tracking,
+    TrackingProfile.arrived: ConfigPresets.balanced,
+  },
   rules: [
     TrackingProfileRule(
-      type: TrackingProfileRuleType.batteryBelow,
-      threshold: 20,
-      targetProfile: TrackingProfile.passive,
+      profile: TrackingProfile.enRoute,
+      type: TrackingProfileRuleType.speedAbove,
+      speedKph: 20,
     ),
     TrackingProfileRule(
-      type: TrackingProfileRuleType.speedAbove,
-      threshold: 15, // m/s
-      targetProfile: TrackingProfile.fitness,
+      profile: TrackingProfile.arrived,
+      type: TrackingProfileRuleType.geofence,
+      geofenceAction: GeofenceAction.enter,
+      geofenceIdentifier: 'destination',
     ),
   ],
+  enableAutomation: true,
 );
-
-final manager = TrackingProfileManager();
-manager.registerProfile(customProfile);
-await manager.setActiveProfile('delivery_mode');
 ```
 
 ## Sync Policy
@@ -133,20 +118,16 @@ Control when data is synced to save battery:
 
 ```dart
 final syncPolicy = SyncPolicy(
-  // Only sync on WiFi when battery is low
-  wifiOnlyBelowBattery: 30,
-  
-  // Batch locations to reduce network calls
+  onWifi: SyncBehavior.immediate,
+  onCellular: SyncBehavior.batch,
+  onMetered: SyncBehavior.manual,
   batchSize: 50,
-  
-  // Maximum time between syncs
-  maxSyncInterval: Duration(hours: 1),
-  
-  // Sync immediately when charging
-  immediateWhenCharging: true,
+  batchInterval: Duration(minutes: 5),
+  lowBatteryThreshold: 20,
+  lowBatteryBehavior: SyncBehavior.manual,
 );
 
-await Locus.configureSyncPolicy(syncPolicy);
+await Locus.dataSync.setPolicy(syncPolicy);
 ```
 
 ---

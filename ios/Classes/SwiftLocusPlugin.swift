@@ -14,16 +14,16 @@ public class SwiftLocusPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, Lo
   static let tripStateKey = "bg_trip_state"
 
   // Managers
-  let configManager = ConfigManager.shared
-  let syncManager = SyncManager.shared
-  let motionDetector = MotionManager.shared
-  let scheduler = Scheduler.shared
-  let storage = StorageManager.shared
-  let geofenceManager = GeofenceManager.shared
+  let configManager = ConfigManager()
+  let storage: StorageManager
+  let syncManager: SyncManager
+  let motionDetector: MotionManager
+  let scheduler: Scheduler
+  let geofenceManager: GeofenceManager
   let trackingStats = TrackingStats()
 
   // State
-  let locationClient = LocationClient.shared
+  let locationClient: LocationClient
   var eventSink: FlutterEventSink?
   var pendingLocationResult: FlutterResult?
   var isEnabled = false
@@ -48,6 +48,12 @@ public class SwiftLocusPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, Lo
   }
 
   override init() {
+    storage = StorageManager(sqliteStorage: SQLiteStorage())
+    syncManager = SyncManager(config: configManager, storage: storage)
+    motionDetector = MotionManager(config: configManager)
+    scheduler = Scheduler(config: configManager)
+    geofenceManager = GeofenceManager(config: configManager, storage: storage)
+    locationClient = LocationClient(config: configManager)
     super.init()
 
     // Wire delegates
@@ -285,6 +291,28 @@ public class SwiftLocusPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, Lo
     case "stopSignificantChangeMonitoring":
       // Significant change monitoring is handled on Dart side
       result(true)
+    case "setDynamicHeaders":
+      if let headers = call.arguments as? [String: String] {
+        configManager.dynamicHeaders = headers
+      }
+      result(true)
+    case "setSyncPolicy":
+      if let args = call.arguments as? [String: Any] {
+        if let syncOnCellular = args["syncOnCellular"] as? Bool {
+          configManager.syncOnCellular = syncOnCellular
+        }
+        if let syncInterval = args["syncInterval"] as? Int {
+          configManager.syncInterval = syncInterval
+        }
+        if let batchSync = args["batchSync"] as? Bool {
+          configManager.batchSync = batchSync
+        }
+      }
+      result(true)
+    case "isMeteredConnection":
+      let path = networkMonitor?.currentPath
+      let isCellular = path?.usesInterfaceType(.cellular) ?? false
+      result(isCellular)
     default:
       result(FlutterMethodNotImplemented)
     }

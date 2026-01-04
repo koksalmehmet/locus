@@ -26,6 +26,66 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// );
 /// ```
 class SyncPolicy {
+
+  /// Creates a sync policy.
+  const SyncPolicy({
+    this.onWifi = SyncBehavior.immediate,
+    this.onCellular = SyncBehavior.batch,
+    this.onMetered = SyncBehavior.batch,
+    this.onOffline = SyncBehavior.queue,
+    this.onCharging = SyncBehavior.immediate,
+    this.batchSize = 50,
+    this.batchInterval = const Duration(minutes: 5),
+    this.lowBatteryThreshold = 20,
+    this.lowBatteryBehavior = SyncBehavior.manual,
+    this.minSyncInterval = const Duration(seconds: 30),
+    this.maxLocationAge,
+    this.preferWifi = true,
+    this.foregroundOnly = false,
+  });
+
+  /// Creates from a map.
+  factory SyncPolicy.fromMap(JsonMap map) {
+    return SyncPolicy(
+      onWifi: SyncBehavior.values.firstWhere(
+        (e) => e.name == map['onWifi'],
+        orElse: () => SyncBehavior.immediate,
+      ),
+      onCellular: SyncBehavior.values.firstWhere(
+        (e) => e.name == map['onCellular'],
+        orElse: () => SyncBehavior.batch,
+      ),
+      onMetered: SyncBehavior.values.firstWhere(
+        (e) => e.name == map['onMetered'],
+        orElse: () => SyncBehavior.batch,
+      ),
+      onOffline: SyncBehavior.values.firstWhere(
+        (e) => e.name == map['onOffline'],
+        orElse: () => SyncBehavior.queue,
+      ),
+      onCharging: SyncBehavior.values.firstWhere(
+        (e) => e.name == map['onCharging'],
+        orElse: () => SyncBehavior.immediate,
+      ),
+      batchSize: (map['batchSize'] as num?)?.toInt() ?? 50,
+      batchInterval: Duration(
+        milliseconds: (map['batchIntervalMs'] as num?)?.toInt() ?? 300000,
+      ),
+      lowBatteryThreshold: (map['lowBatteryThreshold'] as num?)?.toInt() ?? 20,
+      lowBatteryBehavior: SyncBehavior.values.firstWhere(
+        (e) => e.name == map['lowBatteryBehavior'],
+        orElse: () => SyncBehavior.manual,
+      ),
+      minSyncInterval: Duration(
+        milliseconds: (map['minSyncIntervalMs'] as num?)?.toInt() ?? 30000,
+      ),
+      maxLocationAge: map['maxLocationAgeMs'] != null
+          ? Duration(milliseconds: (map['maxLocationAgeMs'] as num).toInt())
+          : null,
+      preferWifi: map['preferWifi'] as bool? ?? true,
+      foregroundOnly: map['foregroundOnly'] as bool? ?? false,
+    );
+  }
   /// Sync behavior when connected to WiFi.
   final SyncBehavior onWifi;
 
@@ -76,23 +136,6 @@ class SyncPolicy {
 
   /// Whether to sync only when app is in foreground.
   final bool foregroundOnly;
-
-  /// Creates a sync policy.
-  const SyncPolicy({
-    this.onWifi = SyncBehavior.immediate,
-    this.onCellular = SyncBehavior.batch,
-    this.onMetered = SyncBehavior.batch,
-    this.onOffline = SyncBehavior.queue,
-    this.onCharging = SyncBehavior.immediate,
-    this.batchSize = 50,
-    this.batchInterval = const Duration(minutes: 5),
-    this.lowBatteryThreshold = 20,
-    this.lowBatteryBehavior = SyncBehavior.manual,
-    this.minSyncInterval = const Duration(seconds: 30),
-    this.maxLocationAge,
-    this.preferWifi = true,
-    this.foregroundOnly = false,
-  });
 
   /// Aggressive sync - always sync immediately.
   ///
@@ -241,49 +284,6 @@ class SyncPolicy {
         'preferWifi': preferWifi,
         'foregroundOnly': foregroundOnly,
       };
-
-  /// Creates from a map.
-  factory SyncPolicy.fromMap(JsonMap map) {
-    return SyncPolicy(
-      onWifi: SyncBehavior.values.firstWhere(
-        (e) => e.name == map['onWifi'],
-        orElse: () => SyncBehavior.immediate,
-      ),
-      onCellular: SyncBehavior.values.firstWhere(
-        (e) => e.name == map['onCellular'],
-        orElse: () => SyncBehavior.batch,
-      ),
-      onMetered: SyncBehavior.values.firstWhere(
-        (e) => e.name == map['onMetered'],
-        orElse: () => SyncBehavior.batch,
-      ),
-      onOffline: SyncBehavior.values.firstWhere(
-        (e) => e.name == map['onOffline'],
-        orElse: () => SyncBehavior.queue,
-      ),
-      onCharging: SyncBehavior.values.firstWhere(
-        (e) => e.name == map['onCharging'],
-        orElse: () => SyncBehavior.immediate,
-      ),
-      batchSize: (map['batchSize'] as num?)?.toInt() ?? 50,
-      batchInterval: Duration(
-        milliseconds: (map['batchIntervalMs'] as num?)?.toInt() ?? 300000,
-      ),
-      lowBatteryThreshold: (map['lowBatteryThreshold'] as num?)?.toInt() ?? 20,
-      lowBatteryBehavior: SyncBehavior.values.firstWhere(
-        (e) => e.name == map['lowBatteryBehavior'],
-        orElse: () => SyncBehavior.manual,
-      ),
-      minSyncInterval: Duration(
-        milliseconds: (map['minSyncIntervalMs'] as num?)?.toInt() ?? 30000,
-      ),
-      maxLocationAge: map['maxLocationAgeMs'] != null
-          ? Duration(milliseconds: (map['maxLocationAgeMs'] as num).toInt())
-          : null,
-      preferWifi: map['preferWifi'] as bool? ?? true,
-      foregroundOnly: map['foregroundOnly'] as bool? ?? false,
-    );
-  }
 }
 
 /// Sync behavior options.
@@ -303,7 +303,7 @@ enum SyncBehavior {
   /// Only syncs when network conditions improve or user triggers.
   queue,
 
-  /// No automatic sync - requires manual [Locus.sync()].
+  /// No automatic sync - requires manual sync via `Locus.dataSync.now()`.
   ///
   /// Maximum control, suitable when battery is critical.
   manual,
@@ -326,6 +326,14 @@ enum NetworkType {
 
 /// Sync decision result from policy evaluation.
 class SyncDecision {
+
+  /// Creates a sync decision.
+  const SyncDecision({
+    required this.shouldSync,
+    required this.reason,
+    this.batchLimit,
+    this.delay,
+  });
   /// Whether sync should proceed.
   final bool shouldSync;
 
@@ -337,14 +345,6 @@ class SyncDecision {
 
   /// Suggested delay before sync.
   final Duration? delay;
-
-  /// Creates a sync decision.
-  const SyncDecision({
-    required this.shouldSync,
-    required this.reason,
-    this.batchLimit,
-    this.delay,
-  });
 
   /// Sync should proceed immediately.
   static const SyncDecision proceed = SyncDecision(

@@ -31,39 +31,6 @@ enum PrivacyZoneAction {
 /// );
 /// ```
 class PrivacyZone {
-  /// Unique identifier for this privacy zone.
-  final String identifier;
-
-  /// Center latitude of the zone.
-  final double latitude;
-
-  /// Center longitude of the zone.
-  final double longitude;
-
-  /// Radius in meters defining the zone boundary.
-  final double radius;
-
-  /// Action to take when location is within this zone.
-  final PrivacyZoneAction action;
-
-  /// For obfuscate action: radius within which to randomly offset coordinates.
-  /// Defaults to 500 meters if not specified.
-  final double obfuscationRadius;
-
-  /// Optional label for display purposes.
-  final String? label;
-
-  /// Whether this zone is currently active.
-  final bool enabled;
-
-  /// Optional metadata for this zone.
-  final JsonMap? extras;
-
-  /// When this zone was created.
-  final DateTime createdAt;
-
-  /// When this zone was last updated.
-  final DateTime? updatedAt;
 
   const PrivacyZone({
     required this.identifier,
@@ -104,6 +71,65 @@ class PrivacyZone {
       createdAt: DateTime.now(),
     );
   }
+
+  factory PrivacyZone.fromMap(JsonMap map) {
+    return PrivacyZone(
+      identifier: map['identifier'] as String? ?? '',
+      latitude: (map['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
+      radius: (map['radius'] as num?)?.toDouble() ?? 0.0,
+      action: PrivacyZoneAction.values.firstWhere(
+        (a) => a.name == map['action'],
+        orElse: () => PrivacyZoneAction.obfuscate,
+      ),
+      obfuscationRadius:
+          (map['obfuscationRadius'] as num?)?.toDouble() ?? 500.0,
+      label: map['label'] as String?,
+      enabled: map['enabled'] as bool? ?? true,
+      extras: map['extras'] is Map
+          ? Map<String, dynamic>.from(map['extras'] as Map)
+          : null,
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'] as String)
+          : DateTime.now(),
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.parse(map['updatedAt'] as String)
+          : null,
+    );
+  }
+  /// Unique identifier for this privacy zone.
+  final String identifier;
+
+  /// Center latitude of the zone.
+  final double latitude;
+
+  /// Center longitude of the zone.
+  final double longitude;
+
+  /// Radius in meters defining the zone boundary.
+  final double radius;
+
+  /// Action to take when location is within this zone.
+  final PrivacyZoneAction action;
+
+  /// For obfuscate action: radius within which to randomly offset coordinates.
+  /// Defaults to 500 meters if not specified.
+  final double obfuscationRadius;
+
+  /// Optional label for display purposes.
+  final String? label;
+
+  /// Whether this zone is currently active.
+  final bool enabled;
+
+  /// Optional metadata for this zone.
+  final JsonMap? extras;
+
+  /// When this zone was created.
+  final DateTime createdAt;
+
+  /// When this zone was last updated.
+  final DateTime? updatedAt;
 
   /// Whether this zone configuration is valid.
   bool get isValid =>
@@ -197,32 +223,6 @@ class PrivacyZone {
         if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
       };
 
-  factory PrivacyZone.fromMap(JsonMap map) {
-    return PrivacyZone(
-      identifier: map['identifier'] as String? ?? '',
-      latitude: (map['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
-      radius: (map['radius'] as num?)?.toDouble() ?? 0.0,
-      action: PrivacyZoneAction.values.firstWhere(
-        (a) => a.name == map['action'],
-        orElse: () => PrivacyZoneAction.obfuscate,
-      ),
-      obfuscationRadius:
-          (map['obfuscationRadius'] as num?)?.toDouble() ?? 500.0,
-      label: map['label'] as String?,
-      enabled: map['enabled'] as bool? ?? true,
-      extras: map['extras'] is Map
-          ? Map<String, dynamic>.from(map['extras'] as Map)
-          : null,
-      createdAt: map['createdAt'] != null
-          ? DateTime.parse(map['createdAt'] as String)
-          : DateTime.now(),
-      updatedAt: map['updatedAt'] != null
-          ? DateTime.parse(map['updatedAt'] as String)
-          : null,
-    );
-  }
-
   @override
   String toString() =>
       'PrivacyZone($identifier, center: ($latitude, $longitude), '
@@ -241,6 +241,14 @@ class PrivacyZone {
 
 /// Result of applying privacy zone rules to a location.
 class PrivacyZoneResult {
+
+  const PrivacyZoneResult({
+    required this.originalLocation,
+    this.processedLocation,
+    this.matchedZones = const [],
+    this.wasExcluded = false,
+    this.wasObfuscated = false,
+  });
   /// The original location (before any modification).
   final Location originalLocation;
 
@@ -255,14 +263,6 @@ class PrivacyZoneResult {
 
   /// Whether the location was obfuscated.
   final bool wasObfuscated;
-
-  const PrivacyZoneResult({
-    required this.originalLocation,
-    this.processedLocation,
-    this.matchedZones = const [],
-    this.wasExcluded = false,
-    this.wasObfuscated = false,
-  });
 
   /// Whether the location was affected by any privacy zone.
   bool get wasAffected => wasExcluded || wasObfuscated;

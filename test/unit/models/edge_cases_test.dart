@@ -31,7 +31,7 @@ void main() {
         timestamp: DateTime(2024, 1, 1),
         isMoving: true,
         odometer: 1500.5,
-        coords: Coords(
+        coords: const Coords(
           latitude: 37.7749,
           longitude: -122.4194,
           accuracy: 5.0,
@@ -85,7 +85,7 @@ void main() {
     });
 
     test('handles extreme coordinates', () {
-      final coords = Coords(
+      const coords = Coords(
         latitude: 90.0, // North pole
         longitude: 180.0,
         accuracy: 100.0,
@@ -160,7 +160,7 @@ void main() {
     });
 
     test('Config respects boundaries', () {
-      final config = Config(
+      const config = Config(
         distanceFilter: 0, // Minimum
         stopTimeout: 0,
         stopDetectionDelay: 0,
@@ -172,7 +172,7 @@ void main() {
 
   group('PowerState Edge Cases', () {
     test('handles boundary battery levels', () {
-      final empty = PowerState(
+      const empty = PowerState(
         batteryLevel: 0,
         isCharging: false,
         isPowerSaveMode: false,
@@ -180,7 +180,7 @@ void main() {
       );
       expect(empty.isCriticalBattery, true);
 
-      final full = PowerState(
+      const full = PowerState(
         batteryLevel: 100,
         isCharging: true,
         isPowerSaveMode: false,
@@ -190,7 +190,7 @@ void main() {
     });
 
     test('optimizationSuggestion varies by state', () {
-      final lowBattery = PowerState(
+      const lowBattery = PowerState(
         batteryLevel: 5,
         isCharging: false,
         isPowerSaveMode: false,
@@ -199,7 +199,7 @@ void main() {
       expect(lowBattery.optimizationSuggestion, isNotNull);
       expect(lowBattery.optimizationSuggestion.reason, contains('Critical'));
 
-      final powerSave = PowerState(
+      const powerSave = PowerState(
         batteryLevel: 50,
         isCharging: false,
         isPowerSaveMode: true,
@@ -211,7 +211,7 @@ void main() {
 
   group('BatteryThresholds Edge Cases', () {
     test('getLevel boundaries', () {
-      final thresholds = BatteryThresholds(
+      const thresholds = BatteryThresholds(
         lowThreshold: 30,
         criticalThreshold: 15,
       );
@@ -226,7 +226,7 @@ void main() {
 
   group('SpeedTiers Edge Cases', () {
     test('getTier boundaries', () {
-      final tiers = SpeedTiers.balanced;
+      const tiers = SpeedTiers.balanced;
 
       expect(tiers.getTier(0).name, 'stationary');
       expect(tiers.getTier(4.9).name, 'walking');
@@ -239,7 +239,7 @@ void main() {
     });
 
     test('handles negative speed', () {
-      final tiers = SpeedTiers.balanced;
+      const tiers = SpeedTiers.balanced;
       final tier = tiers.getTier(-1);
       expect(tier.name, 'stationary');
     });
@@ -247,7 +247,7 @@ void main() {
 
   group('SyncPolicy Edge Cases', () {
     test('getBehavior handles all network types', () {
-      final policy = SyncPolicy.balanced;
+      const policy = SyncPolicy.balanced;
 
       final wifiDecision = policy.getBehavior(
         networkType: NetworkType.wifi,
@@ -364,7 +364,7 @@ void main() {
 
   group('AdaptiveTrackingConfig Edge Cases', () {
     test('calculateSettings with extreme battery levels', () {
-      final config = AdaptiveTrackingConfig.balanced;
+      const config = AdaptiveTrackingConfig.balanced;
 
       final criticalSettings = config.calculateSettings(
         speedMps: 0,
@@ -388,7 +388,7 @@ void main() {
     });
 
     test('calculateSettings respects geofence mode', () {
-      final config = AdaptiveTrackingConfig(
+      const config = AdaptiveTrackingConfig(
         enabled: true,
         geofenceOptimization: true,
       );
@@ -407,18 +407,18 @@ void main() {
 
   group('SyncDecision', () {
     test('factory constructors create correct decisions', () {
-      final proceed = SyncDecision(
+      const proceed = SyncDecision(
         shouldSync: true,
         reason: 'Test decision',
       );
       expect(proceed.shouldSync, true);
 
       final deferred =
-          SyncDecision.defer('Low battery', delay: Duration(minutes: 5));
+          SyncDecision.defer('Low battery', delay: const Duration(minutes: 5));
       expect(deferred.shouldSync, false);
       expect(deferred.reason, contains('Low battery'));
 
-      final batched = SyncDecision.batch(50, delay: Duration(seconds: 30));
+      final batched = SyncDecision.batch(50, delay: const Duration(seconds: 30));
       expect(batched.shouldSync, true);
       expect(batched.batchLimit, 50);
     });

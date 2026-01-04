@@ -68,7 +68,7 @@ void main() {
     );
 
     await controller.close();
-    engine.dispose();
+    await engine.dispose();
   });
 
   test('workflow enforces cooldown', () async {
@@ -108,6 +108,6 @@ void main() {
     );
 
     await controller.close();
-    engine.dispose();
+    await engine.dispose();
   });
 }

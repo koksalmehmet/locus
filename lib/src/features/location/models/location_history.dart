@@ -19,35 +19,9 @@ import 'package:locus/src/shared/models/json_map.dart';
 ///   minAccuracy: 50.0,
 ///   limit: 100,
 /// );
-/// final locations = await Locus.queryLocations(query);
+/// final locations = await Locus.location.queryLocations(query);
 /// ```
 class LocationQuery {
-  /// Start of the time range (inclusive).
-  final DateTime? from;
-
-  /// End of the time range (inclusive).
-  final DateTime? to;
-
-  /// Minimum accuracy in meters (filters out less accurate locations).
-  final double? minAccuracy;
-
-  /// Maximum accuracy in meters (filters out more accurate locations).
-  final double? maxAccuracy;
-
-  /// Only include locations where user was moving.
-  final bool? isMoving;
-
-  /// Bounding box for spatial filtering.
-  final LocationBounds? bounds;
-
-  /// Maximum number of results to return.
-  final int? limit;
-
-  /// Offset for pagination.
-  final int offset;
-
-  /// Sort order for results.
-  final LocationSortOrder sortOrder;
 
   /// Creates a location query.
   const LocationQuery({
@@ -80,6 +54,32 @@ class LocationQuery {
       limit: limit,
     );
   }
+  /// Start of the time range (inclusive).
+  final DateTime? from;
+
+  /// End of the time range (inclusive).
+  final DateTime? to;
+
+  /// Minimum accuracy in meters (filters out less accurate locations).
+  final double? minAccuracy;
+
+  /// Maximum accuracy in meters (filters out more accurate locations).
+  final double? maxAccuracy;
+
+  /// Only include locations where user was moving.
+  final bool? isMoving;
+
+  /// Bounding box for spatial filtering.
+  final LocationBounds? bounds;
+
+  /// Maximum number of results to return.
+  final int? limit;
+
+  /// Offset for pagination.
+  final int offset;
+
+  /// Sort order for results.
+  final LocationSortOrder sortOrder;
 
   /// Filters a list of locations according to this query.
   List<Location> apply(List<Location> locations) {
@@ -156,25 +156,12 @@ enum LocationSortOrder {
 
 /// Geographic bounding box for spatial filtering.
 class LocationBounds {
-  /// Southwest corner (minimum lat/lng).
-  final Coords southwest;
-
-  /// Northeast corner (maximum lat/lng).
-  final Coords northeast;
 
   /// Creates a bounding box.
   const LocationBounds({
     required this.southwest,
     required this.northeast,
   });
-
-  /// Whether the given coordinates are within this bounding box.
-  bool contains(Coords coords) {
-    return coords.latitude >= southwest.latitude &&
-        coords.latitude <= northeast.latitude &&
-        coords.longitude >= southwest.longitude &&
-        coords.longitude <= northeast.longitude;
-  }
 
   /// Creates from a map.
   factory LocationBounds.fromMap(JsonMap map) {
@@ -186,6 +173,19 @@ class LocationBounds {
         Map<String, dynamic>.from(map['northeast'] as Map),
       ),
     );
+  }
+  /// Southwest corner (minimum lat/lng).
+  final Coords southwest;
+
+  /// Northeast corner (maximum lat/lng).
+  final Coords northeast;
+
+  /// Whether the given coordinates are within this bounding box.
+  bool contains(Coords coords) {
+    return coords.latitude >= southwest.latitude &&
+        coords.latitude <= northeast.latitude &&
+        coords.longitude >= southwest.longitude &&
+        coords.longitude <= northeast.longitude;
   }
 
   /// Converts to a map.
@@ -206,6 +206,33 @@ class LocationBounds {
 /// print('Moving time: ${summary.movingDuration}');
 /// ```
 class LocationSummary {
+
+  /// Creates a location summary.
+  const LocationSummary({
+    required this.totalDistanceMeters,
+    required this.movingDuration,
+    required this.stationaryDuration,
+    required this.locationCount,
+    this.averageSpeedMps,
+    this.maxSpeedMps,
+    this.periodStart,
+    this.periodEnd,
+    this.frequentLocations = const [],
+    this.averageAccuracyMeters,
+  });
+
+  /// Creates an empty summary.
+  const LocationSummary.empty()
+      : totalDistanceMeters = 0,
+        movingDuration = Duration.zero,
+        stationaryDuration = Duration.zero,
+        locationCount = 0,
+        averageSpeedMps = null,
+        maxSpeedMps = null,
+        periodStart = null,
+        periodEnd = null,
+        frequentLocations = const [],
+        averageAccuracyMeters = null;
   /// Total distance traveled in meters.
   final double totalDistanceMeters;
 
@@ -235,33 +262,6 @@ class LocationSummary {
 
   /// Average accuracy of locations in meters.
   final double? averageAccuracyMeters;
-
-  /// Creates a location summary.
-  const LocationSummary({
-    required this.totalDistanceMeters,
-    required this.movingDuration,
-    required this.stationaryDuration,
-    required this.locationCount,
-    this.averageSpeedMps,
-    this.maxSpeedMps,
-    this.periodStart,
-    this.periodEnd,
-    this.frequentLocations = const [],
-    this.averageAccuracyMeters,
-  });
-
-  /// Creates an empty summary.
-  const LocationSummary.empty()
-      : totalDistanceMeters = 0,
-        movingDuration = Duration.zero,
-        stationaryDuration = Duration.zero,
-        locationCount = 0,
-        averageSpeedMps = null,
-        maxSpeedMps = null,
-        periodStart = null,
-        periodEnd = null,
-        frequentLocations = const [],
-        averageAccuracyMeters = null;
 
   /// Total duration of the summarized period.
   Duration get totalDuration => movingDuration + stationaryDuration;
@@ -298,6 +298,14 @@ class LocationSummary {
 
 /// A frequently visited location (cluster center).
 class FrequentLocation {
+
+  /// Creates a frequent location.
+  const FrequentLocation({
+    required this.center,
+    required this.visitCount,
+    required this.totalDuration,
+    this.name,
+  });
   /// Center coordinates of the cluster.
   final Coords center;
 
@@ -309,14 +317,6 @@ class FrequentLocation {
 
   /// Optional name or identifier.
   final String? name;
-
-  /// Creates a frequent location.
-  const FrequentLocation({
-    required this.center,
-    required this.visitCount,
-    required this.totalDuration,
-    this.name,
-  });
 
   /// Converts to a map.
   JsonMap toMap() => {
@@ -491,17 +491,17 @@ class LocationHistoryCalculator {
 
 /// Internal cluster representation for frequent location calculation.
 class _Cluster {
-  double centerLat;
-  double centerLng;
-  int count = 1;
-  Duration totalDuration = Duration.zero;
-  DateTime? _lastTimestamp;
 
   _Cluster(Location initial)
       : centerLat = initial.coords.latitude,
         centerLng = initial.coords.longitude {
     _lastTimestamp = initial.timestamp;
   }
+  double centerLat;
+  double centerLng;
+  int count = 1;
+  Duration totalDuration = Duration.zero;
+  DateTime? _lastTimestamp;
 
   void addLocation(Location loc) {
     // Update center (running average)

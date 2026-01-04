@@ -5,10 +5,6 @@ import 'package:locus/src/models.dart';
 import 'package:locus/src/shared/location_utils.dart';
 
 class LocationQualityConfig {
-  final double maxAccuracyMeters;
-  final double maxSpeedKph;
-  final double jitterThresholdMeters;
-  final int windowSize;
 
   const LocationQualityConfig({
     this.maxAccuracyMeters = 50,
@@ -16,6 +12,10 @@ class LocationQualityConfig {
     this.jitterThresholdMeters = 30,
     this.windowSize = 5,
   });
+  final double maxAccuracyMeters;
+  final double maxSpeedKph;
+  final double jitterThresholdMeters;
+  final int windowSize;
 }
 
 class LocationQualityAnalyzer {

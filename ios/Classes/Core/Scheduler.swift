@@ -6,11 +6,14 @@ protocol SchedulerDelegate: AnyObject {
 }
 
 class Scheduler {
-    static let shared = Scheduler()
     
     weak var delegate: SchedulerDelegate?
-    private let config = ConfigManager.shared
+    private let config: ConfigManager
     private var scheduleTimer: Timer?
+
+    init(config: ConfigManager) {
+        self.config = config
+    }
     
     func start() {
         guard config.scheduleEnabled else {

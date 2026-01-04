@@ -6,17 +6,17 @@ extension SwiftLocusPlugin {
       return
     }
     let timestampMs = Int64(Date().timeIntervalSince1970 * 1000)
-    SQLiteStorage.shared.insertLog(timestampMs: timestampMs,
-                                   level: level,
-                                   message: message,
-                                   tag: "locus")
+    storage.insertLog(timestampMs: timestampMs,
+                      level: level,
+                      message: message,
+                      tag: "locus")
     if configManager.logMaxDays > 0 {
-      SQLiteStorage.shared.pruneLogs(maxDays: configManager.logMaxDays)
+      storage.pruneLogs(maxDays: configManager.logMaxDays)
     }
   }
 
   func readLog() -> [[String: Any]] {
-    return SQLiteStorage.shared.readLogs()
+    return storage.readLogs()
   }
 
   private func shouldLog(level: String) -> Bool {

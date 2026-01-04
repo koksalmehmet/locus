@@ -1,13 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class QueueItem {
-  final String id;
-  final DateTime createdAt;
-  final JsonMap payload;
-  final int retryCount;
-  final DateTime? nextRetryAt;
-  final String? idempotencyKey;
-  final String? type;
 
   const QueueItem({
     required this.id,
@@ -18,16 +11,6 @@ class QueueItem {
     this.idempotencyKey,
     this.type,
   });
-
-  JsonMap toMap() => {
-        'id': id,
-        'createdAt': createdAt.toIso8601String(),
-        'payload': payload,
-        'retryCount': retryCount,
-        if (nextRetryAt != null) 'nextRetryAt': nextRetryAt!.toIso8601String(),
-        if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
-        if (type != null) 'type': type,
-      };
 
   factory QueueItem.fromMap(JsonMap map) {
     return QueueItem(
@@ -46,4 +29,21 @@ class QueueItem {
       type: map['type'] as String?,
     );
   }
+  final String id;
+  final DateTime createdAt;
+  final JsonMap payload;
+  final int retryCount;
+  final DateTime? nextRetryAt;
+  final String? idempotencyKey;
+  final String? type;
+
+  JsonMap toMap() => {
+        'id': id,
+        'createdAt': createdAt.toIso8601String(),
+        'payload': payload,
+        'retryCount': retryCount,
+        if (nextRetryAt != null) 'nextRetryAt': nextRetryAt!.toIso8601String(),
+        if (idempotencyKey != null) 'idempotencyKey': idempotencyKey,
+        if (type != null) 'type': type,
+      };
 }

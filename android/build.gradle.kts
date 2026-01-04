@@ -1,8 +1,10 @@
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.JavaVersion
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dev.locus"
-version = "1.0.0"
+version = "2.0.0"
 
 buildscript {
     repositories {
@@ -11,6 +13,7 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
     }
 }
 
@@ -22,6 +25,7 @@ allprojects {
 }
 
 apply(plugin = "com.android.library")
+apply(plugin = "org.jetbrains.kotlin.android")
 
 extensions.configure<LibraryExtension>("android") {
     namespace = "dev.locus"
@@ -29,6 +33,12 @@ extensions.configure<LibraryExtension>("android") {
 
     defaultConfig {
         minSdk = 26
+    }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/kotlin")
+        }
     }
 
     compileOptions {
@@ -41,6 +51,13 @@ extensions.configure<LibraryExtension>("android") {
     }
 }
 
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
 dependencies {
     add("implementation", "com.google.android.gms:play-services-location:21.3.0")
+    add("implementation", "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }

@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'locus'
-  s.version          = '1.0.0'
+  s.version          = '2.0.0'
   s.summary          = 'Background geolocation SDK for Flutter.'
   s.description      = <<-DESC
     Background geolocation SDK for Flutter. Native tracking, geofencing, 
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
                    'Classes/Storage/**/*'
   s.dependency 'Flutter'
   s.platform = :ios, '14.0'
-  s.framework = 'CoreMotion'
+  s.frameworks = 'CoreLocation', 'CoreMotion'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }

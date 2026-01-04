@@ -30,10 +30,10 @@ void main() {
     await Locus.ready(config);
     await Locus.start();
     await Locus.getState();
-    await Locus.getCurrentPosition();
-    await Locus.getLocations();
-    await Locus.changePace(true);
-    await Locus.setOdometer(123.0);
+    await Locus.location.getCurrentPosition();
+    await Locus.location.getLocations();
+    await Locus.location.changePace(true);
+    await Locus.location.setOdometer(123.0);
 
     const geofence = Geofence(
       identifier: 'test',
@@ -44,14 +44,14 @@ void main() {
       notifyOnExit: true,
       notifyOnDwell: false,
     );
-    await Locus.addGeofence(geofence);
-    await Locus.addGeofences([geofence]);
-    await Locus.removeGeofence('test');
-    await Locus.removeGeofences();
-    await Locus.getGeofences();
-    await Locus.getGeofence('test');
-    await Locus.geofenceExists('test');
-    await Locus.startGeofences();
+    await Locus.geofencing.add(geofence);
+    await Locus.geofencing.addAll([geofence]);
+    await Locus.geofencing.remove('test');
+    await Locus.geofencing.removeAll();
+    await Locus.geofencing.getAll();
+    await Locus.geofencing.get('test');
+    await Locus.geofencing.exists('test');
+    await Locus.geofencing.startMonitoring();
 
     await Locus.setConfig(config);
     await Locus.reset(config);
@@ -60,27 +60,25 @@ void main() {
     await Locus.startSchedule();
     await Locus.stopSchedule();
 
-    await Locus.sync();
-    await Locus.resumeSync();
-    await Locus.destroyLocations();
+    await Locus.dataSync.now();
+    await Locus.dataSync.resume();
+    await Locus.location.destroyLocations();
 
     await Locus.registerHeadlessTask((event) async {});
     final taskId = await Locus.startBackgroundTask();
     await Locus.stopBackgroundTask(taskId);
 
     await Locus.getLog();
-    await Locus.emailLog('test@example.com');
-    await Locus.playSound('ding');
 
-    await Locus.enqueue({'event': 'test'});
-    await Locus.getQueue();
-    await Locus.clearQueue();
-    await Locus.syncQueue();
+    await Locus.dataSync.enqueue({'event': 'test'});
+    await Locus.dataSync.getQueue();
+    await Locus.dataSync.clearQueue();
+    await Locus.dataSync.syncQueue();
 
     await Locus.requestPermission();
 
-    await Locus.startTrip(const TripConfig());
-    Locus.stopTrip();
+    await Locus.trips.start(const TripConfig());
+    Locus.trips.stop();
 
     await Locus.setTrackingProfiles(
       {TrackingProfile.standby: const Config()},
@@ -91,11 +89,11 @@ void main() {
     Locus.stopTrackingAutomation();
     Locus.clearTrackingProfiles();
 
-    Locus.registerGeofenceWorkflows([
-      GeofenceWorkflow(
+    Locus.geofencing.registerWorkflows([
+      const GeofenceWorkflow(
         id: 'workflow-1',
         steps: [
-          const GeofenceWorkflowStep(
+          GeofenceWorkflowStep(
             id: 'step-1',
             geofenceIdentifier: 'test',
             action: GeofenceAction.enter,
@@ -103,13 +101,13 @@ void main() {
         ],
       ),
     ]);
-    Locus.clearGeofenceWorkflows();
-    Locus.stopGeofenceWorkflows();
+    Locus.geofencing.clearWorkflows();
+    Locus.geofencing.stopWorkflows();
 
-    await Locus.getBatteryStats();
-    await Locus.getPowerState();
-    await Locus.setAdaptiveTracking(AdaptiveTrackingConfig.disabled);
-    await Locus.calculateAdaptiveSettings();
+    await Locus.battery.getStats();
+    await Locus.battery.getPowerState();
+    await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.disabled);
+    await Locus.battery.calculateAdaptiveSettings();
 
     await Locus.setSpoofDetection(const SpoofDetectionConfig());
     await Locus.startSignificantChangeMonitoring();
@@ -131,7 +129,7 @@ void main() {
     Locus.recordBenchmarkLocationUpdate();
     Locus.recordBenchmarkSync();
 
-    await Locus.setSyncPolicy(SyncPolicy.balanced);
+    await Locus.dataSync.setPolicy(SyncPolicy.balanced);
     await Locus.evaluateSyncPolicy(policy: SyncPolicy.balanced);
 
     expect(
@@ -163,8 +161,6 @@ void main() {
         'registerHeadlessTask',
         'startBackgroundTask',
         'getLog',
-        'emailLog:test@example.com',
-        'playSound:ding',
         'enqueue',
         'getQueue',
         'clearQueue',
@@ -223,22 +219,22 @@ void main() {
     await eventSub.cancel();
 
     final subs = <StreamSubscription<dynamic>>[
-      Locus.onLocation((_) {}),
-      Locus.onMotionChange((_) {}),
-      Locus.onActivityChange((_) {}),
-      Locus.onProviderChange((_) {}),
-      Locus.onGeofence((_) {}),
-      Locus.onGeofencesChange((_) {}),
-      Locus.onHeartbeat((_) {}),
-      Locus.onSchedule((_) {}),
-      Locus.onConnectivityChange((_) {}),
-      Locus.onPowerSaveChange((_) {}),
-      Locus.onEnabledChange((_) {}),
-      Locus.onNotificationAction((_) {}),
-      Locus.onHttp((_) {}),
-      Locus.onTripEvent((_) {}),
-      Locus.onWorkflowEvent((_) {}),
-      Locus.onPowerStateChangeWithObj((_) {}),
+      Locus.location.stream.listen((_) {}),
+      Locus.location.motionChanges.listen((_) {}),
+      Locus.instance.activityStream.listen((_) {}),
+      Locus.instance.providerStream.listen((_) {}),
+      Locus.geofencing.events.listen((_) {}),
+      Locus.geofencing.onGeofencesChange((_) {}),
+      Locus.location.heartbeats.listen((_) {}),
+      Locus.instance.onSchedule((_) {}),
+      Locus.dataSync.connectivityEvents.listen((_) {}),
+      Locus.instance.powerSaveStream.listen((_) {}),
+      Locus.instance.enabledStream.listen((_) {}),
+      Locus.instance.onNotificationAction((_) {}),
+      Locus.dataSync.events.listen((_) {}),
+      Locus.trips.events.listen((_) {}),
+      Locus.geofencing.workflowEvents.listen((_) {}),
+      Locus.battery.powerStateEvents.listen((_) {}),
       Locus.onLocationAnomaly((_) {}),
       Locus.onLocationQuality((_) {}),
     ];

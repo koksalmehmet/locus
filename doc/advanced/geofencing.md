@@ -9,7 +9,7 @@ Locus provides a high-performance native geofencing system that works even when 
 You can add geofences at any time, even before starting the main tracking service.
 
 ```dart
-await Locus.addGeofence(const Geofence(
+await Locus.geofencing.add(const Geofence(
   identifier: 'office_zone',
   radius: 100, // meters
   latitude: 37.7749,
@@ -23,11 +23,11 @@ await Locus.addGeofence(const Geofence(
 
 ### Listening to Events
 
-Geofence events are delivered via the `onGeofence` stream.
+Geofence events are delivered via the geofencing events stream.
 
 ```dart
-Locus.onGeofence((event) {
-  print('Geofence ${event.identifier}: ${event.action}');
+Locus.geofencing.events.listen((event) {
+  print('Geofence ${event.geofence.identifier}: ${event.action}');
 });
 ```
 
@@ -35,7 +35,7 @@ Locus.onGeofence((event) {
 
 The `GeofenceEvent` provides:
 
-- `identifier`: The unique ID you assigned.
+- `geofence.identifier`: The unique ID you assigned.
 - `action`: `enter`, `exit`, or `dwell`.
 - `location`: The location that triggered the event.
 
@@ -43,10 +43,10 @@ The `GeofenceEvent` provides:
 
 ```dart
 // Remove by ID
-await Locus.removeGeofence('office_zone');
+await Locus.geofencing.remove('office_zone');
 
 // Remove all
-await Locus.removeGeofences();
+await Locus.geofencing.removeAll();
 ```
 
 ---
@@ -60,7 +60,7 @@ For complex boundaries like campus areas, delivery zones, or property lines, use
 Define the boundary with a list of vertices (minimum 3 points):
 
 ```dart
-await Locus.addPolygonGeofence(PolygonGeofence(
+await Locus.geofencing.addPolygon(PolygonGeofence(
   identifier: 'campus_boundary',
   vertices: [
     GeoPoint(latitude: 37.7749, longitude: -122.4194),
@@ -68,17 +68,17 @@ await Locus.addPolygonGeofence(PolygonGeofence(
     GeoPoint(latitude: 37.7769, longitude: -122.4204),
     GeoPoint(latitude: 37.7739, longitude: -122.4214),
   ],
-  metadata: {'name': 'Main Campus', 'type': 'restricted'},
+  extras: {'name': 'Main Campus', 'type': 'restricted'},
 ));
 ```
 
 ### Listening to Polygon Events
 
 ```dart
-Locus.onPolygonGeofence.listen((event) {
-  print('Polygon ${event.polygon.identifier}: ${event.type}');
+Locus.geofencing.polygonEvents.listen((event) {
+  print('Polygon ${event.geofence.identifier}: ${event.type}');
   // event.type is PolygonGeofenceEventType.enter or .exit
-  // event.location is the triggering location
+  // event.triggerLocation is the triggering location
 });
 ```
 
@@ -86,16 +86,16 @@ Locus.onPolygonGeofence.listen((event) {
 
 ```dart
 // Get all polygon geofences
-final polygons = Locus.getPolygonGeofences();
+final polygons = await Locus.geofencing.getAllPolygons();
 
 // Check if a polygon exists
-final exists = Locus.polygonGeofenceExists('campus_boundary');
+final exists = await Locus.geofencing.polygonExists('campus_boundary');
 
 // Remove a polygon
-await Locus.removePolygonGeofence('campus_boundary');
+await Locus.geofencing.removePolygon('campus_boundary');
 
 // Remove all polygons
-await Locus.removeAllPolygonGeofences();
+await Locus.geofencing.removeAllPolygons();
 ```
 
 ### Point-in-Polygon Detection
@@ -122,7 +122,7 @@ Polygons are validated on creation:
 // Check if a polygon is valid before adding
 final polygon = PolygonGeofence(...);
 if (polygon.isValid) {
-  await Locus.addPolygonGeofence(polygon);
+  await Locus.geofencing.addPolygon(polygon);
 }
 ```
 
@@ -163,24 +163,25 @@ For complex geofence-based logic (e.g., "enter zone A, then zone B within 5 minu
 
 ```dart
 final workflow = GeofenceWorkflow(
-  identifier: 'check_in_flow',
+  id: 'check_in_flow',
   steps: [
     GeofenceWorkflowStep(
-      geofenceId: 'entrance',
-      trigger: GeofenceAction.enter,
+      id: 'step-1',
+      geofenceIdentifier: 'entrance',
+      action: GeofenceAction.enter,
     ),
     GeofenceWorkflowStep(
-      geofenceId: 'check_in_desk',
-      trigger: GeofenceAction.dwell,
-      timeout: Duration(minutes: 5),
+      id: 'step-2',
+      geofenceIdentifier: 'check_in_desk',
+      action: GeofenceAction.dwell,
+      cooldownSeconds: 300,
     ),
   ],
 );
 
-final engine = GeofenceWorkflowEngine();
-engine.registerWorkflow(workflow);
+Locus.geofencing.registerWorkflows([workflow]);
 
-engine.workflowEvents.listen((event) {
+Locus.geofencing.workflowEvents.listen((event) {
   if (event.status == GeofenceWorkflowStatus.completed) {
     print('Check-in flow completed!');
   }

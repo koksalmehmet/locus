@@ -13,6 +13,7 @@ import 'package:locus/src/core/locus_channels.dart';
 class LocusStreams {
   static StreamController<GeolocationEvent<dynamic>>? _eventController;
   static StreamController<SpoofDetectionEvent>? _blockedEventsController;
+  // ignore: cancel_subscriptions - cancelled in _maybeStopNativeStream() and stopNativeStream()
   static StreamSubscription<dynamic>? _nativeSubscription;
   static int _listenerCount = 0;
   static bool _isStarting = false;
@@ -149,7 +150,7 @@ class LocusStreams {
   static void _processEvent(GeolocationEvent<dynamic> event) {
     // Only apply location processing to location-type events
     if (event.type == EventType.location && event.data is Location) {
-      final location = event.data as Location;
+      var location = event.data as Location;
 
       // 1. Spoof detection (may block the event entirely)
       if (_spoofDetectionEnabled && _spoofDetector != null) {
@@ -164,6 +165,7 @@ class LocusStreams {
           }
           debugPrint(
               '[Locus] Spoofed location detected (not blocked): ${spoofResult.factors}');
+          location = location.copyWith(isMock: true);
         }
       }
 
