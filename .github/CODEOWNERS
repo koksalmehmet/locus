@@ -22,7 +22,7 @@ pubspec.yaml            @koksalmehmet
 
 # Documentation
 *.md                    @koksalmehmet
-/docs/                  @koksalmehmet
+/doc/                   @koksalmehmet
 
 # Security-sensitive files
 SECURITY.md             @koksalmehmet

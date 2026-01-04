@@ -33,16 +33,16 @@
 
 ## Documentation
 
-For full documentation, visit [locus.dev](https://pub.dev/documentation/locus/latest/) or check the local [docs](docs/intro.md) folder:
+For full documentation, visit [locus.dev](https://pub.dev/documentation/locus/latest/) or check the local [docs](doc/intro.md) folder:
 
-- **[Quick Start](docs/guides/quickstart.md)** - Get running in 5 minutes.
-- **[Architecture](docs/core/architecture.md)** - Project structure and design.
-- **[Configuration](docs/core/configuration.md)** - Configuration options and presets.
-- **[Geofencing](docs/advanced/geofencing.md)** - Circular and polygon geofences.
-- **[Privacy Zones](docs/advanced/privacy-zones.md)** - Location privacy features.
-- **[Trip Tracking](docs/advanced/trips.md)** - Trip detection and recording.
-- **[Battery Optimization](docs/advanced/battery-optimization.md)** - Adaptive tracking.
-- **[Platform Setup](docs/setup/platform-configuration.md)** - iOS & Android permissions.
+- **[Quick Start](doc/guides/quickstart.md)** - Get running in 5 minutes.
+- **[Architecture](doc/core/architecture.md)** - Project structure and design.
+- **[Configuration](doc/core/configuration.md)** - Configuration options and presets.
+- **[Geofencing](doc/advanced/geofencing.md)** - Circular and polygon geofences.
+- **[Privacy Zones](doc/advanced/privacy-zones.md)** - Location privacy features.
+- **[Trip Tracking](doc/advanced/trips.md)** - Trip detection and recording.
+- **[Battery Optimization](doc/advanced/battery-optimization.md)** - Adaptive tracking.
+- **[Platform Setup](doc/setup/platform-configuration.md)** - iOS & Android permissions.
 
 ## Quick Start
 
