@@ -4,6 +4,37 @@ import 'package:locus/src/models.dart';
 
 /// Configuration for the foreground notification (Android).
 class NotificationConfig {
+
+  const NotificationConfig({
+    this.title,
+    this.text,
+    this.smallIcon,
+    this.largeIcon,
+    this.layout,
+    this.actions,
+    this.strings,
+    this.importance,
+  });
+
+  factory NotificationConfig.fromMap(JsonMap map) {
+    JsonMap? asJsonMap(dynamic value) {
+      if (value is Map) {
+        return Map<String, dynamic>.from(value);
+      }
+      return null;
+    }
+
+    return NotificationConfig(
+      title: map['title'] as String?,
+      text: map['text'] as String?,
+      smallIcon: map['smallIcon'] as String?,
+      largeIcon: map['largeIcon'] as String?,
+      layout: map['layout'] as String?,
+      actions: (map['actions'] as List?)?.cast<String>(),
+      strings: asJsonMap(map['strings']),
+      importance: map['importance'] as int?,
+    );
+  }
   /// Notification title.
   final String? title;
 
@@ -28,17 +59,6 @@ class NotificationConfig {
   /// Notification importance (Android): 1=Low, 2=Default, 3=High.
   final int? importance;
 
-  const NotificationConfig({
-    this.title,
-    this.text,
-    this.smallIcon,
-    this.largeIcon,
-    this.layout,
-    this.actions,
-    this.strings,
-    this.importance,
-  });
-
   JsonMap toMap() => {
         if (title != null) 'title': title,
         if (text != null) 'text': text,
@@ -49,24 +69,4 @@ class NotificationConfig {
         if (strings != null) 'strings': strings,
         if (importance != null) 'importance': importance,
       };
-
-  factory NotificationConfig.fromMap(JsonMap map) {
-    JsonMap? asJsonMap(dynamic value) {
-      if (value is Map) {
-        return Map<String, dynamic>.from(value);
-      }
-      return null;
-    }
-
-    return NotificationConfig(
-      title: map['title'] as String?,
-      text: map['text'] as String?,
-      smallIcon: map['smallIcon'] as String?,
-      largeIcon: map['largeIcon'] as String?,
-      layout: map['layout'] as String?,
-      actions: (map['actions'] as List?)?.cast<String>(),
-      strings: asJsonMap(map['strings']),
-      importance: map['importance'] as int?,
-    );
-  }
 }

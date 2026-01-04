@@ -5,18 +5,6 @@ import 'package:locus/src/features/geofencing/models/geofence.dart';
 import 'package:locus/src/shared/models/json_map.dart';
 
 class Location {
-  final String uuid;
-  final DateTime timestamp;
-  final int? age;
-  final String? event;
-  final bool? isMoving;
-  final bool? isHeartbeat;
-  final Coords coords;
-  final Activity? activity;
-  final Battery? battery;
-  final Geofence? geofence;
-  final double? odometer;
-  final JsonMap? extras;
 
   const Location({
     required this.uuid,
@@ -26,30 +14,13 @@ class Location {
     this.event,
     this.isMoving,
     this.isHeartbeat,
+    this.isMock = false,
     this.activity,
     this.battery,
     this.geofence,
     this.odometer,
     this.extras,
   });
-
-  /// Whether this location has valid coordinates.
-  bool get hasValidCoords => coords.isValid && !coords.isNullIsland;
-
-  JsonMap toMap() => {
-        'uuid': uuid,
-        'timestamp': timestamp.toIso8601String(),
-        if (age != null) 'age': age,
-        if (event != null) 'event': event,
-        if (isMoving != null) 'is_moving': isMoving,
-        if (isHeartbeat != null) 'is_heartbeat': isHeartbeat,
-        'coords': coords.toMap(),
-        if (activity != null) 'activity': activity!.toMap(),
-        if (battery != null) 'battery': battery!.toMap(),
-        if (geofence != null) 'geofence': geofence!.toMap(),
-        if (odometer != null) 'odometer': odometer,
-        if (extras != null) 'extras': extras,
-      };
 
   factory Location.fromMap(JsonMap map) {
     final coordsMap = map['coords'];
@@ -83,6 +54,7 @@ class Location {
       event: map['event'] as String?,
       isMoving: map['is_moving'] as bool?,
       isHeartbeat: map['is_heartbeat'] as bool?,
+      isMock: map['mock'] as bool? ?? false,
       coords: coords,
       activity: activityMap is Map
           ? Activity.fromMap(Map<String, dynamic>.from(activityMap))
@@ -99,6 +71,70 @@ class Location {
           : null,
     );
   }
+  final String uuid;
+  final DateTime timestamp;
+  final int? age;
+  final String? event;
+  final bool? isMoving;
+  final bool? isHeartbeat;
+  final bool isMock;
+  final Coords coords;
+  final Activity? activity;
+  final Battery? battery;
+  final Geofence? geofence;
+  final double? odometer;
+  final JsonMap? extras;
+
+  /// Whether this location has valid coordinates.
+  bool get hasValidCoords => coords.isValid && !coords.isNullIsland;
+
+  Location copyWith({
+    String? uuid,
+    DateTime? timestamp,
+    int? age,
+    String? event,
+    bool? isMoving,
+    bool? isHeartbeat,
+    bool? isMock,
+    Coords? coords,
+    Activity? activity,
+    Battery? battery,
+    Geofence? geofence,
+    double? odometer,
+    JsonMap? extras,
+  }) {
+    return Location(
+      uuid: uuid ?? this.uuid,
+      timestamp: timestamp ?? this.timestamp,
+      age: age ?? this.age,
+      event: event ?? this.event,
+      isMoving: isMoving ?? this.isMoving,
+      isHeartbeat: isHeartbeat ?? this.isHeartbeat,
+      isMock: isMock ?? this.isMock,
+      coords: coords ?? this.coords,
+      activity: activity ?? this.activity,
+      battery: battery ?? this.battery,
+      geofence: geofence ?? this.geofence,
+      odometer: odometer ?? this.odometer,
+      extras: extras ?? this.extras,
+    );
+  }
+
+  JsonMap toMap() => {
+        'uuid': uuid,
+        'timestamp': timestamp.toIso8601String(),
+        if (age != null) 'age': age,
+        if (event != null) 'event': event,
+        if (isMoving != null) 'is_moving': isMoving,
+        if (isHeartbeat != null) 'is_heartbeat': isHeartbeat,
+        'mock': isMock,
+        'coords': coords.toMap(),
+        if (activity != null) 'activity': activity!.toMap(),
+        if (battery != null) 'battery': battery!.toMap(),
+        if (geofence != null) 'geofence': geofence!.toMap(),
+        if (odometer != null) 'odometer': odometer,
+        if (extras != null) 'extras': extras,
+      };
 
   @override
   bool operator ==(Object other) =>

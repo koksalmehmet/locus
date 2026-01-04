@@ -62,7 +62,7 @@ void main() {
 
     await controller.close();
     await secondController.close();
-    engine.dispose();
-    restoredEngine.dispose();
+    await engine.dispose();
+    await restoredEngine.dispose();
   });
 }

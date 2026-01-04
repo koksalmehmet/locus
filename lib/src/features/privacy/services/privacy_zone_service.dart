@@ -31,6 +31,16 @@ import 'package:locus/src/features/privacy/models/privacy_zone.dart';
 /// }
 /// ```
 class PrivacyZoneService {
+
+  /// Creates a new PrivacyZoneService.
+  ///
+  /// [onPersist] - Optional callback for persisting zones to storage.
+  /// [seed] - Optional random seed for deterministic testing.
+  PrivacyZoneService({
+    Future<void> Function(List<PrivacyZone>)? onPersist,
+    int? seed,
+  })  : _onPersist = onPersist,
+        _random = seed != null ? math.Random(seed) : math.Random();
   /// In-memory storage of privacy zones.
   final Map<String, PrivacyZone> _zones = {};
 
@@ -42,16 +52,6 @@ class PrivacyZoneService {
 
   /// Optional persistence callback - called when zones change.
   final Future<void> Function(List<PrivacyZone>)? _onPersist;
-
-  /// Creates a new PrivacyZoneService.
-  ///
-  /// [onPersist] - Optional callback for persisting zones to storage.
-  /// [seed] - Optional random seed for deterministic testing.
-  PrivacyZoneService({
-    Future<void> Function(List<PrivacyZone>)? onPersist,
-    int? seed,
-  })  : _onPersist = onPersist,
-        _random = seed != null ? math.Random(seed) : math.Random();
 
   /// Stream of privacy zone change events.
   Stream<PrivacyZoneEvent> get zoneChanges => _zoneChangesController.stream;
@@ -339,13 +339,13 @@ enum PrivacyZoneEventType {
 
 /// Event emitted when a privacy zone changes.
 class PrivacyZoneEvent {
-  final PrivacyZoneEventType type;
-  final PrivacyZone zone;
 
   const PrivacyZoneEvent({
     required this.type,
     required this.zone,
   });
+  final PrivacyZoneEventType type;
+  final PrivacyZone zone;
 
   JsonMap toMap() => {
         'type': type.name,

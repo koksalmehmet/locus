@@ -8,7 +8,7 @@ Add `locus` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  locus: ^1.1.0
+  locus: ^2.0.0
 ```
 
 ## 2. Automated Setup
@@ -40,7 +40,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Use a balanced preset for typical tracking needs
-  await Locus.ready(Config.balanced(
+  await Locus.ready(ConfigPresets.balanced.copyWith(
     url: 'https://api.yourservice.com/locations',
     notification: NotificationConfig(
       title: 'Location Service',
@@ -55,11 +55,11 @@ void main() async {
 ## 4. Listen for Updates
 
 ```dart
-Locus.onLocation((location) {
+Locus.location.stream.listen((location) {
   print('New Location: ${location.coords.latitude}, ${location.coords.longitude}');
 });
 
-Locus.onMotionChange((location) {
+Locus.location.motionChanges.listen((location) {
   print('Moving: ${location.isMoving} (${location.activity.type})');
 });
 ```

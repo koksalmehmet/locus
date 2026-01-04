@@ -44,7 +44,7 @@ void main() {
     });
 
     test('should return all locations when no filters applied', () {
-      final query = LocationQuery();
+      const query = LocationQuery();
       final result = query.apply(testLocations);
       expect(result.length, 5);
     });
@@ -78,14 +78,14 @@ void main() {
     });
 
     test('should filter by minimum accuracy', () {
-      final query = LocationQuery(minAccuracy: 10);
+      const query = LocationQuery(minAccuracy: 10);
       final result = query.apply(testLocations);
       // Locations with accuracy <= 10
       expect(result.length, 4);
     });
 
     test('should filter by maximum accuracy', () {
-      final query = LocationQuery(maxAccuracy: 10);
+      const query = LocationQuery(maxAccuracy: 10);
       final result = query.apply(testLocations);
       // Locations with accuracy >= 10
       expect(result.length, 2);
@@ -99,14 +99,14 @@ void main() {
       // So if minAccuracy=10, it keeps accuracy <= 10
       // If maxAccuracy=8, it keeps accuracy >= 8
       // Combined: minAccuracy=50, maxAccuracy=10 keeps 10 <= accuracy <= 50
-      final query = LocationQuery(minAccuracy: 50, maxAccuracy: 10);
+      const query = LocationQuery(minAccuracy: 50, maxAccuracy: 10);
       final result = query.apply(testLocations);
       // Locations with 10 <= accuracy <= 50 are: accuracy=10, accuracy=50
       expect(result.length, 2);
     });
 
     test('should filter by bounding box', () {
-      final query = LocationQuery(
+      const query = LocationQuery(
         bounds: LocationBounds(
           southwest: Coords(
             latitude: 37.4,
@@ -126,19 +126,19 @@ void main() {
     });
 
     test('should respect limit', () {
-      final query = LocationQuery(limit: 2);
+      const query = LocationQuery(limit: 2);
       final result = query.apply(testLocations);
       expect(result.length, 2);
     });
 
     test('should respect offset', () {
-      final query = LocationQuery(offset: 2);
+      const query = LocationQuery(offset: 2);
       final result = query.apply(testLocations);
       expect(result.length, 3);
     });
 
     test('should respect limit and offset together', () {
-      final query = LocationQuery(
+      const query = LocationQuery(
         limit: 2,
         offset: 1,
         sortOrder: LocationSortOrder.oldestFirst,
@@ -175,31 +175,31 @@ void main() {
 
   group('LocationBounds', () {
     test('should correctly identify point inside bounds', () {
-      final bbox = LocationBounds(
+      const bbox = LocationBounds(
         southwest: Coords(latitude: 37.4, longitude: -122.1, accuracy: 0),
         northeast: Coords(latitude: 37.5, longitude: -122.0, accuracy: 0),
       );
-      final point = Coords(latitude: 37.45, longitude: -122.05, accuracy: 0);
+      const point = Coords(latitude: 37.45, longitude: -122.05, accuracy: 0);
       expect(bbox.contains(point), true);
     });
 
     test('should correctly identify point outside bounds', () {
-      final bbox = LocationBounds(
+      const bbox = LocationBounds(
         southwest: Coords(latitude: 37.4, longitude: -122.1, accuracy: 0),
         northeast: Coords(latitude: 37.5, longitude: -122.0, accuracy: 0),
       );
-      final point = Coords(latitude: 40.0, longitude: -74.0, accuracy: 0);
+      const point = Coords(latitude: 40.0, longitude: -74.0, accuracy: 0);
       expect(bbox.contains(point), false);
     });
 
     test('should handle edge cases on boundary', () {
-      final bbox = LocationBounds(
+      const bbox = LocationBounds(
         southwest: Coords(latitude: 37.4, longitude: -122.1, accuracy: 0),
         northeast: Coords(latitude: 37.5, longitude: -122.0, accuracy: 0),
       );
-      final onNorthEdge =
+      const onNorthEdge =
           Coords(latitude: 37.5, longitude: -122.05, accuracy: 0);
-      final onSouthEdge =
+      const onSouthEdge =
           Coords(latitude: 37.4, longitude: -122.05, accuracy: 0);
       expect(bbox.contains(onNorthEdge), true);
       expect(bbox.contains(onSouthEdge), true);
@@ -415,14 +415,14 @@ void main() {
 
   group('FrequentLocation', () {
     test('should serialize to map correctly', () {
-      final freq = FrequentLocation(
+      const freq = FrequentLocation(
         center: Coords(
           latitude: 37.4219,
           longitude: -122.0840,
           accuracy: 0,
         ),
         visitCount: 5,
-        totalDuration: const Duration(hours: 2),
+        totalDuration: Duration(hours: 2),
         name: 'Home',
       );
       final map = freq.toMap();
@@ -456,11 +456,11 @@ void main() {
     });
 
     test('should calculate derived properties correctly', () {
-      final summary = LocationSummary(
+      const summary = LocationSummary(
         locationCount: 100,
         totalDistanceMeters: 5000.0,
-        movingDuration: const Duration(hours: 1),
-        stationaryDuration: const Duration(hours: 2),
+        movingDuration: Duration(hours: 1),
+        stationaryDuration: Duration(hours: 2),
       );
       expect(summary.totalDuration.inHours, 3);
       expect(summary.totalDistanceKm, 5.0);

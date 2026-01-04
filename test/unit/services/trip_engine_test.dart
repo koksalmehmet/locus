@@ -49,18 +49,18 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 10));
 
     expect(events.any((event) => event.type == TripEventType.tripStart), true);
-    controller.close();
-    engine.dispose();
+    await controller.close();
+    await engine.dispose();
   });
 
   test('route deviation emits event', () async {
     final engine = TripEngine();
     final controller = StreamController<Location>();
     await engine.start(
-      TripConfig(
+      const TripConfig(
         startOnMoving: false,
         updateIntervalSeconds: 1,
-        route: const [
+        route: [
           RoutePoint(latitude: 0, longitude: 0),
           RoutePoint(latitude: 0, longitude: 1),
         ],
@@ -85,7 +85,7 @@ void main() {
       events.any((event) => event.type == TripEventType.routeDeviation),
       true,
     );
-    controller.close();
-    engine.dispose();
+    await controller.close();
+    await engine.dispose();
   });
 }

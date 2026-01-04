@@ -3,6 +3,60 @@ import 'package:locus/src/shared/models/json_map.dart';
 import 'package:locus/src/features/trips/models/route_point.dart';
 
 class TripConfig {
+
+  const TripConfig({
+    this.tripId,
+    this.startOnMoving = true,
+    this.startDistanceMeters = 50,
+    this.startSpeedKph = 5,
+    this.stopOnStationary = true,
+    this.stopTimeoutMinutes = 5,
+    this.stationarySpeedKph = 1.5,
+    this.updateIntervalSeconds = kDefaultUpdateIntervalSeconds,
+    this.dwellMinutes = 5,
+    this.route = const [],
+    this.routeDeviationThresholdMeters = kDefaultRouteDeviationThresholdMeters,
+    this.routeDeviationCooldownSeconds = kDefaultUpdateIntervalSeconds,
+    this.destination,
+    this.waypoints = const [],
+  });
+
+  factory TripConfig.fromMap(JsonMap map) {
+    return TripConfig(
+      tripId: map['tripId'] as String?,
+      startOnMoving: map['startOnMoving'] as bool? ?? true,
+      startDistanceMeters:
+          (map['startDistanceMeters'] as num?)?.toDouble() ?? 50,
+      startSpeedKph: (map['startSpeedKph'] as num?)?.toDouble() ?? 5,
+      stopOnStationary: map['stopOnStationary'] as bool? ?? true,
+      stopTimeoutMinutes: (map['stopTimeoutMinutes'] as num?)?.toInt() ?? 5,
+      stationarySpeedKph:
+          (map['stationarySpeedKph'] as num?)?.toDouble() ?? 1.5,
+      updateIntervalSeconds: (map['updateIntervalSeconds'] as num?)?.toInt() ??
+          kDefaultUpdateIntervalSeconds,
+      dwellMinutes: (map['dwellMinutes'] as num?)?.toInt() ?? 5,
+      route: (map['route'] as List?)
+              ?.map((item) =>
+                  RoutePoint.fromMap(Map<String, dynamic>.from(item as Map)))
+              .toList() ??
+          const [],
+      routeDeviationThresholdMeters:
+          (map['routeDeviationThresholdMeters'] as num?)?.toDouble() ??
+              kDefaultRouteDeviationThresholdMeters,
+      routeDeviationCooldownSeconds:
+          (map['routeDeviationCooldownSeconds'] as num?)?.toInt() ??
+              kDefaultUpdateIntervalSeconds,
+      destination: map['destination'] != null
+          ? RoutePoint.fromMap(
+              Map<String, dynamic>.from(map['destination'] as Map))
+          : null,
+      waypoints: (map['waypoints'] as List?)
+              ?.map((item) =>
+                  RoutePoint.fromMap(Map<String, dynamic>.from(item as Map)))
+              .toList() ??
+          const [],
+    );
+  }
   final String? tripId;
   final bool startOnMoving;
   final double startDistanceMeters;
@@ -21,23 +75,6 @@ class TripConfig {
 
   /// Waypoints to visit before destination (ordered).
   final List<RoutePoint> waypoints;
-
-  const TripConfig({
-    this.tripId,
-    this.startOnMoving = true,
-    this.startDistanceMeters = 50,
-    this.startSpeedKph = 5,
-    this.stopOnStationary = true,
-    this.stopTimeoutMinutes = 5,
-    this.stationarySpeedKph = 1.5,
-    this.updateIntervalSeconds = kDefaultUpdateIntervalSeconds,
-    this.dwellMinutes = 5,
-    this.route = const [],
-    this.routeDeviationThresholdMeters = kDefaultRouteDeviationThresholdMeters,
-    this.routeDeviationCooldownSeconds = kDefaultUpdateIntervalSeconds,
-    this.destination,
-    this.waypoints = const [],
-  });
 
   /// Creates a copy with modified values.
   TripConfig copyWith({
@@ -93,41 +130,4 @@ class TripConfig {
         if (destination != null) 'destination': destination!.toMap(),
         'waypoints': waypoints.map((point) => point.toMap()).toList(),
       };
-
-  factory TripConfig.fromMap(JsonMap map) {
-    return TripConfig(
-      tripId: map['tripId'] as String?,
-      startOnMoving: map['startOnMoving'] as bool? ?? true,
-      startDistanceMeters:
-          (map['startDistanceMeters'] as num?)?.toDouble() ?? 50,
-      startSpeedKph: (map['startSpeedKph'] as num?)?.toDouble() ?? 5,
-      stopOnStationary: map['stopOnStationary'] as bool? ?? true,
-      stopTimeoutMinutes: (map['stopTimeoutMinutes'] as num?)?.toInt() ?? 5,
-      stationarySpeedKph:
-          (map['stationarySpeedKph'] as num?)?.toDouble() ?? 1.5,
-      updateIntervalSeconds: (map['updateIntervalSeconds'] as num?)?.toInt() ??
-          kDefaultUpdateIntervalSeconds,
-      dwellMinutes: (map['dwellMinutes'] as num?)?.toInt() ?? 5,
-      route: (map['route'] as List?)
-              ?.map((item) =>
-                  RoutePoint.fromMap(Map<String, dynamic>.from(item as Map)))
-              .toList() ??
-          const [],
-      routeDeviationThresholdMeters:
-          (map['routeDeviationThresholdMeters'] as num?)?.toDouble() ??
-              kDefaultRouteDeviationThresholdMeters,
-      routeDeviationCooldownSeconds:
-          (map['routeDeviationCooldownSeconds'] as num?)?.toInt() ??
-              kDefaultUpdateIntervalSeconds,
-      destination: map['destination'] != null
-          ? RoutePoint.fromMap(
-              Map<String, dynamic>.from(map['destination'] as Map))
-          : null,
-      waypoints: (map['waypoints'] as List?)
-              ?.map((item) =>
-                  RoutePoint.fromMap(Map<String, dynamic>.from(item as Map)))
-              .toList() ??
-          const [],
-    );
-  }
 }

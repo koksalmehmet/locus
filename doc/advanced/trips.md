@@ -1,44 +1,45 @@
 # Trip Tracking
 
-Locus includes a trip detection and tracking system that automatically identifies and records trips based on movement patterns.
+Locus provides trip tracking through the `TripService`. Use `TripConfig` to
+control start and stop behavior, and subscribe to trip events for updates.
 
-## Enabling Trip Detection
-
-```dart
-await Locus.ready(Config.balanced(
-  url: 'https://api.example.com/locations',
-  enableTripDetection: true,
-));
-```
-
-## Trip Configuration
-
-Customize trip detection parameters:
+## Starting Trip Tracking
 
 ```dart
-final tripConfig = TripConfig(
-  minTripDistance: 500,      // Minimum trip distance in meters
-  minTripDuration: Duration(minutes: 5),
-  stopDetectionRadius: 50,   // Radius to detect stops
-  stopDetectionTimeout: Duration(minutes: 3),
+await Locus.ready(const Config());
+await Locus.start();
+
+final config = TripConfig(
+  tripId: 'delivery-123',
+  startOnMoving: true,
+  startDistanceMeters: 50,
+  stopOnStationary: true,
+  stopTimeoutMinutes: 5,
 );
 
-await Locus.configureTripDetection(tripConfig);
+await Locus.trips.start(config);
 ```
 
 ## Listening to Trip Events
 
 ```dart
-Locus.onTripEvent.listen((event) {
+Locus.trips.events.listen((event) {
   switch (event.type) {
-    case TripEventType.started:
-      print('Trip started at ${event.location}');
+    case TripEventType.tripStart:
+      print('Trip started: ${event.tripId}');
       break;
-    case TripEventType.updated:
-      print('Trip updated: ${event.state?.distance}m traveled');
+    case TripEventType.tripUpdate:
+      print('Trip updated: ${event.tripId}');
       break;
-    case TripEventType.ended:
-      print('Trip ended: ${event.summary?.totalDistance}m');
+    case TripEventType.tripEnd:
+      final summary = event.summary;
+      print('Trip ended: ${summary?.distanceMeters}m');
+      break;
+    case TripEventType.dwell:
+    case TripEventType.routeDeviation:
+    case TripEventType.diagnostic:
+    case TripEventType.waypointReached:
+      // Handle optional events as needed.
       break;
   }
 });
@@ -46,51 +47,25 @@ Locus.onTripEvent.listen((event) {
 
 ## Trip Summary
 
-When a trip ends, you receive a comprehensive summary:
+When a trip ends, you can also call `stop()` to receive a summary:
 
 ```dart
-Locus.onTripEvent.listen((event) {
-  if (event.type == TripEventType.ended) {
-    final summary = event.summary!;
-    print('Distance: ${summary.totalDistance}m');
-    print('Duration: ${summary.duration}');
-    print('Start: ${summary.startLocation}');
-    print('End: ${summary.endLocation}');
-    print('Route points: ${summary.routePoints.length}');
-  }
-});
+final summary = Locus.trips.stop();
+if (summary != null) {
+  print('Distance: ${summary.distanceMeters}m');
+  print('Duration: ${summary.durationSeconds}s');
+  print('Average speed: ${summary.averageSpeedKph}kph');
+}
 ```
 
 ## Manual Trip Control
 
-You can also manually start and stop trips:
-
 ```dart
-// Start a trip manually
-await Locus.startTrip(metadata: {'purpose': 'delivery'});
+await Locus.trips.start(const TripConfig(tripId: 'manual-trip'));
 
-// End the current trip
-final summary = await Locus.endTrip();
+final summary = Locus.trips.stop();
 
-// Check if a trip is active
-final isActive = Locus.isTripActive;
-```
-
-## Trip Storage
-
-Trips are automatically persisted and can be retrieved later:
-
-```dart
-final store = TripStore();
-
-// Get all stored trips
-final trips = await store.getAllTrips();
-
-// Get trips in a date range
-final recentTrips = await store.getTripsBetween(
-  DateTime.now().subtract(Duration(days: 7)),
-  DateTime.now(),
-);
+final state = Locus.trips.getState();
 ```
 
 ---

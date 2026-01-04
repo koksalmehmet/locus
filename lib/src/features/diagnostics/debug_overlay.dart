@@ -120,8 +120,8 @@ class _LocusDebugOverlayState extends State<LocusDebugOverlay> {
 
   Future<void> _loadBatteryData() async {
     try {
-      final stats = await Locus.getBatteryStats();
-      final runway = await Locus.estimateBatteryRunway();
+      final stats = await Locus.battery.getStats();
+      final runway = await Locus.battery.estimateRunway();
       if (mounted) {
         setState(() {
           _batteryStats = stats;
@@ -135,7 +135,7 @@ class _LocusDebugOverlayState extends State<LocusDebugOverlay> {
 
   Future<void> _loadSyncQueueData() async {
     try {
-      final queue = await Locus.getQueue();
+      final queue = await Locus.dataSync.getQueue();
       if (mounted) {
         setState(() {
           _pendingSyncCount = queue.length;
@@ -148,7 +148,7 @@ class _LocusDebugOverlayState extends State<LocusDebugOverlay> {
 
   Future<void> _loadGeofenceData() async {
     try {
-      final geofences = await Locus.getGeofences();
+      final geofences = await Locus.geofencing.getAll();
       if (mounted) {
         setState(() {
           _geofenceCount = geofences.length;
@@ -178,7 +178,7 @@ class _LocusDebugOverlayState extends State<LocusDebugOverlay> {
 
   void _setupListeners() {
     _subscriptions.add(
-      Locus.onLocation((location) {
+      Locus.location.stream.listen((location) {
         if (mounted) {
           final now = DateTime.now();
           setState(() {
@@ -201,7 +201,7 @@ class _LocusDebugOverlayState extends State<LocusDebugOverlay> {
     );
 
     _subscriptions.add(
-      Locus.onEnabledChange((enabled) {
+      Locus.instance.enabledStream.listen((enabled) {
         if (mounted) {
           setState(() {
             _isEnabled = enabled;
@@ -214,7 +214,7 @@ class _LocusDebugOverlayState extends State<LocusDebugOverlay> {
     );
 
     _subscriptions.add(
-      Locus.onMotionChange((location) {
+      Locus.location.motionChanges.listen((location) {
         if (mounted) {
           setState(() => _isMoving = location.isMoving ?? false);
         }
@@ -222,7 +222,7 @@ class _LocusDebugOverlayState extends State<LocusDebugOverlay> {
     );
 
     _subscriptions.add(
-      Locus.onGeofence((event) {
+      Locus.geofencing.events.listen((event) {
         if (mounted) {
           setState(() => _geofenceEventCount++);
         }
@@ -230,7 +230,7 @@ class _LocusDebugOverlayState extends State<LocusDebugOverlay> {
     );
 
     _subscriptions.add(
-      Locus.onHttp((event) {
+      Locus.dataSync.events.listen((event) {
         if (mounted) {
           setState(() {
             if (event.ok) {
@@ -882,7 +882,7 @@ class _LocusDebugOverlayState extends State<LocusDebugOverlay> {
             icon: Icons.my_location,
             label: 'Current',
             onPressed: () async {
-              final location = await Locus.getCurrentPosition();
+              final location = await Locus.location.getCurrentPosition();
               if (mounted) {
                 setState(() => _lastLocation = location);
               }

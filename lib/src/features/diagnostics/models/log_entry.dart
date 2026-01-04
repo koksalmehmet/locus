@@ -1,10 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class LogEntry {
-  final DateTime timestamp;
-  final String level;
-  final String message;
-  final String? tag;
 
   const LogEntry({
     required this.timestamp,
@@ -12,13 +8,6 @@ class LogEntry {
     required this.message,
     this.tag,
   });
-
-  JsonMap toMap() => {
-        'timestamp': timestamp.millisecondsSinceEpoch,
-        'level': level,
-        'message': message,
-        if (tag != null) 'tag': tag,
-      };
 
   factory LogEntry.fromMap(JsonMap map) {
     final rawTimestamp = map['timestamp'];
@@ -31,6 +20,17 @@ class LogEntry {
       tag: map['tag'] as String?,
     );
   }
+  final DateTime timestamp;
+  final String level;
+  final String message;
+  final String? tag;
+
+  JsonMap toMap() => {
+        'timestamp': timestamp.millisecondsSinceEpoch,
+        'level': level,
+        'message': message,
+        if (tag != null) 'tag': tag,
+      };
 
   static int _parseTimestampMs(Object? raw) {
     if (raw is int) {

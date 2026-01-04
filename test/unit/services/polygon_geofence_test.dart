@@ -45,9 +45,9 @@ void main() {
     late PolygonGeofence validPolygon;
 
     setUp(() {
-      validPolygon = PolygonGeofence(
+      validPolygon = const PolygonGeofence(
         identifier: 'test-polygon',
-        vertices: const [
+        vertices: [
           GeoPoint(latitude: 37.0, longitude: -122.0),
           GeoPoint(latitude: 37.1, longitude: -122.0),
           GeoPoint(latitude: 37.1, longitude: -121.9),
@@ -187,9 +187,9 @@ void main() {
         vertices: validPolygon.vertices,
       );
 
-      final polygon2 = PolygonGeofence(
+      const polygon2 = PolygonGeofence(
         identifier: 'same-id',
-        vertices: const [
+        vertices: [
           GeoPoint(latitude: 0, longitude: 0),
           GeoPoint(latitude: 1, longitude: 0),
           GeoPoint(latitude: 1, longitude: 1),
@@ -242,9 +242,9 @@ void main() {
 
   group('PolygonGeofenceEvent', () {
     test('creates with required parameters', () {
-      final polygon = PolygonGeofence(
+      const polygon = PolygonGeofence(
         identifier: 'test',
-        vertices: const [
+        vertices: [
           GeoPoint(latitude: 0, longitude: 0),
           GeoPoint(latitude: 1, longitude: 0),
           GeoPoint(latitude: 1, longitude: 1),
@@ -263,9 +263,9 @@ void main() {
     });
 
     test('serializes to and from map', () {
-      final polygon = PolygonGeofence(
+      const polygon = PolygonGeofence(
         identifier: 'test',
-        vertices: const [
+        vertices: [
           GeoPoint(latitude: 0, longitude: 0),
           GeoPoint(latitude: 1, longitude: 0),
           GeoPoint(latitude: 1, longitude: 1),
@@ -294,9 +294,9 @@ void main() {
 
     setUp(() {
       service = PolygonGeofenceService();
-      testPolygon = PolygonGeofence(
+      testPolygon = const PolygonGeofence(
         identifier: 'test-polygon',
-        vertices: const [
+        vertices: [
           GeoPoint(latitude: 37.0, longitude: -122.0),
           GeoPoint(latitude: 37.1, longitude: -122.0),
           GeoPoint(latitude: 37.1, longitude: -121.9),
@@ -512,32 +512,32 @@ void main() {
     });
 
     test('addPolygonGeofence adds a polygon', () async {
-      final polygon = PolygonGeofence(
+      const polygon = PolygonGeofence(
         identifier: 'test',
-        vertices: const [
+        vertices: [
           GeoPoint(latitude: 0, longitude: 0),
           GeoPoint(latitude: 1, longitude: 0),
           GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
-      final result = await Locus.addPolygonGeofence(polygon);
+      final result = await Locus.geofencing.addPolygon(polygon);
       expect(result, true);
       expect(mockLocus.methodCalls, contains('addPolygonGeofence:test'));
     });
 
     test('removePolygonGeofence removes a polygon', () async {
-      final polygon = PolygonGeofence(
+      const polygon = PolygonGeofence(
         identifier: 'to-remove',
-        vertices: const [
+        vertices: [
           GeoPoint(latitude: 0, longitude: 0),
           GeoPoint(latitude: 1, longitude: 0),
           GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
-      await Locus.addPolygonGeofence(polygon);
-      final result = await Locus.removePolygonGeofence('to-remove');
+      await Locus.geofencing.addPolygon(polygon);
+      final result = await Locus.geofencing.removePolygon('to-remove');
 
       expect(result, true);
       expect(
@@ -545,35 +545,35 @@ void main() {
     });
 
     test('getPolygonGeofences returns all polygons', () async {
-      final polygon = PolygonGeofence(
+      const polygon = PolygonGeofence(
         identifier: 'test',
-        vertices: const [
+        vertices: [
           GeoPoint(latitude: 0, longitude: 0),
           GeoPoint(latitude: 1, longitude: 0),
           GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
-      await Locus.addPolygonGeofence(polygon);
-      final polygons = await Locus.getPolygonGeofences();
+      await Locus.geofencing.addPolygon(polygon);
+      final polygons = await Locus.geofencing.getAllPolygons();
 
       expect(polygons.length, 1);
       expect(mockLocus.methodCalls, contains('getPolygonGeofences'));
     });
 
     test('polygonGeofenceExists checks existence', () async {
-      final polygon = PolygonGeofence(
+      const polygon = PolygonGeofence(
         identifier: 'exists-test',
-        vertices: const [
+        vertices: [
           GeoPoint(latitude: 0, longitude: 0),
           GeoPoint(latitude: 1, longitude: 0),
           GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
-      expect(await Locus.polygonGeofenceExists('exists-test'), false);
-      await Locus.addPolygonGeofence(polygon);
-      expect(await Locus.polygonGeofenceExists('exists-test'), true);
+      expect(await Locus.geofencing.polygonExists('exists-test'), false);
+      await Locus.geofencing.addPolygon(polygon);
+      expect(await Locus.geofencing.polygonExists('exists-test'), true);
     });
   });
 }

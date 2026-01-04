@@ -8,16 +8,32 @@ protocol GeofenceManagerDelegate: AnyObject {
 }
 
 class GeofenceManager: NSObject, CLLocationManagerDelegate {
-    static let shared = GeofenceManager()
     
     weak var delegate: GeofenceManagerDelegate?
     private let locationManager = CLLocationManager()
-    private let config = ConfigManager.shared
-    private let storage = StorageManager.shared
+    private let config: ConfigManager
+    private let storage: StorageManager
     
-    override init() {
+    init(config: ConfigManager, storage: StorageManager) {
+        self.config = config
+        self.storage = storage
         super.init()
         locationManager.delegate = self
+    }
+    
+    deinit {
+        cleanup()
+    }
+    
+    /// Cleans up resources by stopping all region monitoring and clearing the delegate.
+    /// Call this method when the manager is no longer needed.
+    func cleanup() {
+        // Stop monitoring all regions
+        for region in locationManager.monitoredRegions {
+            locationManager.stopMonitoring(for: region)
+        }
+        // Clear delegate to prevent callbacks after cleanup
+        locationManager.delegate = nil
     }
     
     func addGeofence(_ geofence: [String: Any], store: Bool = true) {
@@ -170,4 +186,3 @@ class GeofenceManager: NSObject, CLLocationManagerDelegate {
         }
     }
 }
-

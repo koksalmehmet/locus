@@ -29,7 +29,7 @@ Widget build(BuildContext context) {
       
       // Add debug overlay
       if (kDebugMode)
-        DebugOverlay(),
+        const LocusDebugOverlay(),
     ],
   );
 }
@@ -39,21 +39,13 @@ Widget build(BuildContext context) {
 
 ```dart
 // Get current diagnostics snapshot
-final diagnostics = await Locus.diagnostics.snapshot();
+final diagnostics = await Locus.getDiagnostics();
+print('Captured at: ${diagnostics.capturedAt}');
+print('Queue size: ${diagnostics.queue.length}');
 
 // Log entries
-print('Error count: ${diagnostics.errorCount}');
-print('Last errors: ${diagnostics.lastErrors}');
-
-// Listen to diagnostic events
-Locus.diagnostics.onEvent((event) {
-  print('${event.level}: ${event.message}');
-});
-
-// Get performance metrics
-final metrics = diagnostics.metrics;
-print('Accuracy: ${metrics.accuracy}');
-print('Battery impact: ${metrics.batteryImpact}');
+final logs = await Locus.getLog();
+print('Log entries: ${logs.length}');
 ```
 
 ## Error Recovery
@@ -61,12 +53,17 @@ print('Battery impact: ${metrics.batteryImpact}');
 Locus automatically attempts to recover from errors:
 
 ```dart
-// Recovery is automatic, but you can manually trigger
-await Locus.diagnostics.recoverFromError('location_service_failure');
+Locus.setErrorHandler(ErrorRecoveryConfig(
+  onError: (error, context) {
+    return error.suggestedRecovery ?? RecoveryAction.retry;
+  },
+  maxRetries: 3,
+  retryDelay: Duration(seconds: 5),
+));
 
-// Listen for recovery events
-Locus.diagnostics.onRecoveryAttempt((recovery) {
-  print('Recovery: ${recovery.errorType} -> ${recovery.strategy}');
+// Listen for error events
+Locus.errorRecoveryManager?.errors.listen((error) {
+  print('Error: ${error.type.name} - ${error.message}');
 });
 ```
 
@@ -75,11 +72,9 @@ Locus.diagnostics.onRecoveryAttempt((recovery) {
 Control verbosity of logs:
 
 ```dart
-await Locus.config.set(
-  NotificationConfig(
-    logLevel: LogLevel.debug,  // verbose, debug, info, warning, error
-  ),
-);
+await Locus.setConfig(const Config(
+  logLevel: LogLevel.debug, // verbose, debug, info, warning, error
+));
 ```
 
 **Next:** [Advanced Configuration](../core/configuration.md)

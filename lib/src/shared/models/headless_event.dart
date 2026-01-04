@@ -1,8 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class HeadlessEvent {
-  final String name;
-  final dynamic data;
 
   const HeadlessEvent({
     required this.name,
@@ -15,4 +13,6 @@ class HeadlessEvent {
       data: map['data'],
     );
   }
+  final String name;
+  final dynamic data;
 }

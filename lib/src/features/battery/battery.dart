@@ -8,6 +8,7 @@ export 'models/battery_runway.dart';
 export 'models/battery_stats.dart';
 export 'models/sync_policy.dart';
 export 'models/adaptive_tracking.dart';
+export 'models/low_battery_config.dart';
 export 'models/power_state.dart';
 export 'services/locus_battery.dart';
 export 'services/locus_adaptive.dart';

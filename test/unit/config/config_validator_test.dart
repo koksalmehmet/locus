@@ -247,8 +247,8 @@ void main() {
     });
 
     test('ConfigValidationException.toString includes details', () {
-      final exception = ConfigValidationException([
-        const ConfigValidationError(
+      const exception = ConfigValidationException([
+        ConfigValidationError(
           field: 'testField',
           message: 'Test message',
           suggestion: 'Test suggestion',

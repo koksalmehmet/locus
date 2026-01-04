@@ -2,6 +2,55 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2026-01-04
+
+### Breaking
+
+- **Removed v1.x facade methods**: All deprecated static methods were removed. Use the service-based API via `Locus.location`, `Locus.geofencing`, `Locus.privacy`, `Locus.trips`, `Locus.dataSync`, and `Locus.battery`. Core lifecycle methods (`ready`, `start`, `stop`, `getState`) remain on `Locus`.
+- **Removed features**: `emailLog()` and `playSound()` have been removed.
+- **url_launcher removed**: `DeviceOptimizationService.showManufacturerInstructions()` replaced with `getManufacturerInstructionsUrl()` returning a URL string. Apps should handle URL launching themselves.
+
+### Added
+
+- **v2.0 Service-Based API**: New domain-organized services accessible via static properties:
+  - `Locus.location` - Location tracking, streaming, and queries
+  - `Locus.geofencing` - Geofence CRUD, monitoring, and workflows
+  - `Locus.privacy` - Privacy zone management
+  - `Locus.trips` - Trip tracking and state
+  - `Locus.dataSync` - HTTP sync, queue management, and policies
+  - `Locus.battery` - Power state, adaptive tracking, and benchmarking
+- **Migration CLI Tool**: `dart run locus:migrate` command for automated v1.x → v2.0 migration
+  - Pattern-based detection of deprecated API usage
+  - Dry-run mode for safe preview
+  - Detailed migration suggestions with line numbers
+- **Service behavior tests**: Expanded unit coverage for the new v2.0 service APIs
+- **Dynamic headers support**: `setDynamicHeaders()` now works on both Android and iOS
+- **Sync policy support (iOS)**: `setSyncPolicy()` handler added for iOS platform parity
+- **Metered connection detection (iOS)**: `isMeteredConnection()` handler for WiFi-only sync
+
+### Fixed
+
+- **Android**: Fixed Kotlin stdlib version mismatch (was 1.9.22, now uses plugin's 2.1.0)
+- **Android**: `setSyncPolicy()` now applies to ConfigManager immediately instead of being a no-op
+- **Android**: Bulk `addGeofences()` now respects per-geofence `notifyOnEntry`/`notifyOnDwell` flags
+- **Android**: `motionManager` properly stopped on plugin detach (prevents PendingIntent leak)
+- **Android**: ConfigManager properties marked `@Volatile` for thread safety
+- **Android**: BackgroundTaskManager uses `ConcurrentHashMap` for thread-safe task tracking
+- **Android**: SyncManager graceful shutdown with `isReleased` flag to prevent callbacks after release
+- **Android**: Database helpers (LocationStore, QueueStore) explicitly closed on detach
+- **iOS**: `sendEvent` dispatched on main thread to prevent crashes from background delegates
+- **iOS**: `isSyncPaused` made thread-safe with serial dispatch queue
+- **iOS**: GeofenceManager cleanup added to stop monitoring and clear delegate on deinit
+- **iOS**: Heartbeat timer properly invalidated when plugin deallocates
+- **Build**: Removed hardcoded JDK path from gradle.properties
+- **Build**: Removed unused `xml` dependency from pubspec.yaml
+- **Build**: Added CoreLocation framework to iOS podspec
+
+### Changed
+
+- **MockLocus enhancements**: Added `emitPowerSaveChange()`, `emitPowerStateChange()`, and method call tracking for sync/battery APIs
+- **Lint rules**: Added comprehensive lint rules (prefer_const_constructors, prefer_final_fields, unawaited_futures, cancel_subscriptions, close_sinks, etc.)
+
 ## [1.2.0] - 2026-01-03
 
 ### Breaking

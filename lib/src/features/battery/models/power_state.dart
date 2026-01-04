@@ -11,6 +11,40 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// Used to make intelligent decisions about tracking behavior
 /// based on battery level, charging state, and power save mode.
 class PowerState {
+
+  /// Creates a power state.
+  const PowerState({
+    required this.batteryLevel,
+    required this.isCharging,
+    this.chargingType = ChargingType.none,
+    this.isPowerSaveMode = false,
+    this.isDozeMode = false,
+    this.isBatteryOptimizationExempt = false,
+    this.timeToFullCharge,
+    this.timeRemaining,
+  });
+
+  /// Creates from a map.
+  factory PowerState.fromMap(JsonMap map) {
+    return PowerState(
+      batteryLevel: (map['batteryLevel'] as num?)?.toInt() ?? 50,
+      isCharging: map['isCharging'] as bool? ?? false,
+      chargingType: ChargingType.values.firstWhere(
+        (e) => e.name == map['chargingType'],
+        orElse: () => ChargingType.none,
+      ),
+      isPowerSaveMode: map['isPowerSaveMode'] as bool? ?? false,
+      isDozeMode: map['isDozeMode'] as bool? ?? false,
+      isBatteryOptimizationExempt:
+          map['isBatteryOptimizationExempt'] as bool? ?? false,
+      timeToFullCharge: map['timeToFullChargeSeconds'] != null
+          ? Duration(seconds: (map['timeToFullChargeSeconds'] as num).toInt())
+          : null,
+      timeRemaining: map['timeRemainingSeconds'] != null
+          ? Duration(seconds: (map['timeRemainingSeconds'] as num).toInt())
+          : null,
+    );
+  }
   /// Current battery level (0-100).
   final int batteryLevel;
 
@@ -34,18 +68,6 @@ class PowerState {
 
   /// Estimated battery time remaining (if discharging).
   final Duration? timeRemaining;
-
-  /// Creates a power state.
-  const PowerState({
-    required this.batteryLevel,
-    required this.isCharging,
-    this.chargingType = ChargingType.none,
-    this.isPowerSaveMode = false,
-    this.isDozeMode = false,
-    this.isBatteryOptimizationExempt = false,
-    this.timeToFullCharge,
-    this.timeRemaining,
-  });
 
   /// Default state when power info is unavailable.
   static const PowerState unknown = PowerState(
@@ -138,28 +160,6 @@ class PowerState {
           'timeRemainingSeconds': timeRemaining!.inSeconds,
       };
 
-  /// Creates from a map.
-  factory PowerState.fromMap(JsonMap map) {
-    return PowerState(
-      batteryLevel: (map['batteryLevel'] as num?)?.toInt() ?? 50,
-      isCharging: map['isCharging'] as bool? ?? false,
-      chargingType: ChargingType.values.firstWhere(
-        (e) => e.name == map['chargingType'],
-        orElse: () => ChargingType.none,
-      ),
-      isPowerSaveMode: map['isPowerSaveMode'] as bool? ?? false,
-      isDozeMode: map['isDozeMode'] as bool? ?? false,
-      isBatteryOptimizationExempt:
-          map['isBatteryOptimizationExempt'] as bool? ?? false,
-      timeToFullCharge: map['timeToFullChargeSeconds'] != null
-          ? Duration(seconds: (map['timeToFullChargeSeconds'] as num).toInt())
-          : null,
-      timeRemaining: map['timeRemainingSeconds'] != null
-          ? Duration(seconds: (map['timeRemainingSeconds'] as num).toInt())
-          : null,
-    );
-  }
-
   @override
   String toString() {
     return 'PowerState(battery: $batteryLevel%, '
@@ -191,17 +191,6 @@ enum ChargingType {
 ///
 /// Emitted when the device's power state changes significantly.
 class PowerStateChangeEvent {
-  /// Previous power state.
-  final PowerState previous;
-
-  /// Current power state.
-  final PowerState current;
-
-  /// What changed.
-  final PowerStateChangeType changeType;
-
-  /// Timestamp of the change.
-  final DateTime timestamp;
 
   /// Creates a power state change event.
   PowerStateChangeEvent({
@@ -232,6 +221,17 @@ class PowerStateChangeEvent {
           : DateTime.now(),
     );
   }
+  /// Previous power state.
+  final PowerState previous;
+
+  /// Current power state.
+  final PowerState current;
+
+  /// What changed.
+  final PowerStateChangeType changeType;
+
+  /// Timestamp of the change.
+  final DateTime timestamp;
 
   /// Converts to a JSON-serializable map.
   JsonMap toMap() => {
@@ -262,6 +262,15 @@ enum PowerStateChangeType {
 
 /// Suggested optimization based on power state analysis.
 class PowerOptimizationSuggestion {
+
+  /// Creates an optimization suggestion.
+  const PowerOptimizationSuggestion({
+    required this.level,
+    required this.reason,
+    required this.canUseHighAccuracy,
+    required this.canUseCellular,
+    required this.suggestedHeartbeatMultiplier,
+  });
   /// Suggested optimization level.
   final OptimizationSuggestionLevel level;
 
@@ -278,15 +287,6 @@ class PowerOptimizationSuggestion {
   ///
   /// 1.0 = normal, 2.0 = double interval, etc.
   final double suggestedHeartbeatMultiplier;
-
-  /// Creates an optimization suggestion.
-  const PowerOptimizationSuggestion({
-    required this.level,
-    required this.reason,
-    required this.canUseHighAccuracy,
-    required this.canUseCellular,
-    required this.suggestedHeartbeatMultiplier,
-  });
 
   /// Converts to a JSON-serializable map.
   JsonMap toMap() => {

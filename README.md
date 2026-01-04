@@ -36,6 +36,7 @@
 For full documentation, visit [locus.dev](https://pub.dev/documentation/locus/latest/) or check the local [docs](doc/intro.md) folder:
 
 - **[Quick Start](doc/guides/quickstart.md)** - Get running in 5 minutes.
+- **[Migration (v1.x to v2.0)](doc/guides/migration.md)** - Move to the service-based API.
 - **[Architecture](doc/core/architecture.md)** - Project structure and design.
 - **[Configuration](doc/core/configuration.md)** - Configuration options and presets.
 - **[Geofencing](doc/advanced/geofencing.md)** - Circular and polygon geofences.
@@ -50,7 +51,7 @@ For full documentation, visit [locus.dev](https://pub.dev/documentation/locus/la
 
 ```yaml
 dependencies:
-  locus: ^1.1.0
+  locus: ^2.0.0
 ```
 
 ### 2. Basic Setup
@@ -60,7 +61,7 @@ import 'package:locus/locus.dart';
 
 void main() async {
   // 1. Initialize
-  await Locus.ready(Config.balanced(
+  await Locus.ready(ConfigPresets.balanced.copyWith(
     url: 'https://api.yourservice.com/locations',
   ));
 
@@ -68,7 +69,7 @@ void main() async {
   await Locus.start();
 
   // 3. Listen to updates
-  Locus.onLocation((location) {
+  Locus.location.stream.listen((location) {
     print('Location: ${location.coords.latitude}, ${location.coords.longitude}');
   });
 }
@@ -78,7 +79,7 @@ void main() async {
 
 ```dart
 // Circular geofence
-await Locus.addGeofence(Geofence(
+await Locus.geofencing.add(Geofence(
   identifier: 'office',
   latitude: 37.7749,
   longitude: -122.4194,
@@ -88,7 +89,7 @@ await Locus.addGeofence(Geofence(
 ));
 
 // Polygon geofence
-await Locus.addPolygonGeofence(PolygonGeofence(
+await Locus.geofencing.addPolygon(PolygonGeofence(
   identifier: 'campus',
   vertices: [
     GeoPoint(latitude: 37.7749, longitude: -122.4194),
@@ -108,6 +109,34 @@ dart run locus:setup
 
 # Run environment diagnostics
 dart run locus:doctor
+
+# Migration helper (v1.x to v2.0)
+dart run locus:migrate --dry-run
+```
+
+## Tree Shaking
+
+Locus v2.0 is service-based and designed to tree shake unused features in
+release builds. To keep your app lean:
+
+- Import only what you need from the public barrels.
+- Avoid referencing service getters you do not use.
+
+Example:
+
+```dart
+import 'package:locus/locus.dart' show Locus, Config, Geofence, GeoPoint;
+
+Future<void> initTracking() async {
+  await Locus.ready(const Config());
+  await Locus.start();
+  await Locus.geofencing.add(Geofence(
+    identifier: 'office',
+    latitude: 37.7749,
+    longitude: -122.4194,
+    radius: 100,
+  ));
+}
 ```
 
 ## Architecture

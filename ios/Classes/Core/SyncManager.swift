@@ -8,11 +8,10 @@ protocol SyncManagerDelegate: AnyObject {
 }
 
 class SyncManager {
-    static let shared = SyncManager()
     
     weak var delegate: SyncManagerDelegate?
-    private let storage = StorageManager.shared
-    private let config = ConfigManager.shared
+    private let storage: StorageManager
+    private let config: ConfigManager
     
     // Simple network monitor
     private var monitor: NWPathMonitor?
@@ -20,9 +19,18 @@ class SyncManager {
     private var isConnected = true
     private var isCellular = false
     private var isMonitorRunning = false
-    private var isSyncPaused = false
     
-    private init() {
+    // Thread-safe sync pause state
+    private let syncStateQueue = DispatchQueue(label: "dev.locus.syncstate")
+    private var _isSyncPaused = false
+    private var isSyncPaused: Bool {
+        get { syncStateQueue.sync { _isSyncPaused } }
+        set { syncStateQueue.sync { _isSyncPaused = newValue } }
+    }
+    
+    init(config: ConfigManager, storage: StorageManager) {
+        self.config = config
+        self.storage = storage
         startNetworkMonitor()
     }
     

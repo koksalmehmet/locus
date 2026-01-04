@@ -28,6 +28,30 @@ import 'package:locus/src/shared/location_utils.dart';
 /// );
 /// ```
 class SignificantChangeConfig {
+
+  /// Creates a significant change configuration.
+  const SignificantChangeConfig({
+    this.minDisplacementMeters = 500,
+    this.deferUntilMoved = true,
+    this.onSignificantChange,
+    this.wakeFromBackground = true,
+    this.monitorInForeground = false,
+    this.maxUpdateInterval,
+  });
+
+  /// Creates from a map.
+  factory SignificantChangeConfig.fromMap(JsonMap map) {
+    return SignificantChangeConfig(
+      minDisplacementMeters:
+          (map['minDisplacementMeters'] as num?)?.toDouble() ?? 500,
+      deferUntilMoved: map['deferUntilMoved'] as bool? ?? true,
+      wakeFromBackground: map['wakeFromBackground'] as bool? ?? true,
+      monitorInForeground: map['monitorInForeground'] as bool? ?? false,
+      maxUpdateInterval: map['maxUpdateIntervalMs'] != null
+          ? Duration(milliseconds: (map['maxUpdateIntervalMs'] as num).toInt())
+          : null,
+    );
+  }
   /// Minimum displacement in meters to trigger an update.
   ///
   /// Default is 500m which is the iOS standard.
@@ -56,16 +80,6 @@ class SignificantChangeConfig {
   /// If set, will force a location update after this duration
   /// even if no significant movement detected.
   final Duration? maxUpdateInterval;
-
-  /// Creates a significant change configuration.
-  const SignificantChangeConfig({
-    this.minDisplacementMeters = 500,
-    this.deferUntilMoved = true,
-    this.onSignificantChange,
-    this.wakeFromBackground = true,
-    this.monitorInForeground = false,
-    this.maxUpdateInterval,
-  });
 
   /// Default configuration matching iOS behavior.
   static const SignificantChangeConfig defaults = SignificantChangeConfig();
@@ -112,24 +126,19 @@ class SignificantChangeConfig {
         if (maxUpdateInterval != null)
           'maxUpdateIntervalMs': maxUpdateInterval!.inMilliseconds,
       };
-
-  /// Creates from a map.
-  factory SignificantChangeConfig.fromMap(JsonMap map) {
-    return SignificantChangeConfig(
-      minDisplacementMeters:
-          (map['minDisplacementMeters'] as num?)?.toDouble() ?? 500,
-      deferUntilMoved: map['deferUntilMoved'] as bool? ?? true,
-      wakeFromBackground: map['wakeFromBackground'] as bool? ?? true,
-      monitorInForeground: map['monitorInForeground'] as bool? ?? false,
-      maxUpdateInterval: map['maxUpdateIntervalMs'] != null
-          ? Duration(milliseconds: (map['maxUpdateIntervalMs'] as num).toInt())
-          : null,
-    );
-  }
 }
 
 /// Event emitted when a significant location change is detected.
 class SignificantChangeEvent {
+
+  /// Creates a significant change event.
+  SignificantChangeEvent({
+    required this.location,
+    this.previousLocation,
+    this.displacementMeters,
+    this.timeSinceLastChange,
+    this.wasTimerTriggered = false,
+  });
   /// The new location after the significant change.
   final Location location;
 
@@ -144,15 +153,6 @@ class SignificantChangeEvent {
 
   /// Whether this was triggered by the max interval timer.
   final bool wasTimerTriggered;
-
-  /// Creates a significant change event.
-  SignificantChangeEvent({
-    required this.location,
-    this.previousLocation,
-    this.displacementMeters,
-    this.timeSinceLastChange,
-    this.wasTimerTriggered = false,
-  });
 
   /// Converts to a JSON-serializable map.
   JsonMap toMap() => {

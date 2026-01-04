@@ -9,10 +9,6 @@ import 'package:locus/src/models.dart';
 
 /// Event emitted when a tracking profile changes.
 class ProfileChangeEvent {
-  final TrackingProfile? previousProfile;
-  final TrackingProfile newProfile;
-  final String? reason;
-  final DateTime timestamp;
 
   ProfileChangeEvent({
     this.previousProfile,
@@ -20,14 +16,14 @@ class ProfileChangeEvent {
     this.reason,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
+  final TrackingProfile? previousProfile;
+  final TrackingProfile newProfile;
+  final String? reason;
+  final DateTime timestamp;
 }
 
 /// Event emitted when a profile switch fails.
 class ProfileSwitchError {
-  final TrackingProfile targetProfile;
-  final Object error;
-  final StackTrace? stackTrace;
-  final DateTime timestamp;
 
   ProfileSwitchError({
     required this.targetProfile,
@@ -35,6 +31,10 @@ class ProfileSwitchError {
     this.stackTrace,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
+  final TrackingProfile targetProfile;
+  final Object error;
+  final StackTrace? stackTrace;
+  final DateTime timestamp;
 }
 
 class TrackingProfileManager {

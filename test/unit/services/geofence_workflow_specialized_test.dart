@@ -44,14 +44,14 @@ void main() {
       // This is simulated by adding B only after A triggers, etc.
 
       // 1. Add Geofence A
-      final zoneA = Geofence(
+      const zoneA = Geofence(
         identifier: 'zone_a',
         latitude: 37.0,
         longitude: -122.0,
         radius: 100,
         notifyOnEntry: true,
       );
-      await Locus.addGeofence(zoneA);
+      await Locus.geofencing.add(zoneA);
 
       expect(methodCalls.last.method, 'addGeofence');
       expect(methodCalls.last.arguments['identifier'], 'zone_a');
@@ -60,16 +60,16 @@ void main() {
       // For this test, we verify the logic we would implement in an app using the SDK
 
       // 2. Add Geofence B (simulating "User entered A, now tracking B")
-      final zoneB = Geofence(
+      const zoneB = Geofence(
         identifier: 'zone_b',
         latitude: 37.1,
         longitude: -122.1,
         radius: 100,
         notifyOnEntry: true,
       );
-      await Locus.addGeofence(zoneB);
+      await Locus.geofencing.add(zoneB);
       // And remove A to stop tracking it
-      await Locus.removeGeofence('zone_a');
+      await Locus.geofencing.remove('zone_a');
 
       expect(
           methodCalls.map((c) => c.method),
@@ -91,8 +91,8 @@ void main() {
       );
 
       // Clearing old ones and adding new ones
-      await Locus.removeGeofences();
-      await Locus.addGeofences(newGeofences);
+      await Locus.geofencing.removeAll();
+      await Locus.geofencing.addAll(newGeofences);
 
       expect(methodCalls.length, 2);
       expect(methodCalls[0].method, 'removeGeofences');
@@ -102,7 +102,7 @@ void main() {
 
     test('Geofence Dwell Workflow', () async {
       // Scenario: Only trigger if user dwells for 5 minutes
-      final dwellZone = Geofence(
+      const dwellZone = Geofence(
         identifier: 'dwell_zone',
         latitude: 37.5,
         longitude: -122.5,
@@ -113,7 +113,7 @@ void main() {
         loiteringDelay: 300000, // 5 minutes (in ms)
       );
 
-      await Locus.addGeofence(dwellZone);
+      await Locus.geofencing.add(dwellZone);
 
       final call = methodCalls.last;
       expect(call.method, 'addGeofence');
@@ -128,11 +128,11 @@ void main() {
       // Scenario: App switches profiles based on app state/actions
 
       // 1. App starts -> Balanced
-      await Locus.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
-      expect(Locus.adaptiveTrackingConfig?.enabled, true);
+      await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
+      expect(Locus.battery.adaptiveTrackingConfig?.enabled, true);
 
       // 2. User starts navigation -> High Accuracy
-      await Locus.setAdaptiveTracking(const AdaptiveTrackingConfig(
+      await Locus.battery.setAdaptiveTracking(const AdaptiveTrackingConfig(
         enabled: true,
         speedTiers: SpeedTiers.driving,
         batteryThresholds: BatteryThresholds.conservative,
@@ -140,8 +140,8 @@ void main() {
       ));
 
       // 3. User stops navigation -> Power Save
-      await Locus.setAdaptiveTracking(AdaptiveTrackingConfig.aggressive);
-      expect(Locus.adaptiveTrackingConfig?.stationaryGpsOff, true);
+      await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.aggressive);
+      expect(Locus.battery.adaptiveTrackingConfig?.stationaryGpsOff, true);
     });
   });
 }

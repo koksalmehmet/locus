@@ -338,16 +338,6 @@ class MethodChannelLocus implements LocusInterface {
     return [];
   }
 
-  @override
-  Future<void> emailLog(String email) async {
-    await LocusChannels.methods.invokeMethod('emailLog', email);
-  }
-
-  @override
-  Future<void> playSound(String name) async {
-    await LocusChannels.methods.invokeMethod('playSound', name);
-  }
-
   // ============================================================
   // Queue Methods
   // ============================================================

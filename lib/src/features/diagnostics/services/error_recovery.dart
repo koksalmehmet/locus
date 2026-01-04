@@ -24,6 +24,25 @@ import 'package:locus/src/models.dart';
 /// ));
 /// ```
 class ErrorRecoveryConfig {
+
+  /// Creates an error recovery configuration.
+  const ErrorRecoveryConfig({
+    this.onError,
+    this.onResolved,
+    this.onExhausted,
+    this.maxRetries = 3,
+    this.retryDelay = const Duration(seconds: 5),
+    this.retryBackoff = 2.0,
+    this.maxRetryDelay = const Duration(minutes: 5),
+    this.autoRestart = true,
+    this.autoRetryTypes = const {
+      LocusErrorType.locationTimeout,
+      LocusErrorType.networkError,
+      LocusErrorType.serviceDisconnected,
+    },
+    this.ignoreTypes = const {},
+    this.logErrors = true,
+  });
   /// Callback to handle errors and determine recovery action.
   ///
   /// Return [RecoveryAction] to specify how to recover.
@@ -61,25 +80,6 @@ class ErrorRecoveryConfig {
 
   /// Whether to log errors to the console.
   final bool logErrors;
-
-  /// Creates an error recovery configuration.
-  const ErrorRecoveryConfig({
-    this.onError,
-    this.onResolved,
-    this.onExhausted,
-    this.maxRetries = 3,
-    this.retryDelay = const Duration(seconds: 5),
-    this.retryBackoff = 2.0,
-    this.maxRetryDelay = const Duration(minutes: 5),
-    this.autoRestart = true,
-    this.autoRetryTypes = const {
-      LocusErrorType.locationTimeout,
-      LocusErrorType.networkError,
-      LocusErrorType.serviceDisconnected,
-    },
-    this.ignoreTypes = const {},
-    this.logErrors = true,
-  });
 
   /// Default configuration with sensible defaults.
   static const ErrorRecoveryConfig defaults = ErrorRecoveryConfig();
@@ -168,32 +168,6 @@ enum RecoveryAction {
 
 /// Locus SDK error with classification and recovery hints.
 class LocusError implements Exception {
-  /// Error type classification.
-  final LocusErrorType type;
-
-  /// Human-readable error message.
-  final String message;
-
-  /// Original exception if available.
-  final Object? originalError;
-
-  /// Stack trace if available.
-  final StackTrace? stackTrace;
-
-  /// Operation that failed.
-  final String? operation;
-
-  /// Whether this error is recoverable.
-  final bool isRecoverable;
-
-  /// Suggested recovery action.
-  final RecoveryAction? suggestedRecovery;
-
-  /// Additional error details.
-  final JsonMap? details;
-
-  /// Timestamp when error occurred.
-  final DateTime timestamp;
 
   /// Creates a Locus error.
   LocusError({
@@ -262,6 +236,32 @@ class LocusError implements Exception {
         isRecoverable: true,
         suggestedRecovery: RecoveryAction.restart,
       );
+  /// Error type classification.
+  final LocusErrorType type;
+
+  /// Human-readable error message.
+  final String message;
+
+  /// Original exception if available.
+  final Object? originalError;
+
+  /// Stack trace if available.
+  final StackTrace? stackTrace;
+
+  /// Operation that failed.
+  final String? operation;
+
+  /// Whether this error is recoverable.
+  final bool isRecoverable;
+
+  /// Suggested recovery action.
+  final RecoveryAction? suggestedRecovery;
+
+  /// Additional error details.
+  final JsonMap? details;
+
+  /// Timestamp when error occurred.
+  final DateTime timestamp;
 
   /// Converts to a JSON-serializable map.
   JsonMap toMap() => {
@@ -320,6 +320,16 @@ enum LocusErrorType {
 
 /// Context about the error for decision making.
 class ErrorContext {
+
+  /// Creates an error context.
+  const ErrorContext({
+    this.retryCount = 0,
+    this.timeSinceFirstOccurrence,
+    this.isTrackingActive = false,
+    this.batteryLevel,
+    this.isCharging,
+    this.networkAvailable,
+  });
   /// Number of times this error has been retried.
   final int retryCount;
 
@@ -337,29 +347,19 @@ class ErrorContext {
 
   /// Whether network is available.
   final bool? networkAvailable;
-
-  /// Creates an error context.
-  const ErrorContext({
-    this.retryCount = 0,
-    this.timeSinceFirstOccurrence,
-    this.isTrackingActive = false,
-    this.batteryLevel,
-    this.isCharging,
-    this.networkAvailable,
-  });
 }
 
 /// Manages error recovery for the Locus SDK.
 class ErrorRecoveryManager {
+
+  /// Creates an error recovery manager.
+  ErrorRecoveryManager([ErrorRecoveryConfig? config])
+      : _config = config ?? const ErrorRecoveryConfig();
   ErrorRecoveryConfig _config;
   final Map<LocusErrorType, int> _retryCounts = {};
   final Map<LocusErrorType, DateTime> _firstOccurrences = {};
   final _errorController = StreamController<LocusError>.broadcast();
   final Map<LocusErrorType, Timer> _retryTimers = {};
-
-  /// Creates an error recovery manager.
-  ErrorRecoveryManager([ErrorRecoveryConfig? config])
-      : _config = config ?? const ErrorRecoveryConfig();
 
   /// Stream of errors for external observation.
   Stream<LocusError> get errors => _errorController.stream;

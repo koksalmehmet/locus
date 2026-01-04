@@ -1,10 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class GeofenceWorkflowState {
-  final String workflowId;
-  final int currentIndex;
-  final List<String> completedStepIds;
-  final bool completed;
 
   const GeofenceWorkflowState({
     required this.workflowId,
@@ -12,6 +8,10 @@ class GeofenceWorkflowState {
     required this.completedStepIds,
     required this.completed,
   });
+  final String workflowId;
+  final int currentIndex;
+  final List<String> completedStepIds;
+  final bool completed;
 
   JsonMap toMap() => {
         'workflowId': workflowId,

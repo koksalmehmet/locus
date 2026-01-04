@@ -8,11 +8,10 @@ protocol MotionManagerDelegate: AnyObject {
 }
 
 class MotionManager {
-    static let shared = MotionManager()
     
     weak var delegate: MotionManagerDelegate?
     private let motionManager = CMMotionActivityManager()
-    private let config = ConfigManager.shared
+    private let config: ConfigManager
     
     private(set) var lastActivityType = "unknown"
     private(set) var lastActivityConfidence = 0
@@ -20,6 +19,10 @@ class MotionManager {
     
     private var stopTimeoutTimer: Timer?
     private var motionTriggerTimer: Timer?
+
+    init(config: ConfigManager) {
+        self.config = config
+    }
     
     func start() {
         guard CMMotionActivityManager.isActivityAvailable(), !config.disableMotionActivityUpdates else { return }

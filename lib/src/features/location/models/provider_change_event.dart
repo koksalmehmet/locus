@@ -2,11 +2,6 @@ import 'package:locus/src/shared/models/enums.dart';
 import 'package:locus/src/shared/models/json_map.dart';
 
 class ProviderChangeEvent {
-  final bool enabled;
-  final String? status;
-  final ProviderAvailability availability;
-  final AuthorizationStatus authorizationStatus;
-  final LocationAccuracyAuthorization accuracyAuthorization;
 
   const ProviderChangeEvent({
     required this.enabled,
@@ -15,14 +10,6 @@ class ProviderChangeEvent {
     required this.authorizationStatus,
     required this.accuracyAuthorization,
   });
-
-  JsonMap toMap() => {
-        'enabled': enabled,
-        if (status != null) 'status': status,
-        'availability': availability.name,
-        'authorizationStatus': authorizationStatus.name,
-        'accuracyAuthorization': accuracyAuthorization.name,
-      };
 
   factory ProviderChangeEvent.fromMap(JsonMap map) {
     return ProviderChangeEvent(
@@ -42,4 +29,17 @@ class ProviderChangeEvent {
       ),
     );
   }
+  final bool enabled;
+  final String? status;
+  final ProviderAvailability availability;
+  final AuthorizationStatus authorizationStatus;
+  final LocationAccuracyAuthorization accuracyAuthorization;
+
+  JsonMap toMap() => {
+        'enabled': enabled,
+        if (status != null) 'status': status,
+        'availability': availability.name,
+        'authorizationStatus': authorizationStatus.name,
+        'accuracyAuthorization': accuracyAuthorization.name,
+      };
 }

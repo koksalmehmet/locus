@@ -2,12 +2,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 import 'package:locus/src/features/location/models/location.dart';
 
 class GeolocationState {
-  final bool enabled;
-  final bool isMoving;
-  final bool? schedulerEnabled;
-  final double? odometer;
-  final Location? location;
-  final JsonMap? extras;
 
   const GeolocationState({
     required this.enabled,
@@ -17,6 +11,28 @@ class GeolocationState {
     this.location,
     this.extras,
   });
+
+  factory GeolocationState.fromMap(JsonMap map) {
+    final locationData = map['location'];
+    final extrasData = map['extras'];
+
+    return GeolocationState(
+      enabled: map['enabled'] as bool? ?? false,
+      isMoving: map['isMoving'] as bool? ?? false,
+      schedulerEnabled: map['schedulerEnabled'] as bool?,
+      odometer: (map['odometer'] as num?)?.toDouble(),
+      location: locationData is Map
+          ? Location.fromMap(Map<String, dynamic>.from(locationData))
+          : null,
+      extras: extrasData is Map ? Map<String, dynamic>.from(extrasData) : null,
+    );
+  }
+  final bool enabled;
+  final bool isMoving;
+  final bool? schedulerEnabled;
+  final double? odometer;
+  final Location? location;
+  final JsonMap? extras;
 
   /// Creates a copy of this state with the given fields replaced.
   GeolocationState copyWith({
@@ -45,22 +61,6 @@ class GeolocationState {
         if (location != null) 'location': location!.toMap(),
         if (extras != null) 'extras': extras,
       };
-
-  factory GeolocationState.fromMap(JsonMap map) {
-    final locationData = map['location'];
-    final extrasData = map['extras'];
-
-    return GeolocationState(
-      enabled: map['enabled'] as bool? ?? false,
-      isMoving: map['isMoving'] as bool? ?? false,
-      schedulerEnabled: map['schedulerEnabled'] as bool?,
-      odometer: (map['odometer'] as num?)?.toDouble(),
-      location: locationData is Map
-          ? Location.fromMap(Map<String, dynamic>.from(locationData))
-          : null,
-      extras: extrasData is Map ? Map<String, dynamic>.from(extrasData) : null,
-    );
-  }
 
   @override
   String toString() =>

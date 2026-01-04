@@ -76,7 +76,7 @@ void main() {
         distanceFilter: 10,
       ));
 
-      final location = await Locus.getCurrentPosition();
+      final location = await Locus.location.getCurrentPosition();
 
       expect(location.coords.accuracy, greaterThanOrEqualTo(0));
       expect(location.coords.latitude, inInclusiveRange(-90, 90));
@@ -86,7 +86,7 @@ void main() {
 
     testWidgets('changePace() sets moving state', (tester) async {
       await Locus.ready(const Config());
-      await Locus.changePace(true);
+      await Locus.location.changePace(true);
       // No exception means success
       expect(true, isTrue);
     });
@@ -97,7 +97,7 @@ void main() {
       await Locus.ready(const Config());
 
       const testOdometer = 12345.67;
-      final result = await Locus.setOdometer(testOdometer);
+      final result = await Locus.location.setOdometer(testOdometer);
 
       expect(result, equals(testOdometer));
 
@@ -112,10 +112,10 @@ void main() {
       await Locus.ready(const Config());
 
       // Clear existing geofences
-      await Locus.removeGeofences();
+      await Locus.geofencing.removeAll();
 
       // Add a test geofence
-      await Locus.addGeofence(const Geofence(
+      await Locus.geofencing.add(const Geofence(
         identifier: 'test_geofence',
         radius: 100,
         latitude: 37.4219983,
@@ -124,50 +124,50 @@ void main() {
         notifyOnExit: true,
       ));
 
-      final geofences = await Locus.getGeofences();
+      final geofences = await Locus.geofencing.getAll();
       expect(geofences, isNotEmpty);
       expect(geofences.any((g) => g.identifier == 'test_geofence'), isTrue);
     });
 
     testWidgets('geofenceExists() returns correct boolean', (tester) async {
       await Locus.ready(const Config());
-      await Locus.removeGeofences();
+      await Locus.geofencing.removeAll();
 
-      await Locus.addGeofence(const Geofence(
+      await Locus.geofencing.add(const Geofence(
         identifier: 'exists_test',
         radius: 50,
         latitude: 40.0,
         longitude: -74.0,
       ));
 
-      final exists = await Locus.geofenceExists('exists_test');
+      final exists = await Locus.geofencing.exists('exists_test');
       expect(exists, isTrue);
 
-      final notExists = await Locus.geofenceExists('nonexistent');
+      final notExists = await Locus.geofencing.exists('nonexistent');
       expect(notExists, isFalse);
     });
 
     testWidgets('removeGeofence() removes specific geofence', (tester) async {
       await Locus.ready(const Config());
-      await Locus.removeGeofences();
+      await Locus.geofencing.removeAll();
 
-      await Locus.addGeofence(const Geofence(
+      await Locus.geofencing.add(const Geofence(
         identifier: 'to_remove',
         radius: 50,
         latitude: 40.0,
         longitude: -74.0,
       ));
 
-      await Locus.removeGeofence('to_remove');
-      final exists = await Locus.geofenceExists('to_remove');
+      await Locus.geofencing.remove('to_remove');
+      final exists = await Locus.geofencing.exists('to_remove');
       expect(exists, isFalse);
     });
 
     testWidgets('addGeofences() adds multiple geofences', (tester) async {
       await Locus.ready(const Config());
-      await Locus.removeGeofences();
+      await Locus.geofencing.removeAll();
 
-      await Locus.addGeofences(const [
+      await Locus.geofencing.addAll(const [
         Geofence(
             identifier: 'multi_1', radius: 50, latitude: 40, longitude: -74),
         Geofence(
@@ -176,7 +176,7 @@ void main() {
             identifier: 'multi_3', radius: 50, latitude: 42, longitude: -76),
       ]);
 
-      final geofences = await Locus.getGeofences();
+      final geofences = await Locus.geofencing.getAll();
       expect(geofences.length, greaterThanOrEqualTo(3));
     });
   });
@@ -184,9 +184,9 @@ void main() {
   group('Custom Queue', () {
     testWidgets('enqueue() and getQueue() work correctly', (tester) async {
       await Locus.ready(const Config());
-      await Locus.clearQueue();
+      await Locus.dataSync.clearQueue();
 
-      final id = await Locus.enqueue({
+      final id = await Locus.dataSync.enqueue({
         'event': 'test_event',
         'timestamp': DateTime.now().toIso8601String(),
         'data': {'key': 'value'},
@@ -194,7 +194,7 @@ void main() {
 
       expect(id, isNotEmpty);
 
-      final queue = await Locus.getQueue();
+      final queue = await Locus.dataSync.getQueue();
       expect(queue, isNotEmpty);
       expect(queue.any((item) => item.id == id), isTrue);
     });
@@ -202,10 +202,10 @@ void main() {
     testWidgets('clearQueue() removes all items', (tester) async {
       await Locus.ready(const Config());
 
-      await Locus.enqueue({'test': 'data'});
-      await Locus.clearQueue();
+      await Locus.dataSync.enqueue({'test': 'data'});
+      await Locus.dataSync.clearQueue();
 
-      final queue = await Locus.getQueue();
+      final queue = await Locus.dataSync.getQueue();
       expect(queue, isEmpty);
     });
   });
@@ -216,15 +216,15 @@ void main() {
         persistMode: PersistMode.all,
       ));
 
-      final locations = await Locus.getLocations(limit: 10);
+      final locations = await Locus.location.getLocations(limit: 10);
       expect(locations, isA<List<Location>>());
     });
 
     testWidgets('destroyLocations() clears stored locations', (tester) async {
       await Locus.ready(const Config());
-      await Locus.destroyLocations();
+      await Locus.location.destroyLocations();
 
-      final locations = await Locus.getLocations();
+      final locations = await Locus.location.getLocations();
       expect(locations, isEmpty);
     });
   });
@@ -234,18 +234,18 @@ void main() {
       await Locus.ready(const Config());
 
       // Start a trip
-      await Locus.startTrip(const TripConfig(
+      await Locus.trips.start(const TripConfig(
         startOnMoving: false,
         updateIntervalSeconds: 30,
       ));
 
       // Get trip state
-      final tripState = Locus.getTripState();
+      final tripState = Locus.trips.getState();
       // tripState is nullable TripState?
       expect(tripState, anyOf(isNull, isA<TripState>()));
 
       // Stop the trip
-      final summary = Locus.stopTrip();
+      final summary = Locus.trips.stop();
       // summary is nullable TripSummary?
       expect(summary, anyOf(isNull, isA<TripSummary>()));
     });
@@ -291,11 +291,11 @@ void main() {
       expect(diagnostics.queue, isA<List<QueueItem>>());
     });
 
-    testWidgets('getLog() returns log string', (tester) async {
+    testWidgets('getLog() returns log entries', (tester) async {
       await Locus.ready(const Config(logLevel: LogLevel.debug));
 
       final log = await Locus.getLog();
-      expect(log, isA<String>());
+      expect(log, isA<List<LogEntry>>());
     });
   });
 
@@ -360,10 +360,10 @@ void main() {
   });
 
   group('Geofence Workflows', () {
-    testWidgets('registerGeofenceWorkflows() stores workflows', (tester) async {
+    testWidgets('registerWorkflows() stores workflows', (tester) async {
       await Locus.ready(const Config());
 
-      Locus.registerGeofenceWorkflows(const [
+      Locus.geofencing.registerWorkflows(const [
         GeofenceWorkflow(
           id: 'test_workflow',
           steps: [
@@ -387,74 +387,74 @@ void main() {
   });
 
   group('Event Streams', () {
-    testWidgets('onLocation stream can be subscribed', (tester) async {
+    testWidgets('location stream can be subscribed', (tester) async {
       await Locus.ready(const Config());
 
-      final subscription = Locus.onLocation((location) {});
+      final subscription = Locus.location.stream.listen((location) {});
       expect(subscription, isNotNull);
 
       // Clean up
       await subscription.cancel();
     });
 
-    testWidgets('onMotionChange stream can be subscribed', (tester) async {
+    testWidgets('motionChanges stream can be subscribed', (tester) async {
       await Locus.ready(const Config());
 
-      final subscription = Locus.onMotionChange((location) {});
+      final subscription = Locus.location.motionChanges.listen((location) {});
       expect(subscription, isNotNull);
       await subscription.cancel();
     });
 
-    testWidgets('onActivityChange stream can be subscribed', (tester) async {
+    testWidgets('activity stream can be subscribed', (tester) async {
       await Locus.ready(const Config());
 
-      final subscription = Locus.onActivityChange((activity) {});
+      final subscription = Locus.instance.activityStream.listen((activity) {});
       expect(subscription, isNotNull);
       await subscription.cancel();
     });
 
-    testWidgets('onProviderChange stream can be subscribed', (tester) async {
+    testWidgets('provider stream can be subscribed', (tester) async {
       await Locus.ready(const Config());
 
-      final subscription = Locus.onProviderChange((event) {});
+      final subscription = Locus.instance.providerStream.listen((event) {});
       expect(subscription, isNotNull);
       await subscription.cancel();
     });
 
-    testWidgets('onGeofence stream can be subscribed', (tester) async {
+    testWidgets('geofence events stream can be subscribed', (tester) async {
       await Locus.ready(const Config());
 
-      final subscription = Locus.onGeofence((event) {});
+      final subscription = Locus.geofencing.events.listen((event) {});
       expect(subscription, isNotNull);
       await subscription.cancel();
     });
 
-    testWidgets('onConnectivityChange stream can be subscribed',
+    testWidgets('connectivity stream can be subscribed',
         (tester) async {
       await Locus.ready(const Config());
 
-      final subscription = Locus.onConnectivityChange((event) {});
+      final subscription = Locus.dataSync.connectivityEvents.listen((event) {});
       expect(subscription, isNotNull);
       await subscription.cancel();
     });
 
-    testWidgets('onHttp stream can be subscribed', (tester) async {
+    testWidgets('http events stream can be subscribed', (tester) async {
       await Locus.ready(const Config());
 
-      final subscription = Locus.onHttp((event) {});
+      final subscription = Locus.dataSync.events.listen((event) {});
       expect(subscription, isNotNull);
       await subscription.cancel();
     });
 
-    testWidgets('onTripEvent stream can be subscribed', (tester) async {
+    testWidgets('trip events stream can be subscribed', (tester) async {
       await Locus.ready(const Config());
 
-      final subscription = Locus.onTripEvent((event) {});
+      final subscription = Locus.trips.events.listen((event) {});
       expect(subscription, isNotNull);
       await subscription.cancel();
     });
 
-    testWidgets('onLocationAnomaly stream can be subscribed', (tester) async {
+    testWidgets('location anomaly stream can be subscribed', (tester) async {
       await Locus.ready(const Config());
 
       final subscription = Locus.onLocationAnomaly((anomaly) {});

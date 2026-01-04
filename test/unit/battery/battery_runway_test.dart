@@ -4,7 +4,7 @@ import 'package:locus/src/features/battery/models/battery_runway.dart';
 void main() {
   group('BatteryRunway', () {
     test('reports charging state correctly', () {
-      final runway = BatteryRunway.charging(currentLevel: 50);
+      const runway = BatteryRunway.charging(currentLevel: 50);
 
       expect(runway.isCharging, isTrue);
       expect(runway.duration.inHours, 999);
@@ -17,7 +17,7 @@ void main() {
     });
 
     test('reports insufficient data correctly', () {
-      final runway = BatteryRunway.insufficientData(currentLevel: 80);
+      const runway = BatteryRunway.insufficientData(currentLevel: 80);
 
       expect(runway.duration, Duration.zero);
       expect(runway.lowPowerDuration, Duration.zero);
@@ -26,9 +26,9 @@ void main() {
     });
 
     test('identifies critical battery level', () {
-      final runway = BatteryRunway(
-        duration: const Duration(minutes: 10),
-        lowPowerDuration: const Duration(minutes: 25),
+      const runway = BatteryRunway(
+        duration: Duration(minutes: 10),
+        lowPowerDuration: Duration(minutes: 25),
         recommendation: 'Critical',
         currentLevel: 5,
       );
@@ -38,9 +38,9 @@ void main() {
     });
 
     test('identifies low battery level', () {
-      final runway = BatteryRunway(
-        duration: const Duration(minutes: 30),
-        lowPowerDuration: const Duration(minutes: 75),
+      const runway = BatteryRunway(
+        duration: Duration(minutes: 30),
+        lowPowerDuration: Duration(minutes: 75),
         recommendation: 'Low',
         currentLevel: 12,
       );
@@ -50,9 +50,9 @@ void main() {
     });
 
     test('suggests switching to low power when beneficial', () {
-      final runway = BatteryRunway(
-        duration: const Duration(minutes: 45),
-        lowPowerDuration: const Duration(minutes: 120),
+      const runway = BatteryRunway(
+        duration: Duration(minutes: 45),
+        lowPowerDuration: Duration(minutes: 120),
         recommendation: 'Consider low power',
         currentLevel: 25,
       );
@@ -61,9 +61,9 @@ void main() {
     });
 
     test('does not suggest low power when duration is sufficient', () {
-      final runway = BatteryRunway(
-        duration: const Duration(minutes: 180),
-        lowPowerDuration: const Duration(minutes: 450),
+      const runway = BatteryRunway(
+        duration: Duration(minutes: 180),
+        lowPowerDuration: Duration(minutes: 450),
         recommendation: 'Sufficient',
         currentLevel: 75,
       );
@@ -73,8 +73,8 @@ void main() {
 
     test('formats duration correctly', () {
       expect(
-        BatteryRunway(
-          duration: const Duration(hours: 2, minutes: 30),
+        const BatteryRunway(
+          duration: Duration(hours: 2, minutes: 30),
           lowPowerDuration: Duration.zero,
           recommendation: '',
           currentLevel: 50,
@@ -83,8 +83,8 @@ void main() {
       );
 
       expect(
-        BatteryRunway(
-          duration: const Duration(minutes: 45),
+        const BatteryRunway(
+          duration: Duration(minutes: 45),
           lowPowerDuration: Duration.zero,
           recommendation: '',
           currentLevel: 50,
@@ -93,8 +93,8 @@ void main() {
       );
 
       expect(
-        BatteryRunway(
-          duration: const Duration(days: 1, hours: 5),
+        const BatteryRunway(
+          duration: Duration(days: 1, hours: 5),
           lowPowerDuration: Duration.zero,
           recommendation: '',
           currentLevel: 50,

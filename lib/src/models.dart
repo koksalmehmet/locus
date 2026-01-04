@@ -29,6 +29,7 @@ export 'features/geofencing/models/geofence_workflow_step.dart';
 export 'features/battery/models/adaptive_tracking.dart';
 export 'features/battery/models/battery_runway.dart';
 export 'features/battery/models/battery_stats.dart';
+export 'features/battery/models/low_battery_config.dart';
 export 'features/battery/models/power_state.dart';
 export 'features/battery/models/sync_policy.dart';
 

@@ -9,13 +9,13 @@ protocol LocationClientDelegate: AnyObject {
 }
 
 class LocationClient: NSObject, CLLocationManagerDelegate {
-    static let shared = LocationClient()
     
     weak var delegate: LocationClientDelegate?
     private let locationManager = CLLocationManager()
-    private let config = ConfigManager.shared
+    private let config: ConfigManager
     
-    override init() {
+    init(config: ConfigManager) {
+        self.config = config
         super.init()
         locationManager.delegate = self
         locationManager.activityType = .other

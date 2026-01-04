@@ -1,0 +1,423 @@
+import 'dart:io';
+import 'dart:convert';
+import 'patterns.dart';
+
+class MigrationAnalysisResult {
+  final String projectPath;
+  final DateTime timestamp;
+  final List<AnalyzedFile> analyzedFiles;
+  final List<PatternMatch> matches;
+  final List<MigrationWarning> warnings;
+  final List<MigrationError> errors;
+  final Set<String> importedPackages;
+
+  MigrationAnalysisResult({
+    required this.projectPath,
+    required this.timestamp,
+    required this.analyzedFiles,
+    required this.matches,
+    required this.warnings,
+    required this.errors,
+    required this.importedPackages,
+  });
+
+  int get totalFiles => analyzedFiles.length;
+  int get filesWithLocus => analyzedFiles.where((f) => f.hasLocusUsage).length;
+  int get totalMatches => matches.length;
+
+  Map<String, int> get matchesByCategory {
+    final counts = <String, int>{};
+    for (final match in matches) {
+      final pattern = MigrationPatternDatabase.allPatterns.firstWhere(
+          (p) => p.id == match.patternId,
+          orElse: () =>
+              throw Exception('Pattern not found: ${match.patternId}'));
+      counts[pattern.category.name] = (counts[pattern.category.name] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  int get autoMigratableCount {
+    return matches.where((m) {
+      final pattern = MigrationPatternDatabase.allPatterns
+          .firstWhere((p) => p.id == m.patternId);
+      return pattern.confidence == MigrationConfidence.high;
+    }).length;
+  }
+
+  int get manualReviewCount {
+    return matches.where((m) {
+      final pattern = MigrationPatternDatabase.allPatterns
+          .firstWhere((p) => p.id == m.patternId);
+      return pattern.confidence == MigrationConfidence.low;
+    }).length;
+  }
+
+  int get removedFeaturesCount {
+    return matches.where((m) {
+      final pattern = MigrationPatternDatabase.allPatterns
+          .firstWhere((p) => p.id == m.patternId);
+      return pattern.category == MigrationCategory.removed;
+    }).length;
+  }
+
+  Map<String, dynamic> toJson() => {
+        'projectPath': projectPath,
+        'timestamp': timestamp.toIso8601String(),
+        'summary': {
+          'totalFiles': totalFiles,
+          'filesWithLocus': filesWithLocus,
+          'totalMatches': totalMatches,
+          'autoMigratable': autoMigratableCount,
+          'manualReview': manualReviewCount,
+          'removedFeatures': removedFeaturesCount,
+          'matchesByCategory': matchesByCategory,
+        },
+        'files': analyzedFiles.map((f) => f.toJson()).toList(),
+        'matches': matches.map((m) => m.toJson()).toList(),
+        'warnings': warnings.map((w) => w.toJson()).toList(),
+        'errors': errors.map((e) => e.toJson()).toList(),
+        'importedPackages': importedPackages.toList(),
+      };
+}
+
+class AnalyzedFile {
+  final String path;
+  final String content;
+  final int lineCount;
+  final bool hasLocusUsage;
+  final Set<String> locusMethods;
+  final Set<String> imports;
+  final int locusMatchCount;
+
+  AnalyzedFile({
+    required this.path,
+    required this.content,
+    required this.lineCount,
+    required this.hasLocusUsage,
+    required this.locusMethods,
+    required this.imports,
+    required this.locusMatchCount,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'path': path,
+        'lineCount': lineCount,
+        'hasLocusUsage': hasLocusUsage,
+        'locusMethods': locusMethods.toList(),
+        'imports': imports.toList(),
+        'locusMatchCount': locusMatchCount,
+      };
+}
+
+class MigrationWarning {
+  final String filePath;
+  final int line;
+  final String message;
+  final String code;
+  final String? suggestion;
+
+  MigrationWarning({
+    required this.filePath,
+    required this.line,
+    required this.message,
+    required this.code,
+    this.suggestion,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'filePath': filePath,
+        'line': line,
+        'message': message,
+        'code': code,
+        'suggestion': suggestion,
+      };
+}
+
+class MigrationError {
+  final String filePath;
+  final int line;
+  final String message;
+  final String code;
+
+  MigrationError({
+    required this.filePath,
+    required this.line,
+    required this.message,
+    required this.code,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'filePath': filePath,
+        'line': line,
+        'message': message,
+        'code': code,
+      };
+}
+
+class MigrationAnalyzer {
+  final List<MigrationPattern> _patterns;
+  final Set<String> _ignoredPatterns;
+  final bool _verbose;
+
+  MigrationAnalyzer({
+    List<MigrationPattern>? patterns,
+    Set<String>? ignoredPatterns,
+    bool verbose = false,
+  })  : _patterns = patterns ?? MigrationPatternDatabase.allPatterns,
+        _ignoredPatterns = ignoredPatterns ?? {},
+        _verbose = verbose;
+
+  Future<MigrationAnalysisResult> analyze(
+    Directory projectDir, {
+    bool skipTests = false,
+    Set<String>? additionalIgnores,
+  }) async {
+    final stopwatch = Stopwatch()..start();
+
+    if (_verbose) {
+      print('[INFO] Starting analysis of ${projectDir.path}');
+    }
+
+    final analyzedFiles = <AnalyzedFile>[];
+    final allMatches = <PatternMatch>[];
+    final warnings = <MigrationWarning>[];
+    final errors = <MigrationError>[];
+    final importedPackages = <String>{};
+
+    final ignorePatterns = {..._ignoredPatterns, ...?additionalIgnores};
+    final gitignorePatterns = await _parseGitignore(projectDir);
+
+    final files = await _findDartFiles(
+      projectDir,
+      skipTests: skipTests,
+      ignorePatterns: {...ignorePatterns, ...gitignorePatterns},
+    );
+
+    if (_verbose) {
+      print('[INFO] Found ${files.length} Dart files to analyze');
+    }
+
+    for (final file in files) {
+      try {
+        final content = await file.readAsString();
+        final fileResult = await _analyzeFile(
+          file,
+          content,
+          projectDir.path,
+        );
+
+        analyzedFiles.add(fileResult);
+
+        if (fileResult.hasLocusUsage) {
+          allMatches.addAll(
+            _findMatchesInContent(content, file.path, fileResult.imports),
+          );
+        }
+
+        for (final import in fileResult.imports) {
+          if (import.contains('locus')) {
+            importedPackages.add(import);
+          }
+        }
+
+        if (_verbose) {
+          print(
+              '[INFO] Analyzed ${file.path} - ${fileResult.locusMatchCount} Locus matches');
+        }
+      } catch (e, stack) {
+        errors.add(MigrationError(
+          filePath: file.path,
+          line: 1,
+          message: 'Failed to analyze file: $e',
+          code: 'ANALYSIS_ERROR',
+        ));
+
+        if (_verbose) {
+          print('[ERROR] Failed to analyze ${file.path}: $e');
+          print(stack);
+        }
+      }
+    }
+
+    for (final match in allMatches) {
+      final pattern = _patterns.firstWhere(
+        (p) => p.id == match.patternId,
+        orElse: () => throw Exception('Pattern not found: ${match.patternId}'),
+      );
+
+      if (pattern.category == MigrationCategory.removed) {
+        warnings.add(MigrationWarning(
+          filePath: match.filePath,
+          line: match.line,
+          message: 'Feature "${pattern.name}" is removed in v2.0',
+          code: 'REMOVED_FEATURE',
+          suggestion: 'Remove this line and implement the feature yourself',
+        ));
+      }
+
+      if (pattern.confidence == MigrationConfidence.low) {
+        warnings.add(MigrationWarning(
+          filePath: match.filePath,
+          line: match.line,
+          message: 'Manual review required for "${pattern.name}"',
+          code: 'MANUAL_REVIEW',
+          suggestion: pattern.description,
+        ));
+      }
+    }
+
+    stopwatch.stop();
+
+    if (_verbose) {
+      print('[INFO] Analysis completed in ${stopwatch.elapsedMilliseconds}ms');
+      print(
+          '[INFO] Found $allMatches matches across ${analyzedFiles.where((f) => f.hasLocusUsage).length} files');
+    }
+
+    return MigrationAnalysisResult(
+      projectPath: projectDir.absolute.path,
+      timestamp: DateTime.now(),
+      analyzedFiles: analyzedFiles,
+      matches: allMatches,
+      warnings: warnings,
+      errors: errors,
+      importedPackages: importedPackages,
+    );
+  }
+
+  Future<List<File>> _findDartFiles(
+    Directory dir, {
+    required bool skipTests,
+    required Set<String> ignorePatterns,
+  }) async {
+    final files = <File>[];
+
+    final ignoreSet = <String>{...ignorePatterns};
+    ignoreSet.add('.dart_tool');
+    ignoreSet.add('build');
+    ignoreSet.add('.pub-cache');
+    ignoreSet.add('node_modules');
+
+    await for (final entity in dir.list(recursive: true)) {
+      if (entity is File && entity.path.endsWith('.dart')) {
+        if (skipTests && entity.path.contains('/test/')) continue;
+        if (skipTests && entity.path.contains('/.dart_tool/')) continue;
+
+        final relativePath = entity.path.replaceFirst('${dir.path}/', '');
+
+        bool shouldIgnore = false;
+        for (final pattern in ignoreSet) {
+          if (relativePath.startsWith(pattern) ||
+              relativePath.contains('/$pattern/') ||
+              relativePath.endsWith('/$pattern')) {
+            shouldIgnore = true;
+            break;
+          }
+        }
+
+        if (!shouldIgnore) {
+          files.add(entity);
+        }
+      }
+    }
+
+    return files;
+  }
+
+  Future<Set<String>> _parseGitignore(Directory dir) async {
+    final gitignoreFile = File('${dir.path}/.gitignore');
+    if (!await gitignoreFile.exists()) {
+      return {};
+    }
+
+    final content = await gitignoreFile.readAsString();
+    final patterns = <String>{};
+
+    for (final line in content.split('\n')) {
+      final trimmed = line.trim();
+      if (trimmed.isNotEmpty && !trimmed.startsWith('#')) {
+        patterns.add(trimmed);
+      }
+    }
+
+    return patterns;
+  }
+
+  Future<AnalyzedFile> _analyzeFile(
+    File file,
+    String content,
+    String projectPath,
+  ) async {
+    final lines = content.split('\n');
+    final imports = <String>{};
+    final locusMethods = <String>{};
+
+    for (final line in lines) {
+      final trimmed = line.trim();
+      if (trimmed.startsWith('import ')) {
+        imports.add(_extractImport(trimmed));
+      }
+      if (trimmed.contains('Locus.')) {
+        final match = RegExp(r'Locus\.(\w+)').firstMatch(trimmed);
+        if (match != null) {
+          locusMethods.add(match.group(1)!);
+        }
+      }
+    }
+
+    return AnalyzedFile(
+      path: file.path,
+      content: content,
+      lineCount: lines.length,
+      hasLocusUsage: locusMethods.isNotEmpty,
+      locusMethods: locusMethods,
+      imports: imports,
+      locusMatchCount: locusMethods.length,
+    );
+  }
+
+  String _extractImport(String line) {
+    final match = RegExp(r"import\s+'([^']+)'").firstMatch(line);
+    if (match != null) {
+      return match.group(1)!;
+    }
+    final match2 = RegExp(r'import\s+"([^"]+)"').firstMatch(line);
+    if (match2 != null) {
+      return match2.group(1)!;
+    }
+    return line;
+  }
+
+  List<PatternMatch> _findMatchesInContent(
+    String content,
+    String filePath,
+    Set<String> imports,
+  ) {
+    final matches = <PatternMatch>[];
+    final lines = content.split('\n');
+
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i];
+
+      for (final pattern in _patterns) {
+        final lineMatches = pattern.findMatches(line, filePath);
+
+        for (final match in lineMatches) {
+          matches.add(PatternMatch(
+            filePath: filePath,
+            line: i + 1,
+            column: match.column,
+            original: match.original,
+            replacement: match.replacement,
+            patternId: match.patternId,
+          ));
+        }
+      }
+    }
+
+    return matches;
+  }
+
+  List<MigrationPattern> get patterns => _patterns;
+}

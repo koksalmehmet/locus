@@ -20,62 +20,47 @@ Based on these inputs, it dynamically adjusts:
 
 ## Using Adaptive Tracking
 
-Enable adaptive tracking:
+Enable adaptive tracking with the battery service:
 
 ```dart
 import 'package:locus/locus.dart';
 
-await Locus.battery.adaptive.configure(
-  AdaptiveTrackingConfig(
-    enabled: true,
-    conserveOnLowBattery: true,
-    batteryThreshold: 0.20,  // Switch to battery-saving mode below 20%
-  ),
-);
+await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
 ```
 
-## Battery Profiles
+## Presets and Customization
 
-Adaptive tracking provides preset profiles:
+Locus provides presets for common use cases:
 
 ```dart
-// Maximum accuracy (high battery usage)
-await Locus.battery.adaptive.useProfile(TrackingProfile.highAccuracy);
-
-// Balanced (default)
-await Locus.battery.adaptive.useProfile(TrackingProfile.balanced);
-
-// Battery saving
-await Locus.battery.adaptive.useProfile(TrackingProfile.powerSaving);
-
-// Custom profile
-await Locus.battery.adaptive.useProfile(
-  TrackingProfile.custom(
-    updateInterval: Duration(seconds: 30),
-    accuracy: Accuracy.medium,
-    distanceFilter: 25,
-  ),
-);
+await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
+await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.aggressive);
 ```
 
-## Monitoring Adaptive State
+For custom tuning:
 
 ```dart
-// Get current adaptive state
-final state = await Locus.battery.adaptive.state();
-print('Current profile: ${state.activeProfile}');
-print('Battery level: ${state.batteryLevel}');
-print('Is stationary: ${state.isStationary}');
-print('Current accuracy: ${state.accuracy}');
+final adaptiveConfig = AdaptiveTrackingConfig(
+  speedTiers: SpeedTiers.driving,
+  batteryThresholds: BatteryThresholds.conservative,
+  stationaryGpsOff: true,
+  stationaryDelay: Duration(minutes: 2),
+  smartHeartbeat: true,
+);
 
-// Listen to profile changes
-Locus.battery.adaptive.onProfileChange((profile) {
-  print('Switched to: ${profile.name}');
-});
+await Locus.battery.setAdaptiveTracking(adaptiveConfig);
+```
 
-// Get battery runway estimate
-final runway = await Locus.battery.adaptive.batteryRunway();
-print('Battery duration: ${runway.estimatedMinutes} minutes');
+## Monitoring Adaptive Settings
+
+```dart
+final config = Locus.battery.adaptiveTrackingConfig;
+print('Adaptive tracking enabled: ${config?.enabled}');
+
+final settings = await Locus.battery.calculateAdaptiveSettings();
+print('Suggested distance filter: ${settings.distanceFilter}');
+print('Suggested accuracy: ${settings.desiredAccuracy}');
+print('Reason: ${settings.reason}');
 ```
 
 ## Runway Calculations
@@ -83,26 +68,21 @@ print('Battery duration: ${runway.estimatedMinutes} minutes');
 Battery runway shows how long the device can maintain tracking:
 
 ```dart
-final runway = await Locus.battery.adaptive.batteryRunway();
-
-if (runway.isLow()) {
-  // Switch to power-saving mode
-  await Locus.battery.adaptive.useProfile(TrackingProfile.powerSaving);
-}
+final runway = await Locus.battery.estimateRunway();
+print('Estimated duration: ${runway.formattedDuration}');
+print('Recommendation: ${runway.recommendation}');
 ```
 
 ## Manual Control
 
-You can also manually control tracking parameters:
+You can also override tracking parameters directly:
 
 ```dart
-await Locus.config.set(
-  GeolocationConfig(
-    accuracy: Accuracy.best,
-    updateInterval: Duration(seconds: 5),
-    distanceFilter: 0,
-  ),
-);
+await Locus.setConfig(const Config(
+  desiredAccuracy: DesiredAccuracy.high,
+  distanceFilter: 0,
+  heartbeatInterval: 60,
+));
 ```
 
 **Next:** [Advanced Configuration](configuration.md)
