@@ -2,7 +2,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 import 'package:locus/src/features/location/models/location.dart';
 
 class LocationQuality {
-
   const LocationQuality({
     required this.location,
     required this.accuracyScore,

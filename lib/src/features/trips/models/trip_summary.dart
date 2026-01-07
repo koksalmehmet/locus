@@ -1,7 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class TripSummary {
-
   const TripSummary({
     required this.tripId,
     required this.startedAt,

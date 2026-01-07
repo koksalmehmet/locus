@@ -89,7 +89,8 @@ class MigrateCommand extends Command<void> {
       )
       ..addMultiOption(
         'only-category',
-        help: 'Only migrate specific categories (location, geofencing, privacy, trips, sync, battery, diagnostics)',
+        help:
+            'Only migrate specific categories (location, geofencing, privacy, trips, sync, battery, diagnostics)',
         valueHelp: 'category',
       );
   }
@@ -235,7 +236,8 @@ class MigrateCommand extends Command<void> {
     final latestBackup = backups.first;
 
     cli.info('Found backup: ${latestBackup.path}');
-    cli.warn('This will restore your project to the state before the last migration.');
+    cli.warn(
+        'This will restore your project to the state before the last migration.');
 
     final migrator = MigrationMigrator(verbose: verbose);
     final success = await migrator.rollback(latestBackup.path);

@@ -140,7 +140,8 @@ void main() {
       ));
 
       // 3. User stops navigation -> Power Save
-      await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.aggressive);
+      await Locus.battery
+          .setAdaptiveTracking(AdaptiveTrackingConfig.aggressive);
       expect(Locus.battery.adaptiveTrackingConfig?.stationaryGpsOff, true);
     });
   });

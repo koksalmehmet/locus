@@ -8,7 +8,6 @@ enum GeofenceWorkflowStatus {
 }
 
 class GeofenceWorkflowEvent {
-
   const GeofenceWorkflowEvent({
     required this.workflowId,
     required this.status,

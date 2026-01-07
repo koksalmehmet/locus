@@ -24,7 +24,6 @@ import 'package:locus/src/models.dart';
 /// ));
 /// ```
 class ErrorRecoveryConfig {
-
   /// Creates an error recovery configuration.
   const ErrorRecoveryConfig({
     this.onError,
@@ -43,6 +42,7 @@ class ErrorRecoveryConfig {
     this.ignoreTypes = const {},
     this.logErrors = true,
   });
+
   /// Callback to handle errors and determine recovery action.
   ///
   /// Return [RecoveryAction] to specify how to recover.
@@ -168,7 +168,6 @@ enum RecoveryAction {
 
 /// Locus SDK error with classification and recovery hints.
 class LocusError implements Exception {
-
   /// Creates a Locus error.
   LocusError({
     required this.type,
@@ -236,6 +235,7 @@ class LocusError implements Exception {
         isRecoverable: true,
         suggestedRecovery: RecoveryAction.restart,
       );
+
   /// Error type classification.
   final LocusErrorType type;
 
@@ -320,7 +320,6 @@ enum LocusErrorType {
 
 /// Context about the error for decision making.
 class ErrorContext {
-
   /// Creates an error context.
   const ErrorContext({
     this.retryCount = 0,
@@ -330,6 +329,7 @@ class ErrorContext {
     this.isCharging,
     this.networkAvailable,
   });
+
   /// Number of times this error has been retried.
   final int retryCount;
 
@@ -351,7 +351,6 @@ class ErrorContext {
 
 /// Manages error recovery for the Locus SDK.
 class ErrorRecoveryManager {
-
   /// Creates an error recovery manager.
   ErrorRecoveryManager([ErrorRecoveryConfig? config])
       : _config = config ?? const ErrorRecoveryConfig();

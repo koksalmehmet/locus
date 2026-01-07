@@ -19,7 +19,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// print('Recommendation: ${runway.recommendation}');
 /// ```
 class BatteryRunway {
-
   /// Creates a battery runway estimation.
   const BatteryRunway({
     required this.duration,
@@ -70,6 +69,7 @@ class BatteryRunway {
       confidence: (map['confidence'] as num?)?.toDouble() ?? 0.0,
     );
   }
+
   /// Estimated remaining tracking duration at current drain rate.
   ///
   /// Returns [Duration.zero] if battery is depleted or estimation

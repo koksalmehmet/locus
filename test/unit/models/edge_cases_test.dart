@@ -418,7 +418,8 @@ void main() {
       expect(deferred.shouldSync, false);
       expect(deferred.reason, contains('Low battery'));
 
-      final batched = SyncDecision.batch(50, delay: const Duration(seconds: 30));
+      final batched =
+          SyncDecision.batch(50, delay: const Duration(seconds: 30));
       expect(batched.shouldSync, true);
       expect(batched.batchLimit, 50);
     });

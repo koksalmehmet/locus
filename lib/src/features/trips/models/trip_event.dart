@@ -15,7 +15,6 @@ enum TripEventType {
 }
 
 class TripEvent {
-
   const TripEvent({
     required this.type,
     required this.tripId,

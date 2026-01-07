@@ -1,7 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class LogEntry {
-
   const LogEntry({
     required this.timestamp,
     required this.level,

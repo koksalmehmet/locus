@@ -11,7 +11,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// Used to make intelligent decisions about tracking behavior
 /// based on battery level, charging state, and power save mode.
 class PowerState {
-
   /// Creates a power state.
   const PowerState({
     required this.batteryLevel,
@@ -45,6 +44,7 @@ class PowerState {
           : null,
     );
   }
+
   /// Current battery level (0-100).
   final int batteryLevel;
 
@@ -191,7 +191,6 @@ enum ChargingType {
 ///
 /// Emitted when the device's power state changes significantly.
 class PowerStateChangeEvent {
-
   /// Creates a power state change event.
   PowerStateChangeEvent({
     required this.previous,
@@ -221,6 +220,7 @@ class PowerStateChangeEvent {
           : DateTime.now(),
     );
   }
+
   /// Previous power state.
   final PowerState previous;
 
@@ -262,7 +262,6 @@ enum PowerStateChangeType {
 
 /// Suggested optimization based on power state analysis.
 class PowerOptimizationSuggestion {
-
   /// Creates an optimization suggestion.
   const PowerOptimizationSuggestion({
     required this.level,
@@ -271,6 +270,7 @@ class PowerOptimizationSuggestion {
     required this.canUseCellular,
     required this.suggestedHeartbeatMultiplier,
   });
+
   /// Suggested optimization level.
   final OptimizationSuggestionLevel level;
 

@@ -1,7 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class HttpEvent {
-
   const HttpEvent({
     required this.status,
     required this.ok,

@@ -3,7 +3,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 import 'package:locus/src/features/trips/models/route_point.dart';
 
 class TripConfig {
-
   const TripConfig({
     this.tripId,
     this.startOnMoving = true,

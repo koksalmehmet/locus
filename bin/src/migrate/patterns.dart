@@ -176,7 +176,8 @@ class MigrationPatternDatabase {
   static const _locationPatterns = [
     MigrationPattern(
       id: 'locus-get-current-position',
-      name: 'Locus.location.getCurrentPosition() → Locus.location.getCurrentPosition()',
+      name:
+          'Locus.location.getCurrentPosition() → Locus.location.getCurrentPosition()',
       description: 'Migrate getCurrentPosition to new service pattern',
       confidence: MigrationConfidence.high,
       category: MigrationCategory.location,
@@ -498,7 +499,8 @@ class MigrationPatternDatabase {
     MigrationPattern(
       id: 'locus-on-privacy-zone-change',
       name: 'Locus.onPrivacyZoneChange() → Locus.privacy.onChange()',
-      description: 'Migrate privacy zone change callback to new service pattern',
+      description:
+          'Migrate privacy zone change callback to new service pattern',
       confidence: MigrationConfidence.high,
       category: MigrationCategory.privacy,
       fromPattern: r'Locus\.onPrivacyZoneChange\(([^)]+)\)',
@@ -575,7 +577,8 @@ class MigrationPatternDatabase {
     ),
     MigrationPattern(
       id: 'locus-destroy-locations',
-      name: 'Locus.location.destroyLocations() → Locus.location.destroyLocations()',
+      name:
+          'Locus.location.destroyLocations() → Locus.location.destroyLocations()',
       description: 'Migrate destroyLocations to location service',
       confidence: MigrationConfidence.high,
       category: MigrationCategory.sync,
@@ -714,7 +717,8 @@ class MigrationPatternDatabase {
     ),
     MigrationPattern(
       id: 'locus-on-power-state-change',
-      name: 'Locus.onPowerStateChangeWithObj() → Locus.battery.onPowerStateChange()',
+      name:
+          'Locus.onPowerStateChangeWithObj() → Locus.battery.onPowerStateChange()',
       description: 'Migrate power state change callback to new service pattern',
       confidence: MigrationConfidence.high,
       category: MigrationCategory.battery,

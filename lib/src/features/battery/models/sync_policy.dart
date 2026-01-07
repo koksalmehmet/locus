@@ -26,7 +26,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// );
 /// ```
 class SyncPolicy {
-
   /// Creates a sync policy.
   const SyncPolicy({
     this.onWifi = SyncBehavior.immediate,
@@ -86,6 +85,7 @@ class SyncPolicy {
       foregroundOnly: map['foregroundOnly'] as bool? ?? false,
     );
   }
+
   /// Sync behavior when connected to WiFi.
   final SyncBehavior onWifi;
 
@@ -326,7 +326,6 @@ enum NetworkType {
 
 /// Sync decision result from policy evaluation.
 class SyncDecision {
-
   /// Creates a sync decision.
   const SyncDecision({
     required this.shouldSync,
@@ -334,6 +333,7 @@ class SyncDecision {
     this.batchLimit,
     this.delay,
   });
+
   /// Whether sync should proceed.
   final bool shouldSync;
 

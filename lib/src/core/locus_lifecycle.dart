@@ -188,7 +188,6 @@ class LocusLifecycle {
 
 /// Internal lifecycle observer for tracking foreground/background state.
 class _LifecycleObserver extends WidgetsBindingObserver {
-
   _LifecycleObserver(this.onStateChange);
   final void Function(bool isForeground) onStateChange;
 

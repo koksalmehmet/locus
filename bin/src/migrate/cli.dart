@@ -84,31 +84,41 @@ class MigrationCLI {
 
     // Check for removed features
     if (analysis.removedFeaturesCount > 0) {
-      print('${_red}⚠${_reset}  ${analysis.removedFeaturesCount} removed feature(s) detected:');
-      print('   These methods no longer exist in v2.0 and require manual replacement.');
+      print(
+          '${_red}⚠${_reset}  ${analysis.removedFeaturesCount} removed feature(s) detected:');
+      print(
+          '   These methods no longer exist in v2.0 and require manual replacement.');
     }
 
     // Check for headless patterns
-    final headlessMatches = analysis.matches.where(
-      (m) => m.patternId.contains('headless'),
-    ).length;
+    final headlessMatches = analysis.matches
+        .where(
+          (m) => m.patternId.contains('headless'),
+        )
+        .length;
     if (headlessMatches > 0) {
-      print('${_yellow}⚠${_reset}  $headlessMatches headless callback(s) found:');
-      print('   Add @pragma(\'vm:entry-point\') annotation above these functions.');
+      print(
+          '${_yellow}⚠${_reset}  $headlessMatches headless callback(s) found:');
+      print(
+          '   Add @pragma(\'vm:entry-point\') annotation above these functions.');
     }
 
     // Check for config patterns
-    final configMatches = analysis.matches.where(
-      (m) => m.patternId.contains('config'),
-    ).length;
+    final configMatches = analysis.matches
+        .where(
+          (m) => m.patternId.contains('config'),
+        )
+        .length;
     if (configMatches > 0) {
       print('${_cyan}ℹ${_reset}  $configMatches config pattern(s) found:');
-      print('   Review LocusConfig for renamed parameters (url→syncUrl, httpTimeout→syncTimeout).');
+      print(
+          '   Review LocusConfig for renamed parameters (url→syncUrl, httpTimeout→syncTimeout).');
     }
 
     // Suggest testing
     if (analysis.autoMigratableCount > 0) {
-      print('${_green}✓${_reset}  ${analysis.autoMigratableCount} pattern(s) can be auto-migrated.');
+      print(
+          '${_green}✓${_reset}  ${analysis.autoMigratableCount} pattern(s) can be auto-migrated.');
       print('   Run tests after migration to verify behavior.');
     }
 

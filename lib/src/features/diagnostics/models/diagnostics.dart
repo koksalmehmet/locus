@@ -3,7 +3,6 @@ import 'package:locus/src/shared/models/geolocation_state.dart';
 import 'package:locus/src/features/sync/models/queue_item.dart';
 
 class DiagnosticsSnapshot {
-
   const DiagnosticsSnapshot({
     required this.capturedAt,
     required this.state,
@@ -34,7 +33,6 @@ enum RemoteCommandType {
 }
 
 class RemoteCommand {
-
   const RemoteCommand({
     required this.id,
     required this.type,

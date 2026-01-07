@@ -6,7 +6,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 
 /// A geographic coordinate point (vertex) for polygon geofences.
 class GeoPoint {
-
   const GeoPoint({
     required this.latitude,
     required this.longitude,
@@ -18,6 +17,7 @@ class GeoPoint {
       longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
     );
   }
+
   /// Latitude in degrees (-90 to 90).
   final double latitude;
 
@@ -60,7 +60,6 @@ class GeoPoint {
 /// Vertices should be defined in order (clockwise or counter-clockwise).
 /// The polygon is automatically closed (last vertex connects to first).
 class PolygonGeofence {
-
   const PolygonGeofence({
     required this.identifier,
     required this.vertices,
@@ -104,6 +103,7 @@ class PolygonGeofence {
       extras: extrasData is Map ? Map<String, dynamic>.from(extrasData) : null,
     );
   }
+
   /// Unique identifier for this geofence.
   final String identifier;
 
@@ -337,7 +337,6 @@ class PolygonGeofence {
 
 /// Event emitted when polygon geofence state changes.
 class PolygonGeofenceEvent {
-
   const PolygonGeofenceEvent({
     required this.geofence,
     required this.type,
@@ -360,6 +359,7 @@ class PolygonGeofenceEvent {
           : null,
     );
   }
+
   /// The polygon geofence that triggered this event.
   final PolygonGeofence geofence;
 
