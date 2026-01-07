@@ -429,8 +429,7 @@ void main() {
       await subscription.cancel();
     });
 
-    testWidgets('connectivity stream can be subscribed',
-        (tester) async {
+    testWidgets('connectivity stream can be subscribed', (tester) async {
       await Locus.ready(const Config());
 
       final subscription = Locus.dataSync.connectivityEvents.listen((event) {});

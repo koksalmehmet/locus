@@ -3,7 +3,6 @@ import 'package:locus/src/features/location/models/location.dart';
 import 'package:locus/src/features/trips/models/trip_summary.dart';
 
 class TripState {
-
   const TripState({
     required this.tripId,
     required this.createdAt,

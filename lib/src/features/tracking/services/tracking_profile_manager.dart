@@ -9,7 +9,6 @@ import 'package:locus/src/models.dart';
 
 /// Event emitted when a tracking profile changes.
 class ProfileChangeEvent {
-
   ProfileChangeEvent({
     this.previousProfile,
     required this.newProfile,
@@ -24,7 +23,6 @@ class ProfileChangeEvent {
 
 /// Event emitted when a profile switch fails.
 class ProfileSwitchError {
-
   ProfileSwitchError({
     required this.targetProfile,
     required this.error,

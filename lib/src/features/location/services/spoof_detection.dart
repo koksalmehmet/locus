@@ -30,7 +30,6 @@ import 'package:locus/src/shared/location_utils.dart';
 /// await Locus.setSpoofDetection(config);
 /// ```
 class SpoofDetectionConfig {
-
   /// Creates spoof detection configuration.
   const SpoofDetectionConfig({
     this.enabled = true,
@@ -69,6 +68,7 @@ class SpoofDetectionConfig {
           : const [],
     );
   }
+
   /// Whether spoof detection is enabled.
   final bool enabled;
 
@@ -219,7 +219,6 @@ enum SpoofSensitivity {
 
 /// Event emitted when spoofing is detected.
 class SpoofDetectionEvent {
-
   /// Creates a spoof detection event.
   SpoofDetectionEvent({
     required this.location,
@@ -231,6 +230,7 @@ class SpoofDetectionEvent {
     DateTime? timestamp,
   })  : details = details ?? const {},
         timestamp = timestamp ?? DateTime.now();
+
   /// The suspicious location.
   final Location location;
 
@@ -353,7 +353,6 @@ extension SpoofFactorDescription on SpoofFactor {
 
 /// Analyzer for detecting spoofed locations.
 class SpoofDetector {
-
   /// Creates a spoof detector with the given configuration.
   SpoofDetector(this.config);
   final SpoofDetectionConfig config;

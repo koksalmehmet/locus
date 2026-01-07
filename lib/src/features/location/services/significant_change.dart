@@ -28,7 +28,6 @@ import 'package:locus/src/shared/location_utils.dart';
 /// );
 /// ```
 class SignificantChangeConfig {
-
   /// Creates a significant change configuration.
   const SignificantChangeConfig({
     this.minDisplacementMeters = 500,
@@ -52,6 +51,7 @@ class SignificantChangeConfig {
           : null,
     );
   }
+
   /// Minimum displacement in meters to trigger an update.
   ///
   /// Default is 500m which is the iOS standard.
@@ -130,7 +130,6 @@ class SignificantChangeConfig {
 
 /// Event emitted when a significant location change is detected.
 class SignificantChangeEvent {
-
   /// Creates a significant change event.
   SignificantChangeEvent({
     required this.location,
@@ -139,6 +138,7 @@ class SignificantChangeEvent {
     this.timeSinceLastChange,
     this.wasTimerTriggered = false,
   });
+
   /// The new location after the significant change.
   final Location location;
 

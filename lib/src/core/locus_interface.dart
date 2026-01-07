@@ -22,7 +22,6 @@ typedef SyncBodyBuilder = Future<JsonMap> Function(
 
 /// Context passed to headless sync body builder.
 class SyncBodyContext {
-
   /// Creates from a map (for headless deserialization).
   factory SyncBodyContext.fromMap(Map<String, dynamic> map) {
     final locationsRaw = map['locations'] as List? ?? [];

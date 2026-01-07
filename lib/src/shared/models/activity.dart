@@ -2,7 +2,6 @@ import 'package:locus/src/shared/models/enums.dart';
 import 'package:locus/src/shared/models/json_map.dart';
 
 class Activity {
-
   const Activity({
     required this.type,
     required this.confidence,

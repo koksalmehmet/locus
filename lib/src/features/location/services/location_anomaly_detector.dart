@@ -6,13 +6,13 @@ import 'package:locus/src/shared/location_utils.dart';
 
 /// Configuration for detecting anomalous location jumps.
 class LocationAnomalyConfig {
-
   const LocationAnomalyConfig({
     this.maxSpeedKph = 200,
     this.maxAccuracyMeters = 100,
     this.minDistanceMeters = 200,
     this.minTimeDelta = const Duration(seconds: 5),
   });
+
   /// Maximum plausible speed in km/h before an anomaly is flagged.
   final double maxSpeedKph;
 
@@ -28,7 +28,6 @@ class LocationAnomalyConfig {
 
 /// Represents a detected anomalous movement between two locations.
 class LocationAnomaly {
-
   const LocationAnomaly({
     required this.previous,
     required this.current,

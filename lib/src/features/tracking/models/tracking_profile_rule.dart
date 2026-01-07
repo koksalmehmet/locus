@@ -9,7 +9,6 @@ enum TrackingProfileRuleType {
 }
 
 class TrackingProfileRule {
-
   const TrackingProfileRule({
     required this.profile,
     required this.type,

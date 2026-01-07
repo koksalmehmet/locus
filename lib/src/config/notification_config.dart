@@ -4,7 +4,6 @@ import 'package:locus/src/models.dart';
 
 /// Configuration for the foreground notification (Android).
 class NotificationConfig {
-
   const NotificationConfig({
     this.title,
     this.text,
@@ -35,6 +34,7 @@ class NotificationConfig {
       importance: map['importance'] as int?,
     );
   }
+
   /// Notification title.
   final String? title;
 

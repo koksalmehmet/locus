@@ -8,7 +8,6 @@ import 'package:locus/src/config/geolocation_config.dart';
 
 /// Result of a configuration validation.
 class ConfigValidationResult {
-
   const ConfigValidationResult({
     required this.isValid,
     this.errors = const [],
@@ -23,6 +22,7 @@ class ConfigValidationResult {
   /// Creates a failed validation result.
   const ConfigValidationResult.failure(this.errors, {this.warnings = const []})
       : isValid = false;
+
   /// Whether the configuration is valid.
   final bool isValid;
 
@@ -56,13 +56,13 @@ class ConfigValidationResult {
 
 /// A configuration validation error.
 class ConfigValidationError {
-
   const ConfigValidationError({
     required this.field,
     required this.message,
     this.suggestion,
     this.example,
   });
+
   /// The configuration field that is invalid.
   final String field;
 
@@ -90,12 +90,12 @@ class ConfigValidationError {
 
 /// A configuration validation warning.
 class ConfigValidationWarning {
-
   const ConfigValidationWarning({
     required this.field,
     required this.message,
     this.suggestion,
   });
+
   /// The configuration field with a potential issue.
   final String field;
 
@@ -499,8 +499,8 @@ class ConfigValidator {
 
 /// Exception thrown when configuration validation fails.
 class ConfigValidationException implements Exception {
-
   const ConfigValidationException(this.errors);
+
   /// The validation errors that caused this exception.
   final List<ConfigValidationError> errors;
 

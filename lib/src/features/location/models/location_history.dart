@@ -22,7 +22,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// final locations = await Locus.location.queryLocations(query);
 /// ```
 class LocationQuery {
-
   /// Creates a location query.
   const LocationQuery({
     this.from,
@@ -54,6 +53,7 @@ class LocationQuery {
       limit: limit,
     );
   }
+
   /// Start of the time range (inclusive).
   final DateTime? from;
 
@@ -156,7 +156,6 @@ enum LocationSortOrder {
 
 /// Geographic bounding box for spatial filtering.
 class LocationBounds {
-
   /// Creates a bounding box.
   const LocationBounds({
     required this.southwest,
@@ -174,6 +173,7 @@ class LocationBounds {
       ),
     );
   }
+
   /// Southwest corner (minimum lat/lng).
   final Coords southwest;
 
@@ -206,7 +206,6 @@ class LocationBounds {
 /// print('Moving time: ${summary.movingDuration}');
 /// ```
 class LocationSummary {
-
   /// Creates a location summary.
   const LocationSummary({
     required this.totalDistanceMeters,
@@ -233,6 +232,7 @@ class LocationSummary {
         periodEnd = null,
         frequentLocations = const [],
         averageAccuracyMeters = null;
+
   /// Total distance traveled in meters.
   final double totalDistanceMeters;
 
@@ -298,7 +298,6 @@ class LocationSummary {
 
 /// A frequently visited location (cluster center).
 class FrequentLocation {
-
   /// Creates a frequent location.
   const FrequentLocation({
     required this.center,
@@ -306,6 +305,7 @@ class FrequentLocation {
     required this.totalDuration,
     this.name,
   });
+
   /// Center coordinates of the cluster.
   final Coords center;
 
@@ -491,7 +491,6 @@ class LocationHistoryCalculator {
 
 /// Internal cluster representation for frequent location calculation.
 class _Cluster {
-
   _Cluster(Location initial)
       : centerLat = initial.coords.latitude,
         centerLng = initial.coords.longitude {

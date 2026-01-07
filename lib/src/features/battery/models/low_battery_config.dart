@@ -16,7 +16,6 @@ library;
 /// );
 /// ```
 class LowBatteryConfig {
-
   /// Creates a low battery configuration.
   const LowBatteryConfig({
     this.threshold = 0.15,
@@ -34,6 +33,7 @@ class LowBatteryConfig {
       disableAutoSync: map['disableAutoSync'] as bool? ?? false,
     );
   }
+
   /// Battery level threshold (0.0 to 1.0) at which low battery mode activates.
   ///
   /// Default is 0.15 (15%).

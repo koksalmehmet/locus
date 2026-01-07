@@ -1,7 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class Battery {
-
   const Battery({
     required this.level,
     required this.isCharging,

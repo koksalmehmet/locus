@@ -24,8 +24,7 @@ class GeofenceServiceImpl implements GeofenceService {
       _instance.polygonGeofenceEvents;
 
   @override
-  Stream<GeofenceWorkflowEvent> get workflowEvents =>
-      _instance.workflowEvents;
+  Stream<GeofenceWorkflowEvent> get workflowEvents => _instance.workflowEvents;
 
   // ============================================================
   // Circular Geofences

@@ -31,7 +31,6 @@ import 'package:locus/src/features/privacy/models/privacy_zone.dart';
 /// }
 /// ```
 class PrivacyZoneService {
-
   /// Creates a new PrivacyZoneService.
   ///
   /// [onPersist] - Optional callback for persisting zones to storage.
@@ -41,6 +40,7 @@ class PrivacyZoneService {
     int? seed,
   })  : _onPersist = onPersist,
         _random = seed != null ? math.Random(seed) : math.Random();
+
   /// In-memory storage of privacy zones.
   final Map<String, PrivacyZone> _zones = {};
 
@@ -339,7 +339,6 @@ enum PrivacyZoneEventType {
 
 /// Event emitted when a privacy zone changes.
 class PrivacyZoneEvent {
-
   const PrivacyZoneEvent({
     required this.type,
     required this.zone,

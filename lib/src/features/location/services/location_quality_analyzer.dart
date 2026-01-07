@@ -5,7 +5,6 @@ import 'package:locus/src/models.dart';
 import 'package:locus/src/shared/location_utils.dart';
 
 class LocationQualityConfig {
-
   const LocationQualityConfig({
     this.maxAccuracyMeters = 50,
     this.maxSpeedKph = 200,

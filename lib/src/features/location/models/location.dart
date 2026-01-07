@@ -5,7 +5,6 @@ import 'package:locus/src/features/geofencing/models/geofence.dart';
 import 'package:locus/src/shared/models/json_map.dart';
 
 class Location {
-
   const Location({
     required this.uuid,
     required this.timestamp,

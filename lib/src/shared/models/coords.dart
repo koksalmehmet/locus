@@ -10,7 +10,6 @@ class InvalidCoordsException implements Exception {
 }
 
 class Coords {
-
   const Coords({
     required this.latitude,
     required this.longitude,

@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:locus/src/shared/models/json_map.dart';
 
 class Geofence {
-
   const Geofence({
     required this.identifier,
     required this.radius,

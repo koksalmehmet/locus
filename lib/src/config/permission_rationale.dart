@@ -4,7 +4,6 @@ import 'package:locus/src/models.dart';
 
 /// Configuration for permission rationale dialog.
 class PermissionRationale {
-
   const PermissionRationale({
     required this.title,
     required this.message,
@@ -20,6 +19,7 @@ class PermissionRationale {
       negativeAction: map['negativeAction'] as String?,
     );
   }
+
   /// Title of the dialog.
   final String title;
 

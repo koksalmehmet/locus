@@ -1,7 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class GeofenceWorkflowState {
-
   const GeofenceWorkflowState({
     required this.workflowId,
     required this.currentIndex,

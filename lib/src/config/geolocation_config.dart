@@ -9,7 +9,6 @@ import 'package:locus/src/models.dart';
 
 /// Main configuration class for the background geolocation service.
 class Config {
-
   /// Fitness/trail preset (high accuracy, frequent updates).
   factory Config.fitness() => ConfigPresets.trail;
 
@@ -220,6 +219,7 @@ class Config {
           : null,
     );
   }
+
   /// SDK version.
   static const String version = '1.1.0';
 

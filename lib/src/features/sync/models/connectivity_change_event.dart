@@ -1,7 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class ConnectivityChangeEvent {
-
   const ConnectivityChangeEvent({
     required this.connected,
     this.networkType,

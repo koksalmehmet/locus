@@ -4,7 +4,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 import 'package:locus/src/features/location/models/location.dart';
 
 class GeofenceEvent {
-
   const GeofenceEvent({
     required this.geofence,
     required this.action,

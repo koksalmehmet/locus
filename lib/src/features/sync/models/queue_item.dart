@@ -1,7 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class QueueItem {
-
   const QueueItem({
     required this.id,
     required this.createdAt,

@@ -167,8 +167,8 @@ class MigrationAnalyzer {
     Set<String>? onlyCategories,
     bool verbose = false,
   })  : _patterns = _filterPatternsByCategory(
-            patterns ?? MigrationPatternDatabase.allPatterns,
-            onlyCategories,
+          patterns ?? MigrationPatternDatabase.allPatterns,
+          onlyCategories,
         ),
         _ignoredPatterns = ignoredPatterns ?? {},
         _onlyCategories = _parseCategories(onlyCategories),

@@ -18,7 +18,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// print('Drain estimate: ${stats.estimatedDrainPerHour}%/hr');
 /// ```
 class BatteryStats {
-
   /// Creates battery statistics.
   const BatteryStats({
     this.gpsOnTimePercent = 0,
@@ -85,6 +84,7 @@ class BatteryStats {
       gpsDisabledCount: (map['gpsDisabledCount'] as num?)?.toInt() ?? 0,
     );
   }
+
   /// Percentage of tracking time GPS was actively acquiring locations.
   ///
   /// Lower is better - indicates effective use of motion detection
@@ -342,7 +342,6 @@ class BatteryBenchmark {
 
 /// Result of a battery benchmark session.
 class BenchmarkResult {
-
   /// Creates a benchmark result.
   const BenchmarkResult({
     required this.duration,
@@ -353,6 +352,7 @@ class BenchmarkResult {
     required this.averageAccuracy,
     required this.timeByState,
   });
+
   /// Total benchmark duration.
   final Duration duration;
 

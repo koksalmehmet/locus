@@ -25,7 +25,6 @@ import 'package:locus/src/models.dart';
 /// );
 /// ```
 class AdaptiveTrackingConfig {
-
   /// Creates an adaptive tracking configuration.
   const AdaptiveTrackingConfig({
     this.enabled = true,
@@ -75,6 +74,7 @@ class AdaptiveTrackingConfig {
       ),
     );
   }
+
   /// Whether adaptive tracking is enabled.
   final bool enabled;
 
@@ -371,7 +371,6 @@ class AdaptiveTrackingConfig {
 ///
 /// Configures how update intervals change based on current speed.
 class SpeedTiers {
-
   /// Creates speed tiers.
   const SpeedTiers({
     this.stationary = const SpeedTier(
@@ -472,6 +471,7 @@ class SpeedTiers {
             ),
     );
   }
+
   /// Tier for stationary (0 km/h).
   final SpeedTier stationary;
 
@@ -575,7 +575,6 @@ class SpeedTiers {
 
 /// Configuration for a single speed tier.
 class SpeedTier {
-
   /// Creates a speed tier.
   const SpeedTier({
     required this.name,
@@ -600,6 +599,7 @@ class SpeedTier {
       ),
     );
   }
+
   /// Descriptive name for this tier.
   final String name;
 
@@ -631,7 +631,6 @@ class SpeedTier {
 
 /// Battery level thresholds for optimization.
 class BatteryThresholds {
-
   /// Creates battery thresholds.
   const BatteryThresholds({
     this.lowThreshold = 20,
@@ -645,6 +644,7 @@ class BatteryThresholds {
       criticalThreshold: (map['criticalThreshold'] as num?)?.toInt() ?? 10,
     );
   }
+
   /// Battery percentage below which is considered low.
   final int lowThreshold;
 
@@ -691,7 +691,6 @@ enum BatteryLevel {
 
 /// Calculated adaptive settings based on current conditions.
 class AdaptiveSettings {
-
   /// Creates adaptive settings.
   const AdaptiveSettings({
     required this.distanceFilter,
@@ -700,6 +699,7 @@ class AdaptiveSettings {
     required this.gpsEnabled,
     required this.reason,
   });
+
   /// Recommended distance filter in meters.
   final double distanceFilter;
 

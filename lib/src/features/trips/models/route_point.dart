@@ -1,7 +1,6 @@
 import 'package:locus/src/shared/models/json_map.dart';
 
 class RoutePoint {
-
   const RoutePoint({
     required this.latitude,
     required this.longitude,

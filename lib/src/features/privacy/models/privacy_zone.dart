@@ -31,7 +31,6 @@ enum PrivacyZoneAction {
 /// );
 /// ```
 class PrivacyZone {
-
   const PrivacyZone({
     required this.identifier,
     required this.latitude,
@@ -97,6 +96,7 @@ class PrivacyZone {
           : null,
     );
   }
+
   /// Unique identifier for this privacy zone.
   final String identifier;
 
@@ -241,7 +241,6 @@ class PrivacyZone {
 
 /// Result of applying privacy zone rules to a location.
 class PrivacyZoneResult {
-
   const PrivacyZoneResult({
     required this.originalLocation,
     this.processedLocation,
@@ -249,6 +248,7 @@ class PrivacyZoneResult {
     this.wasExcluded = false,
     this.wasObfuscated = false,
   });
+
   /// The original location (before any modification).
   final Location originalLocation;
 

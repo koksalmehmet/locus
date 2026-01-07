@@ -298,7 +298,8 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       _recordEvent('schedule', _formatLocationEvent(location, 'schedule'));
     }, onError: _onError);
 
-    _connectivitySubscription = Locus.dataSync.connectivityEvents.listen((event) {
+    _connectivitySubscription =
+        Locus.dataSync.connectivityEvents.listen((event) {
       _recordEvent(
         'connectivity',
         'connectivity ${event.networkType ?? 'unknown'} connected=${event.connected}',
@@ -326,7 +327,8 @@ class _MotionRecognitionAppState extends State<MotionRecognitionApp> {
       );
     }, onError: _onError);
 
-    _notificationActionSubscription = Locus.instance.onNotificationAction((action) {
+    _notificationActionSubscription =
+        Locus.instance.onNotificationAction((action) {
       _recordEvent(
         'notification',
         'notification action=$action',
