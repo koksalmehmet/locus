@@ -2,21 +2,21 @@
 
 Last updated: January 7, 2026
 
-Understand and use activity signals to optimize tracking behavior.
+Use activity signals to tailor accuracy and power usage.
 
 ## Supported activities
-Typical states include: still, walking, running, cycling, inVehicle, unknown. Platform availability may vary.
+Common types: still, walking, running, cycling, inVehicle, unknown (platform dependent).
 
-## Usage
-- Subscribe to motion/activity streams to react to changes.
-- Increase accuracy when moving fast; relax when stationary to save power.
-- Combine with geofences to trigger richer experiences only when relevant.
+## Usage patterns
+- Subscribe to activity/motion streams and adjust configs dynamically.
+- Increase accuracy and lower distanceFilter when speed rises; relax when still.
+- Combine with geofences to trigger richer logic only when relevant.
 
 ## Configuration tips
-- Set `activityRecognitionInterval` to balance responsiveness and battery.
-- Treat `unknown` conservatively (do not assume movement).
-- Debounce rapid activity flapping before changing modes.
+- Tune `activityRecognitionInterval` to balance responsiveness vs. battery.
+- Debounce rapid flapping (e.g., walking ↔ still) before switching modes.
+- Treat `unknown` conservatively: avoid aggressive tracking changes.
 
 ## Testing
-- Simulate transitions (walk → run → drive) and ensure app reacts as expected.
-- Validate on both platforms; detection fidelity differs between Android and iOS.
+- Simulate transitions (walk → run → drive) on physical devices; emulators are unreliable.
+- Validate on both platforms; detection quality differs between Android and iOS.

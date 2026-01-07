@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0.0] - 2026-01-04
+## [2.0.0] - 2026-01-07
 
 ### Breaking
 
@@ -40,6 +40,7 @@ All notable changes to this project will be documented in this file.
     - Removed feature detection with TODO comments
     - Headless callback pragma annotation hints
 - **Service behavior tests**: Expanded unit coverage for the new v2.0 service APIs
+  - Full suite now green (666 tests passing)
 - **Dynamic headers support**: `setDynamicHeaders()` now works on both Android and iOS
 - **Sync policy support (iOS)**: `setSyncPolicy()` handler added for iOS platform parity
 - **Metered connection detection (iOS)**: `isMeteredConnection()` handler for WiFi-only sync
