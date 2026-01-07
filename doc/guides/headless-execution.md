@@ -2,33 +2,43 @@
 
 Last updated: January 7, 2026
 
-Run Locus logic when the app process is killed or in the background using headless callbacks.
+Run Locus logic when the app is terminated or backgrounded using headless callbacks.
 
-## When headless runs
-- Location events, geofence events, sync retries, and heartbeat events can trigger headless handlers.
-- Platform invokes the registered top-level callback in a background isolate.
+## Lifecycle overview
+- Platform wakes a background isolate on eligible events (location, geofence, heartbeat, sync).
+- Your registered top-level callback executes; no UI is available.
+- Process may be killed at any time; keep work short and resilient.
 
 ## Requirements
-- Register a **top-level or static** function (closures are not supported).
-- Avoid UI work; perform lightweight logic (queue, log, notify server).
-- Keep work short to satisfy platform watchdogs.
+- Register a **top-level or static** function (no closures/instance methods).
+- Add `@pragma('vm:entry-point')` to prevent tree shaking.
+- Do not access Widgets or BuildContext; use pure Dart code and lightweight I/O.
 
 ## Setup
 
 ```dart
 // main.dart
-void locusHeadlessCallback(HeadlessEvent event) async {
-  switch (event.type) {
-    case HeadlessEventType.location:
-      final location = event.location;
-      // Process or enqueue
-      break;
-    case HeadlessEventType.geofence:
-      // Handle geofence action
-      break;
-    case HeadlessEventType.sync:
-      // Inspect sync results
-      break;
+@pragma('vm:entry-point')
+Future<void> locusHeadlessCallback(HeadlessEvent event) async {
+  try {
+    switch (event.type) {
+      case HeadlessEventType.location:
+        final loc = event.location;
+        // e.g., enqueue for later sync
+        break;
+      case HeadlessEventType.geofence:
+        // e.g., persist geofence transition
+        break;
+      case HeadlessEventType.sync:
+        // inspect sync result, adjust policy if needed
+        break;
+      case HeadlessEventType.heartbeat:
+        // optional lightweight health signal
+        break;
+    }
+  } catch (e, st) {
+    // Log defensively; avoid throws
+    // e.g., await HeadlessLogger.log('$e\n$st');
   }
 }
 
@@ -40,11 +50,13 @@ Future<void> main() async {
 ```
 
 ## Best practices
-- Minimize CPU/network usage; prefer enqueueing work for foreground processing.
-- Guard against missing permissions or disabled services.
-- Use try/catch around all async calls; log errors.
-- Avoid blocking the callback; return promptly after scheduling work.
+- Keep callbacks under a few hundred milliseconds; offload heavy work to queued tasks.
+- Guard every branch with try/catch; never let exceptions escape.
+- Avoid network calls when offline; enqueue instead.
+- Respect user consent: skip work if permissions or policy are revoked.
+- Test on real devices; emulators may suspend differently.
 
-## Validation
-- Simulate app termination, then trigger a geofence/heartbeat to confirm callback fires.
-- Check logs for headless execution and ensure no uncaught exceptions.
+## Validation checklist
+- Kill the app, trigger a geofence or heartbeat, and verify the callback logs.
+- Confirm no crashes in headless logs and that queued data appears on next foreground launch.
+- On Android, ensure the foreground service notification is configured so headless can run reliably.

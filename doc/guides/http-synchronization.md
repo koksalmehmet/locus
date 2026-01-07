@@ -2,9 +2,9 @@
 
 Last updated: January 7, 2026
 
-Configure reliable HTTP sync with batching, retries, and offline queueing.
+Configure reliable HTTP sync with batching, retries, headers, and offline queueing.
 
-## Configure
+## Baseline configuration
 
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
@@ -13,26 +13,28 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
   maxBatchSize: 50,
   autoSyncThreshold: 10,
   retryDelay: const Duration(seconds: 10),
+  retryDelayMultiplier: 2.0,
+  maxRetry: 5,
 ));
 ```
 
-## Request shape (default)
-- Body: JSON array of location payloads.
-- Headers: Include auth, content-type `application/json`, optional idempotency key.
-- Response: 200/204 indicates success; non-2xx triggers retry with backoff.
+## Request and response
+- Body: JSON array of location payloads by default (each with coords, activity, extras).
+- Headers: `content-type: application/json`, auth header, optional idempotency key.
+- Success: 200/204 → remove batch from queue. Non-2xx → retry with backoff.
 
 ## Batching and thresholds
-- `autoSyncThreshold`: Triggers sync when queue reaches N records.
-- `maxBatchSize`: Limits records per request to avoid server overload.
-- `maxRetry` + `retryDelay` + `retryDelayMultiplier`: Control retry envelope.
+- `autoSyncThreshold`: Fire sync when queue length reaches N.
+- `maxBatchSize`: Cap payload size to protect servers and mobile radios.
+- `maxRetry` / `retryDelay` / `retryDelayMultiplier`: Define backoff envelope.
 
 ## Offline handling
-- Payloads queue in SQLite until network available.
-- Set `disableAutoSyncOnCellular` if Wi‑Fi-only uploads are required.
-- Use `syncQueue(limit: n)` to force a flush (e.g., on app foreground).
+- Queue persists in SQLite until connectivity returns.
+- Set `disableAutoSyncOnCellular` to enforce Wi‑Fi-only uploads.
+- Call `syncQueue(limit: n)` on foreground/resume to flush early.
 
 ## Custom body
-Use `setSyncBodyBuilder` to send a custom payload:
+Use `setSyncBodyBuilder` to send domain-specific payloads:
 
 ```dart
 Future<JsonMap?> buildBody(List<Location> locations, JsonMap extras) async {
@@ -46,11 +48,13 @@ await LocusSync.setSyncBodyBuilder(buildBody);
 ```
 
 ## Error handling
-- Log and surface HTTP failures via `Locus.dataSync.httpEvents`.
-- Treat 401/403 as auth failures; refresh tokens and retry.
-- Implement server-side idempotency to avoid duplicates on retries.
+- Surface errors via `Locus.dataSync.httpEvents`; log status and body.
+- 401/403: refresh tokens; consider pausing sync until renewed.
+- Timeouts/DNS: rely on retries; avoid tight retry loops.
+- Use server-side idempotency to prevent duplicates after retries.
 
 ## Testing checklist
-- Verify success, 4xx, and 5xx responses.
-- Simulate offline → online transitions and ensure queued payloads flush.
-- Validate batch size and ordering on the server side.
+- Cover 200/204, 4xx (auth/validation), and 5xx responses.
+- Simulate offline → online and ensure queues drain.
+- Validate batch size, ordering, and headers at the server.
+- Verify backoff timing aligns with `retryDelay` and multiplier.

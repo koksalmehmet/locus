@@ -2,25 +2,27 @@
 
 Last updated: January 7, 2026
 
-Key runtime differences between Android and iOS that affect tracking, geofencing, and background execution.
+Key runtime differences that affect tracking, geofencing, background execution, and battery.
 
 ## Android
-- **Doze/App Standby:** Background work delayed; use foreground service with notification to stay alive.
-- **Permissions:** Fine + Background location often required; request foreground first, then background.
-- **Geofence limits:** Typically ~100 per app; keep identifiers stable.
-- **Foreground service timeout:** Must call `startForeground` promptly with a notification.
-- **Battery optimizations:** Some OEMs (Xiaomi, Huawei, Samsung) are aggressive—document exemption steps to users.
+- **Doze/App Standby:** Jobs and alarms defer; run as a foreground service with a persistent notification to maintain updates.
+- **Permissions:** Request foreground first, then background. On Android 14+, users can downgrade to “approximate”—handle gracefully.
+- **Geofence limits:** ~100 per app. Keep identifiers stable; remove stale fences.
+- **Foreground service startup:** Call `startForeground` quickly; missing notification can kill the service.
+- **OEM optimizations:** Some vendors (Xiaomi, Huawei, Samsung) kill background services aggressively—educate users on whitelisting.
+- **Networking:** Metered/roaming policies can block sync; honor `disableAutoSyncOnCellular` when set.
 
 ## iOS
-- **Background modes:** Enable Location Updates and Background Fetch as needed.
-- **Significant-change vs. standard updates:** SLC is lower power but less precise; standard updates pause when app suspended unless background mode active.
-- **Approximate location:** iOS may grant reduced accuracy; prompt user to allow precise if needed.
-- **Geofence limits:** ~20 regions per app; keep fences focused.
-- **Background task limits:** Tasks must finish quickly; incomplete work may be terminated.
+- **Background modes:** Enable “Location updates” (and optionally “Background fetch”) in Info.plist.
+- **SLC vs standard:** Significant-change is low power but less frequent; standard updates pause unless background mode is active.
+- **Approximate location:** Users may grant reduced accuracy; prompt for precise only when necessary.
+- **Geofence limits:** ~20 regions per app; prioritize critical fences.
+- **Execution time:** Background tasks must finish fast; incomplete work may be terminated—keep headless work minimal.
+- **App termination:** iOS may relaunch for region events or significant changes, but not guaranteed—persist state defensively.
 
 ## Cross-platform recommendations
-- Keep geofence counts under platform limits; prune unused fences.
-- Provide clear permission rationale and fallback UX when denied.
-- Tune `distanceFilter`, `desiredAccuracy`, and heartbeat intervals per platform power expectations.
-- Handle reduced accuracy gracefully (avoid rejecting coarse fixes outright).
-- Log platform state (power, connectivity, permission status) to aid troubleshooting.
+- Keep fences lean; prune old ones and batch updates.
+- Provide clear permission rationale, and detect when users downgrade accuracy/background permission.
+- Tune `distanceFilter`, `desiredAccuracy`, heartbeat, and activity intervals per platform expectations.
+- Handle coarse fixes gracefully; do not drop all approximate locations—flag them instead.
+- Log power, connectivity, and permission state to aid support and diagnostics.

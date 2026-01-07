@@ -11,8 +11,9 @@
 </p>
 
 <p align="center">
-  A battle-tested background geolocation SDK for Flutter.<br>
-  High-performance tracking, motion recognition, geofencing, and automated sync for Android and iOS.
+  Reliable background geolocation for Flutter apps.<br>
+  Service-based v2.0.0 API covering tracking, geofencing, sync, privacy, and battery on Android and iOS.<br>
+  Built for production: deterministic APIs, full test suite, and migration tooling from v1.
 </p>
 
 ---
@@ -122,6 +123,12 @@ dart run locus:doctor
 # Migration helper (v1.x to v2.0)
 dart run locus:migrate --dry-run
 ```
+
+## Versioning
+
+- Current release: **v2.0.0** (service-based API)
+- Supports Flutter 3.x / Dart 3.x
+- See [CHANGELOG.md](CHANGELOG.md#200---2026-01-07) for details
 
 ## Tree Shaking
 
