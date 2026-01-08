@@ -32,14 +32,13 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
   final Map<String, int> _eventCounts = {};
   Location? _latestLocation;
   Activity? _lastActivity;
-  ProviderChangeEvent? _lastProvider;
+
   ConnectivityChangeEvent? _lastConnectivity;
-  GeofenceEvent? _lastGeofence;
-  HttpEvent? _lastHttp;
+
   GeolocationState? _lastState;
-  String? _lastNotificationAction;
+
   List<LogEntry>? _lastLog;
-  TripSummary? _lastTripSummary;
+
   PowerState? _powerState;
   BatteryStats? _batteryStats;
   List<Location> _storedLocations = [];
@@ -47,7 +46,7 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
   // Toggles
   bool _isRunning = false;
   bool _isReady = false;
-  bool _scheduleEnabled = false;
+
   bool _spoofDetectionEnabled = false;
   bool _significantChangesEnabled = false;
   String? _benchmarkStatus;
@@ -78,7 +77,7 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
       return;
     }
 
-    final config = Config(
+    const config = Config(
       stationaryRadius: 25,
       motionTriggerDelay: 15000,
       activityRecognitionInterval: 10000,
@@ -95,7 +94,7 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
       maxMonitoredGeofences: 20,
       url: 'https://example.com/locations',
       logLevel: LogLevel.info,
-      notification: const NotificationConfig(
+      notification: NotificationConfig(
         title: 'Locus Example',
         text: 'Tracking location in background',
       ),
@@ -139,27 +138,28 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
         setState(() => _latestLocation = loc);
       }),
       Locus.location.motionChanges.listen((loc) {
-        _recordEvent('motion', 'Motion: ${loc.isMoving == true ? "moving" : "stationary"}');
+        _recordEvent('motion',
+            'Motion: ${loc.isMoving == true ? "moving" : "stationary"}');
         setState(() => _latestLocation = loc);
       }),
       Locus.instance.activityStream.listen((activity) {
-        _recordEvent('activity', 'Activity: ${activity.type.name} (${activity.confidence}%)');
+        _recordEvent('activity',
+            'Activity: ${activity.type.name} (${activity.confidence}%)');
         setState(() => _lastActivity = activity);
       }),
       Locus.trips.events.listen((event) {
         _recordEvent('trip', 'Trip: ${event.type.name}');
-        if (event.summary != null) setState(() => _lastTripSummary = event.summary);
       }),
       Locus.instance.providerStream.listen((event) {
         _recordEvent('provider', 'Provider: ${event.authorizationStatus.name}');
-        setState(() => _lastProvider = event);
       }),
       Locus.geofencing.events.listen((event) {
-        _recordEvent('geofence', 'Geofence: ${event.geofence.identifier} ${event.action.name}');
-        setState(() => _lastGeofence = event);
+        _recordEvent('geofence',
+            'Geofence: ${event.geofence.identifier} ${event.action.name}');
       }),
       Locus.dataSync.connectivityEvents.listen((event) {
-        _recordEvent('connectivity', 'Network: ${event.connected ? "online" : "offline"}');
+        _recordEvent('connectivity',
+            'Network: ${event.connected ? "online" : "offline"}');
         setState(() => _lastConnectivity = event);
       }),
       Locus.instance.enabledStream.listen((enabled) {
@@ -167,12 +167,11 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
         setState(() => _isRunning = enabled);
       }),
       Locus.dataSync.events.listen((event) {
-        _recordEvent('http', 'HTTP: ${event.status} ${event.ok ? "OK" : "FAILED"}');
-        setState(() => _lastHttp = event);
+        _recordEvent(
+            'http', 'HTTP: ${event.status} ${event.ok ? "OK" : "FAILED"}');
       }),
       Locus.instance.onNotificationAction((action) {
         _recordEvent('notification', 'Action: $action');
-        setState(() => _lastNotificationAction = action);
       }),
     ]);
   }
@@ -186,7 +185,6 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
     setState(() {
       _lastState = state;
       _isRunning = state.enabled;
-      _scheduleEnabled = state.schedulerEnabled ?? false;
     });
   }
 
@@ -209,7 +207,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
     try {
       final loc = await Locus.location.getCurrentPosition();
       setState(() => _latestLocation = loc);
-      _showSnackbar('Position: ${loc.coords.latitude.toStringAsFixed(4)}, ${loc.coords.longitude.toStringAsFixed(4)}');
+      _showSnackbar(
+          'Position: ${loc.coords.latitude.toStringAsFixed(4)}, ${loc.coords.longitude.toStringAsFixed(4)}');
       _recordEvent('position', _formatLocation(loc));
     } catch (e) {
       _showSnackbar('Failed to get position', isSuccess: false);
@@ -257,13 +256,6 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
     _recordEvent('privacy', 'Added demo_zone');
   }
 
-  Future<void> _clearPrivacyZones() async {
-    final count = (await Locus.privacy.getAll()).length;
-    await Locus.privacy.removeAll();
-    _showSnackbar('Cleared $count privacy zone(s)');
-    _recordEvent('privacy', 'Cleared all');
-  }
-
   Future<void> _startTrip() async {
     await Locus.trips.start(const TripConfig(startOnMoving: true));
     _showSnackbar('Trip started');
@@ -272,7 +264,7 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
 
   Future<void> _stopTrip() async {
     final summary = await Locus.trips.stop();
-    setState(() => _lastTripSummary = summary);
+    // setState(() => _lastTripSummary = summary);
     if (summary != null) {
       _showSnackbar('Trip: ${summary.distanceMeters.toStringAsFixed(0)}m');
     } else {
@@ -313,7 +305,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
       _batteryStats = stats;
     });
     _showSnackbar('Battery: ${state.batteryLevel}%');
-    _recordEvent('battery', '${state.batteryLevel}%, GPS: ${(stats.gpsOnTimePercent * 100).toStringAsFixed(0)}%');
+    _recordEvent('battery',
+        '${state.batteryLevel}%, GPS: ${(stats.gpsOnTimePercent * 100).toStringAsFixed(0)}%');
   }
 
   Future<void> _toggleBenchmark() async {
@@ -340,7 +333,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
   Future<void> _toggleSignificant() async {
     final enabled = !_significantChangesEnabled;
     if (enabled) {
-      await Locus.startSignificantChangeMonitoring(SignificantChangeConfig.defaults);
+      await Locus.startSignificantChangeMonitoring(
+          SignificantChangeConfig.defaults);
     } else {
       await Locus.stopSignificantChangeMonitoring();
     }
@@ -354,7 +348,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
 
   void _recordEvent(String type, String message) {
     final time = DateTime.now();
-    final ts = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:${time.second.toString().padLeft(2, '0')}';
+    final ts =
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}:${time.second.toString().padLeft(2, '0')}';
     setState(() {
       _events.insert(0, '[$ts] $message');
       _eventCounts[type] = (_eventCounts[type] ?? 0) + 1;
@@ -373,10 +368,13 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
               size: 20,
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(message, style: const TextStyle(fontWeight: FontWeight.w500))),
+            Expanded(
+                child: Text(message,
+                    style: const TextStyle(fontWeight: FontWeight.w500))),
           ],
         ),
-        backgroundColor: isSuccess ? const Color(0xFF2E7D5F) : const Color(0xFFB33A3A),
+        backgroundColor:
+            isSuccess ? const Color(0xFF2E7D5F) : const Color(0xFFB33A3A),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -409,7 +407,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
         textTheme: GoogleFonts.interTextTheme(),
         cardTheme: CardThemeData(
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           color: Colors.white,
         ),
         appBarTheme: const AppBarTheme(
@@ -431,7 +430,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                   height: 32,
                 ),
                 const SizedBox(width: 10),
-                const Text('Locus', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Locus',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
             actions: [
@@ -515,7 +515,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
               _InfoRow(
                 icon: Icons.directions_walk_rounded,
                 label: 'Activity',
-                value: '${_lastActivity!.type.name} (${_lastActivity!.confidence}%)',
+                value:
+                    '${_lastActivity!.type.name} (${_lastActivity!.confidence}%)',
               ),
             if (_lastConnectivity != null)
               _InfoRow(
@@ -542,14 +543,17 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _SectionHeader(icon: Icons.play_circle_outline, title: 'Tracking'),
+            const _SectionHeader(
+                icon: Icons.play_circle_outline, title: 'Tracking'),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: _ActionButton(
                     onPressed: _toggleTracking,
-                    icon: _isRunning ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                    icon: _isRunning
+                        ? Icons.stop_rounded
+                        : Icons.play_arrow_rounded,
                     label: _isRunning ? 'Stop' : 'Start',
                     color: _isRunning ? Colors.red : Colors.green,
                     filled: true,
@@ -583,7 +587,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
               title: 'Profile',
               trailing: _currentProfile != null
                   ? Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(20),
@@ -641,7 +646,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _SectionHeader(icon: Icons.bolt_rounded, title: 'Quick Actions'),
+            const _SectionHeader(
+                icon: Icons.bolt_rounded, title: 'Quick Actions'),
             const SizedBox(height: 16),
             GridView.count(
               shrinkWrap: true,
@@ -699,7 +705,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _SectionHeader(icon: Icons.insights_rounded, title: 'Event Stats'),
+            const _SectionHeader(
+                icon: Icons.insights_rounded, title: 'Event Stats'),
             const SizedBox(height: 16),
             if (sorted.isEmpty)
               const Text('No events yet', style: TextStyle(color: Colors.grey))
@@ -709,14 +716,16 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                 runSpacing: 8,
                 children: sorted.take(8).map((e) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF0F0F0),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       '${e.key}: ${e.value}',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w500),
                     ),
                   );
                 }).toList(),
@@ -742,7 +751,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
             children: [
               Text(
                 '${_events.length} events',
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                style:
+                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
               TextButton.icon(
                 onPressed: () {
@@ -766,14 +776,16 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                     children: [
                       Icon(Icons.inbox_rounded, size: 48, color: Colors.grey),
                       SizedBox(height: 12),
-                      Text('No events yet', style: TextStyle(color: Colors.grey)),
+                      Text('No events yet',
+                          style: TextStyle(color: Colors.grey)),
                     ],
                   ),
                 )
               : ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: _events.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1, indent: 56),
+                  separatorBuilder: (_, __) =>
+                      const Divider(height: 1, indent: 56),
                   itemBuilder: (_, i) => ListTile(
                     leading: const CircleAvatar(
                       radius: 16,
@@ -782,7 +794,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                     ),
                     title: Text(
                       _events[i],
-                      style: const TextStyle(fontSize: 13, fontFamily: 'monospace'),
+                      style: const TextStyle(
+                          fontSize: 13, fontFamily: 'monospace'),
                     ),
                   ),
                 ),
@@ -809,14 +822,16 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                   icon: Icons.storage_rounded,
                   title: 'Stored Locations',
                   trailing: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF0F0F0),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       '${_storedLocations.length}',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -858,7 +873,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                 return ListTile(
                   leading: CircleAvatar(
                     radius: 16,
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
                     child: Text(
                       '${i + 1}',
                       style: TextStyle(
@@ -870,7 +886,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                   ),
                   title: Text(
                     _formatLocation(loc),
-                    style: const TextStyle(fontSize: 13, fontFamily: 'monospace'),
+                    style:
+                        const TextStyle(fontSize: 13, fontFamily: 'monospace'),
                   ),
                   subtitle: Text(
                     loc.timestamp.toLocal().toString().substring(0, 19),
@@ -892,7 +909,9 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                   icon: Icons.article_outlined,
                   title: 'Logs',
                   trailing: _lastLog != null
-                      ? Text('${_lastLog!.length} entries', style: const TextStyle(fontSize: 12, color: Colors.grey))
+                      ? Text('${_lastLog!.length} entries',
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey))
                       : null,
                 ),
                 const SizedBox(height: 16),
@@ -912,10 +931,12 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                     ),
                     child: Text(
                       _lastLog!.take(10).map((e) {
-                        final ts = '${e.timestamp.hour.toString().padLeft(2, '0')}:${e.timestamp.minute.toString().padLeft(2, '0')}';
+                        final ts =
+                            '${e.timestamp.hour.toString().padLeft(2, '0')}:${e.timestamp.minute.toString().padLeft(2, '0')}';
                         return '[$ts] ${e.level}: ${e.message}';
                       }).join('\n'),
-                      style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                      style: const TextStyle(
+                          fontSize: 11, fontFamily: 'monospace'),
                     ),
                   ),
                 ],
@@ -945,7 +966,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                   icon: Icons.battery_charging_full_rounded,
                   title: 'Battery',
                   trailing: _powerState != null
-                      ? Text('${_powerState!.batteryLevel}%', style: const TextStyle(fontWeight: FontWeight.w600))
+                      ? Text('${_powerState!.batteryLevel}%',
+                          style: const TextStyle(fontWeight: FontWeight.w600))
                       : null,
                 ),
                 const SizedBox(height: 16),
@@ -953,7 +975,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                   _InfoRow(
                     icon: Icons.gps_fixed,
                     label: 'GPS On Time',
-                    value: '${(_batteryStats!.gpsOnTimePercent * 100).toStringAsFixed(1)}%',
+                    value:
+                        '${(_batteryStats!.gpsOnTimePercent * 100).toStringAsFixed(1)}%',
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -971,7 +994,9 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
                     Expanded(
                       child: _ActionButton(
                         onPressed: _toggleBenchmark,
-                        icon: _benchmarkStatus != null ? Icons.stop_rounded : Icons.speed_rounded,
+                        icon: _benchmarkStatus != null
+                            ? Icons.stop_rounded
+                            : Icons.speed_rounded,
                         label: _benchmarkStatus ?? 'Benchmark',
                         color: _benchmarkStatus != null ? Colors.red : null,
                       ),
@@ -1005,15 +1030,16 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
           ),
         ),
         const SizedBox(height: 16),
-        Card(
+        const Card(
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const _SectionHeader(icon: Icons.info_outline_rounded, title: 'About'),
-                const SizedBox(height: 16),
-                const Text(
+                _SectionHeader(
+                    icon: Icons.info_outline_rounded, title: 'About'),
+                SizedBox(height: 16),
+                Text(
                   'Locus Example App demonstrates the core features of the Locus SDK including location tracking, geofencing, privacy zones, and sync.',
                   style: TextStyle(color: Colors.grey, height: 1.5),
                 ),
@@ -1031,7 +1057,8 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
 // =============================================================================
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.icon, required this.title, this.trailing});
+  const _SectionHeader(
+      {required this.icon, required this.title, this.trailing});
 
   final IconData icon;
   final String title;
@@ -1043,7 +1070,8 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 10),
-        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         const Spacer(),
         if (trailing != null) trailing!,
       ],
@@ -1095,7 +1123,8 @@ class _StatusIndicator extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.icon, required this.label, required this.value});
+  const _InfoRow(
+      {required this.icon, required this.label, required this.value});
 
   final IconData icon;
   final String label;
@@ -1111,7 +1140,9 @@ class _InfoRow extends StatelessWidget {
           const SizedBox(width: 8),
           Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13)),
           const Spacer(),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
+          Text(value,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
         ],
       ),
     );
@@ -1188,7 +1219,8 @@ class _ProfileChip extends StatelessWidget {
                 : const Color(0xFFF5F5F5),
             borderRadius: BorderRadius.circular(12),
             border: selected
-                ? Border.all(color: Theme.of(context).colorScheme.primary.withAlpha(100))
+                ? Border.all(
+                    color: Theme.of(context).colorScheme.primary.withAlpha(100))
                 : null,
           ),
           child: Column(
@@ -1243,7 +1275,8 @@ class _QuickActionTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 22, color: Theme.of(context).colorScheme.primary),
+              Icon(icon,
+                  size: 22, color: Theme.of(context).colorScheme.primary),
               const SizedBox(height: 6),
               FittedBox(
                 fit: BoxFit.scaleDown,
@@ -1251,7 +1284,8 @@ class _QuickActionTile extends StatelessWidget {
                   label,
                   textAlign: TextAlign.center,
                   maxLines: 1,
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w500),
                 ),
               ),
             ],
