@@ -74,6 +74,7 @@ class LocusSync {
   /// The callback is invoked before each sync attempt. Return `true` to
   /// proceed with the sync, `false` to skip and keep locations queued.
   static void setPreSyncValidator(PreSyncValidator? validator) {
+    _setupSyncBodyChannel();
     _preSyncValidator = validator;
   }
 

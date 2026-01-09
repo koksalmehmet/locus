@@ -4,7 +4,6 @@ import 'package:locus/src/config/config.dart';
 import 'package:locus/src/shared/events.dart';
 import 'package:locus/src/models.dart';
 import 'package:locus/src/services.dart';
-import 'package:locus/src/services/sync_service.dart';
 
 /// Callback type for headless background events.
 typedef HeadlessEventCallback = Future<void> Function(HeadlessEvent event);
@@ -16,8 +15,8 @@ typedef HeadlessEventCallback = Future<void> Function(HeadlessEvent event);
 /// [extras] contains the extras from Config.
 ///
 /// Must return a JSON-serializable Map that will be sent as the request body.
-typedef SyncBodyBuilder =
-    Future<JsonMap> Function(List<Location> locations, JsonMap extras);
+typedef SyncBodyBuilder = Future<JsonMap> Function(
+    List<Location> locations, JsonMap extras);
 
 /// Context passed to headless sync body builder.
 class SyncBodyContext {

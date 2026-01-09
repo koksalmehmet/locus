@@ -165,7 +165,10 @@ public class SwiftLocusPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, Lo
         result(nil)
       }
     case "getGeofences":
-      result(storage.readGeofences())
+      // Filter out invalid geofences before returning to Dart
+      let allGeofences = storage.readGeofences()
+      let validGeofences = allGeofences.filter { isValidGeofence($0) }
+      result(validGeofences)
     case "geofenceExists":
       if let identifier = call.arguments as? String {
         result(geofenceManager.getGeofence(identifier) != nil)
@@ -211,6 +214,9 @@ public class SwiftLocusPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, Lo
       result(syncManager.syncQueue(limit: (call.arguments as? [String: Any])?["limit"] as? Int ?? 0))
     case "resumeSync":
       syncManager.resumeSync()
+      result(true)
+    case "pauseSync":
+      syncManager.pause()
       result(true)
     case "storeTripState":
       if let state = call.arguments as? [String: Any] {
@@ -405,5 +411,17 @@ public class SwiftLocusPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, Lo
       state["location"] = buildLocationPayload(location, eventName: "location")
     }
     return state
+  }
+
+  /// Validates that a geofence dictionary has all required fields with valid values.
+  /// This prevents returning corrupted data to Dart that would cause warnings.
+  private func isValidGeofence(_ geofence: [String: Any]) -> Bool {
+    guard let identifier = geofence["identifier"] as? String, !identifier.isEmpty,
+          let radius = geofence["radius"] as? Double, radius > 0,
+          let latitude = geofence["latitude"] as? Double, latitude >= -90, latitude <= 90,
+          let longitude = geofence["longitude"] as? Double, longitude >= -180, longitude <= 180 else {
+      return false
+    }
+    return true
   }
 }

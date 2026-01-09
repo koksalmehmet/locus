@@ -30,10 +30,7 @@ void main() {
 
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('locus/methods'),
-      null,
-    );
+        .setMockMethodCallHandler(const MethodChannel('locus/methods'), null);
     methodCalls.clear();
   });
 
@@ -55,10 +52,7 @@ void main() {
     });
 
     test('setConfig updates runtime config', () async {
-      const config = Config(
-        distanceFilter: 50,
-        stopTimeout: 5,
-      );
+      const config = Config(distanceFilter: 50, stopTimeout: 5);
 
       await Locus.setConfig(config);
 
@@ -288,11 +282,13 @@ void main() {
 
   group('Complex Workflows', () {
     test('complete tracking workflow', () async {
-      await Locus.ready(const Config(
-        desiredAccuracy: DesiredAccuracy.high,
-        distanceFilter: 10,
-        autoSync: false,
-      ));
+      await Locus.ready(
+        const Config(
+          desiredAccuracy: DesiredAccuracy.high,
+          distanceFilter: 10,
+          autoSync: false,
+        ),
+      );
 
       await Locus.battery.setAdaptiveTracking(AdaptiveTrackingConfig.balanced);
       await Locus.dataSync.setPolicy(SyncPolicy.balanced);
@@ -310,15 +306,16 @@ void main() {
       await Locus.stop();
 
       expect(
-          methodCalls.map((c) => c.method),
-          containsAllInOrder([
-            'ready',
-            'setSyncPolicy',
-            'start',
-            'getCurrentPosition',
-            'getState',
-            'stop',
-          ]));
+        methodCalls.map((c) => c.method),
+        containsAllInOrder([
+          'ready',
+          'setSyncPolicy',
+          'start',
+          'getCurrentPosition',
+          'getState',
+          'stop',
+        ]),
+      );
     });
 
     test('geofence workflow', () async {
@@ -346,20 +343,24 @@ void main() {
       await Locus.geofencing.remove('zone_a');
       await Locus.geofencing.removeAll();
 
-      expect(methodCalls.where((c) => c.method.contains('Geofence')).length,
-          greaterThan(0));
+      expect(
+        methodCalls.where((c) => c.method.contains('Geofence')).length,
+        greaterThan(0),
+      );
     });
 
     test('battery optimization workflow', () async {
       final power = await Locus.battery.getPowerState();
 
-      await Locus.battery.setAdaptiveTracking(const AdaptiveTrackingConfig(
-        enabled: true,
-        batteryThresholds: BatteryThresholds(
-          lowThreshold: 20,
-          criticalThreshold: 10,
+      await Locus.battery.setAdaptiveTracking(
+        const AdaptiveTrackingConfig(
+          enabled: true,
+          batteryThresholds: BatteryThresholds(
+            lowThreshold: 20,
+            criticalThreshold: 10,
+          ),
         ),
-      ));
+      );
 
       final settings = await Locus.battery.calculateAdaptiveSettings();
 
@@ -421,10 +422,10 @@ dynamic _handleMethodCall(MethodCall call) {
   switch (call.method) {
     case 'ready':
     case 'setConfig':
-    case 'start':
-    case 'stop':
     case 'changePace':
     case 'sync':
+    case 'pauseSync':
+    case 'resumeSync':
     case 'emptyLog':
     case 'destroyLocations':
     case 'addGeofence':
@@ -437,6 +438,11 @@ dynamic _handleMethodCall(MethodCall call) {
     case 'startSignificantChangeMonitoring':
     case 'stopSignificantChangeMonitoring':
       return null;
+
+    case 'start':
+    case 'stop':
+    case 'getState':
+      return {'enabled': true, 'isMoving': false, 'odometer': 1000.0};
 
     case 'getCurrentPosition':
       return {
@@ -457,13 +463,6 @@ dynamic _handleMethodCall(MethodCall call) {
     case 'getLocations':
       return <Map<String, dynamic>>[];
 
-    case 'getState':
-      return {
-        'enabled': true,
-        'isMoving': false,
-        'odometer': 1000.0,
-      };
-
     case 'getGeofences':
       return <Map<String, dynamic>>[];
 
@@ -473,7 +472,7 @@ dynamic _handleMethodCall(MethodCall call) {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'level': 'info',
           'message': 'Log entries...',
-        }
+        },
       ];
 
     case 'getPowerState':

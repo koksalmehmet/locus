@@ -43,6 +43,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 This enables automatic sync with default settings:
+
 - POST requests
 - Batch sync enabled
 - Max 100 locations per batch
@@ -129,6 +130,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 **Behavior**:
+
 - Syncs when `autoSyncThreshold` reached
 - Syncs when app backgrounded/foregrounded
 - Syncs on network connectivity change
@@ -145,10 +147,11 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ));
 
 // Trigger sync manually
-await Locus.sync.now();
+await Locus.dataSync.now();
 ```
 
 **Use Cases**:
+
 - Sync on user action (button press)
 - Sync with other API calls
 - Custom scheduling logic
@@ -167,6 +170,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 **Trade-offs**:
+
 - ✅ Lowest latency
 - ❌ More HTTP requests
 - ❌ Higher battery/data usage
@@ -188,6 +192,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 **Retry Schedule Example**:
+
 1. Initial attempt fails
 2. Wait 5 seconds → Retry 1
 3. Wait 10 seconds → Retry 2
@@ -199,12 +204,14 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### Retry on Specific Status Codes
 
 By default, retries on:
+
 - **5xx** errors (server errors)
 - **429** (rate limit)
 - **408** (timeout)
 - Network errors
 
 Does NOT retry on:
+
 - **401** (unauthorized) - pauses sync
 - **400** (bad request) - discards batch
 - **404** (not found) - discards batch
@@ -213,7 +220,7 @@ Does NOT retry on:
 
 ```dart
 // Pause sync (e.g., on 401 unauthorized)
-await Locus.sync.pause();
+await Locus.dataSync.pause();
 
 // Refresh auth token
 await refreshAuthToken();
@@ -225,14 +232,14 @@ await Locus.setConfig(ConfigPresets.balanced.copyWith(
   },
 ));
 
-await Locus.sync.resume();
+await Locus.dataSync.resume();
 ```
 
 ### Clear Queue
 
 ```dart
 // Clear all pending locations
-await Locus.sync.clearQueue();
+await Locus.dataSync.clearQueue();
 ```
 
 ---
@@ -261,7 +268,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 // Listen for heartbeat events
 Locus.location.stream.listen((location) {
   if (location.event == 'heartbeat') {
-    Locus.sync.now(); // Trigger sync
+    Locus.dataSync.now(); // Trigger sync
   }
 });
 ```
@@ -275,11 +282,11 @@ DateTime? _lastSync;
 Locus.location.stream.listen((location) async {
   _locationCount++;
   final now = DateTime.now();
-  
+
   // Sync if 100 locations OR 10 minutes elapsed
   if (_locationCount >= 100 ||
       (_lastSync != null && now.difference(_lastSync!).inMinutes >= 10)) {
-    await Locus.sync.now();
+    await Locus.dataSync.now();
     _locationCount = 0;
     _lastSync = now;
   }
@@ -300,7 +307,7 @@ print('Queued: ${diagnostics.queue.length}');
 
 if (diagnostics.queue.length > 5000) {
   // Force sync
-  await Locus.sync.now();
+  await Locus.dataSync.now();
 }
 ```
 
@@ -313,7 +320,7 @@ if (diagnostics.queue.length > 5000) {
 For foreground sync customization:
 
 ```dart
-Locus.sync.setSyncBodyBuilder((locations, extras) async {
+Locus.dataSync.setSyncBodyBuilder((locations, extras) async {
   return {
     'timestamp': DateTime.now().toIso8601String(),
     'device_id': extras['deviceId'],
@@ -368,15 +375,15 @@ void main() async {
 Only sync high-quality locations:
 
 ```dart
-Locus.sync.setSyncBodyBuilder((locations, extras) async {
+Locus.dataSync.setSyncBodyBuilder((locations, extras) async {
   // Filter out low-accuracy locations
   final filtered = locations.where((l) => l.coords.accuracy <= 50).toList();
-  
+
   if (filtered.isEmpty) {
     // Return empty payload to skip sync
     return {};
   }
-  
+
   return {
     'locations': filtered.map((l) => l.toJson()).toList(),
   };
@@ -388,7 +395,7 @@ Locus.sync.setSyncBodyBuilder((locations, extras) async {
 Minimize payload size:
 
 ```dart
-Locus.sync.setSyncBodyBuilder((locations, extras) async {
+Locus.dataSync.setSyncBodyBuilder((locations, extras) async {
   return {
     'device': extras['deviceId'],
     'data': locations.map((l) => [
@@ -404,11 +411,11 @@ Locus.sync.setSyncBodyBuilder((locations, extras) async {
 ### Add Computed Fields
 
 ```dart
-Locus.sync.setSyncBodyBuilder((locations, extras) async {
+Locus.dataSync.setSyncBodyBuilder((locations, extras) async {
   return {
     'locations': locations.map((location) {
       final json = location.toJson();
-      
+
       // Add computed fields
       json['distance_from_home'] = _calculateDistance(
         location.coords,
@@ -416,7 +423,7 @@ Locus.sync.setSyncBodyBuilder((locations, extras) async {
       );
       json['is_spoofed'] = location.isSpoofed;
       json['privacy_filtered'] = location.isInPrivacyZone;
-      
+
       return json;
     }).toList(),
   };
@@ -471,9 +478,9 @@ Future<void> _refreshToken() async {
     Uri.parse('https://api.example.com/auth/refresh'),
     body: {'refresh_token': refreshToken},
   );
-  
+
   _accessToken = jsonDecode(response.body)['access_token'];
-  
+
   // Update Locus headers
   await Locus.setConfig(ConfigPresets.balanced.copyWith(
     headers: {
@@ -483,16 +490,16 @@ Future<void> _refreshToken() async {
 }
 
 // Listen for 401 responses
-Locus.sync.events.listen((event) async {
+Locus.dataSync.events.listen((event) async {
   if (event.type == SyncEventType.failure && event.statusCode == 401) {
     // Pause sync
-    await Locus.sync.pause();
-    
+    await Locus.dataSync.pause();
+
     // Refresh token
     await _refreshToken();
-    
+
     // Resume sync
-    await Locus.sync.resume();
+    await Locus.dataSync.resume();
   }
 });
 ```
@@ -517,28 +524,28 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### Sync Event Stream
 
 ```dart
-Locus.sync.events.listen((event) {
+Locus.dataSync.events.listen((event) {
   switch (event.type) {
     case SyncEventType.success:
       print('Synced ${event.locations.length} locations');
       print('Status: ${event.statusCode}');
       print('Duration: ${event.duration}ms');
       break;
-      
+
     case SyncEventType.failure:
       print('Sync failed: ${event.error}');
       print('Status: ${event.statusCode}');
       print('Will retry: ${event.willRetry}');
       break;
-      
+
     case SyncEventType.queued:
       print('${event.locations.length} locations queued for sync');
       break;
-      
+
     case SyncEventType.paused:
       print('Sync paused');
       break;
-      
+
     case SyncEventType.resumed:
       print('Sync resumed');
       break;
@@ -549,33 +556,33 @@ Locus.sync.events.listen((event) {
 ### Handle Specific Errors
 
 ```dart
-Locus.sync.events.listen((event) async {
+Locus.dataSync.events.listen((event) async {
   if (event.type != SyncEventType.failure) return;
-  
+
   switch (event.statusCode) {
     case 401:
       // Unauthorized - refresh token
       await _refreshAuthToken();
-      await Locus.sync.resume();
+      await Locus.dataSync.resume();
       break;
-      
+
     case 429:
       // Rate limited - pause for longer
-      await Locus.sync.pause();
+      await Locus.dataSync.pause();
       await Future.delayed(Duration(minutes: 5));
-      await Locus.sync.resume();
+      await Locus.dataSync.resume();
       break;
-      
+
     case 503:
       // Server unavailable - exponential backoff handles this
       print('Server unavailable, will retry');
       break;
-      
+
     case 400:
       // Bad request - log and discard
       print('Invalid payload: ${event.error}');
       break;
-      
+
     default:
       if (event.statusCode >= 500) {
         // Server error - will retry automatically
@@ -588,12 +595,12 @@ Locus.sync.events.listen((event) async {
 ### Validate Server Response
 
 ```dart
-Locus.sync.events.listen((event) {
+Locus.dataSync.events.listen((event) {
   if (event.type == SyncEventType.success) {
     // Verify server processed correctly
     if (event.responseBody != null) {
       final response = jsonDecode(event.responseBody!);
-      
+
       if (response['status'] != 'ok') {
         print('Server reported error: ${response['message']}');
       }
@@ -641,9 +648,9 @@ class SyncMonitor {
   int _failureCount = 0;
   int _totalLocations = 0;
   Duration _totalDuration = Duration.zero;
-  
+
   void start() {
-    Locus.sync.events.listen((event) {
+    Locus.dataSync.events.listen((event) {
       if (event.type == SyncEventType.success) {
         _successCount++;
         _totalLocations += event.locations.length;
@@ -653,7 +660,7 @@ class SyncMonitor {
       }
     });
   }
-  
+
   void printStats() {
     print('Success: $_successCount');
     print('Failure: $_failureCount');
@@ -671,7 +678,7 @@ class SyncMonitor {
 await Locus.location.getCurrentPosition();
 
 // Trigger sync
-await Locus.sync.now();
+await Locus.dataSync.now();
 
 // Check result
 await Future.delayed(Duration(seconds: 2));
@@ -698,51 +705,51 @@ Use a proxy tool (Charles, Proxyman) to inspect requests:
 Future<void> syncWithProgress(BuildContext context) async {
   final diagnostics = await Locus.getDiagnostics();
   final total = diagnostics.queue.length;
-  
+
   if (total == 0) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Nothing to sync')),
     );
     return;
   }
-  
+
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (_) => SyncProgressDialog(total: total),
   );
-  
-  await Locus.sync.now();
+
+  await Locus.dataSync.now();
 }
 
 class SyncProgressDialog extends StatefulWidget {
   final int total;
   const SyncProgressDialog({required this.total});
-  
+
   @override
   State<SyncProgressDialog> createState() => _SyncProgressDialogState();
 }
 
 class _SyncProgressDialogState extends State<SyncProgressDialog> {
   int _synced = 0;
-  
+
   @override
   void initState() {
     super.initState();
-    
-    Locus.sync.events.listen((event) {
+
+    Locus.dataSync.events.listen((event) {
       if (event.type == SyncEventType.success) {
         setState(() {
           _synced += event.locations.length;
         });
-        
+
         if (_synced >= widget.total) {
           Navigator.of(context).pop();
         }
       }
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -773,7 +780,7 @@ Connectivity().onConnectivityChanged.listen((result) async {
     await Locus.setConfig(ConfigPresets.balanced.copyWith(
       disableAutoSyncOnCellular: false,
     ));
-    await Locus.sync.now();
+    await Locus.dataSync.now();
   } else if (result == ConnectivityResult.mobile) {
     // On cellular - minimal sync
     await Locus.setConfig(ConfigPresets.balanced.copyWith(
@@ -783,28 +790,50 @@ Connectivity().onConnectivityChanged.listen((result) async {
 });
 ```
 
+### Pre-Sync Validation
+
+Validate context before allowing a sync to proceed. This is useful for preventing syncs when critical metadata (like user ID) is missing, or to perform just-in-time validation.
+
+```dart
+// Register validator
+Locus.dataSync.setPreSyncValidator((locations, extras) async {
+  // Check if we have valid user context
+  final userId = extras['userId'];
+  if (userId == null || userId.isEmpty) {
+     print('Skipping sync: Missing userId');
+     return false; // Skip sync, keep locations queued
+  }
+
+  // You can also check connectivity or other state
+  return true; // Proceed with sync
+});
+
+// Clear validator when no longer needed
+Locus.dataSync.clearPreSyncValidator();
+```
+
 ### Batch Sync with App Data
 
 ```dart
 Future<void> syncLocationAndAppData() async {
   // Get pending locations
   final locations = await Locus.location.getLocations();
-  
+
   // Combine with app data
   final payload = {
     'locations': locations.map((l) => l.toJson()).toList(),
     'app_state': await _getAppState(),
     'user_actions': await _getPendingActions(),
   };
-  
+
   // Send custom payload
   await http.post(
     Uri.parse('https://api.example.com/batch-sync'),
     body: jsonEncode(payload),
   );
-  
+
   // Clear queue on success
-  await Locus.sync.clearQueue();
+  await Locus.dataSync.clearQueue();
 }
 ```
 
@@ -813,26 +842,26 @@ Future<void> syncLocationAndAppData() async {
 ```dart
 Future<void> syncToMultipleEndpoints() async {
   final locations = await Locus.location.getLocations();
-  
+
   // Primary endpoint
   try {
     await _syncTo('https://api.primary.com/locations', locations);
   } catch (e) {
     print('Primary endpoint failed: $e');
   }
-  
+
   // Backup endpoint
   try {
     await _syncTo('https://api.backup.com/locations', locations);
   } catch (e) {
     print('Backup endpoint failed: $e');
   }
-  
+
   // Analytics endpoint (fire-and-forget)
   _syncTo('https://analytics.example.com/track', locations)
       .catchError((_) {});
-  
-  await Locus.sync.clearQueue();
+
+  await Locus.dataSync.clearQueue();
 }
 ```
 
@@ -868,7 +897,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### 3. Handle 401 Gracefully
 
 ```dart
-Locus.sync.events.listen((event) async {
+Locus.dataSync.events.listen((event) async {
   if (event.type == SyncEventType.failure && event.statusCode == 401) {
     await Locus.sync.pause();
     await _refreshAuthToken();
@@ -895,12 +924,12 @@ Timer.periodic(Duration(minutes: 5), (timer) async {
 Locus.sync.setSyncBodyBuilder((locations, extras) async {
   // Validate before sending
   if (locations.isEmpty) return {};
-  
+
   if (extras['userId'] == null) {
     print('ERROR: userId missing from extras');
     return {};
   }
-  
+
   return {
     'user_id': extras['userId'],
     'locations': locations.map((l) => l.toJson()).toList(),
@@ -939,6 +968,7 @@ Locus.sync.events.listen((event) {
 ## Summary
 
 Key takeaways:
+
 - ✅ Use batch sync for efficiency
 - ✅ Implement proper error handling (especially 401)
 - ✅ Use custom sync body builders for payload control
@@ -950,6 +980,7 @@ Key takeaways:
 ---
 
 **Related Documentation:**
+
 - [Configuration Reference](../core/configuration-reference.md)
 - [Headless Execution Guide](headless-execution.md)
 - [Error Codes Reference](../api/error-codes.md)

@@ -99,7 +99,12 @@ class LocusPlugin : FlutterPlugin,
         // TODO: Consider using EncryptedSharedPreferences for sensitive data (requires androidx.security:security-crypto dependency)
         // For now, using standard SharedPreferences with MODE_PRIVATE for basic protection
         prefs = androidContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        privacyModeEnabled = prefs?.getBoolean("bg_privacy_mode", false) ?: false
+
+        // IMPORTANT: Always start with privacy mode disabled on fresh plugin attach.
+        // This prevents stale persisted values from blocking location sync before Locus.ready() is called.
+        // Privacy mode should only be enabled explicitly via setPrivacyMode() API or config.
+        privacyModeEnabled = false
+        prefs?.edit()?.remove("bg_privacy_mode")?.apply()
 
         methodChannel = MethodChannel(binding.binaryMessenger, METHOD_CHANNEL).also {
             it.setMethodCallHandler(this)
@@ -111,16 +116,14 @@ class LocusPlugin : FlutterPlugin,
         val context = androidContext ?: return
         val preferences = prefs ?: return
 
-        // NOTE: privacyModeEnabled from SharedPreferences is only used as initial default.
-        // The config from Locus.ready() will override this if privacyModeEnabled is explicitly set.
+        // Privacy mode is always false on attach. Use setPrivacyMode() or config to enable.
         val config = ConfigManager(context).also {
-            // Initially set from persisted value, but ready() will override if configured
             it.privacyModeEnabled = privacyModeEnabled
         }
         configManager = config
-        
+
         // Log the initial privacy mode state for debugging
-        Log.d(TAG, "LocusPlugin initialized - privacyModeEnabled=${privacyModeEnabled} (from SharedPreferences)")
+        Log.d(TAG, "LocusPlugin initialized - privacyModeEnabled=${privacyModeEnabled} (always false on attach)")
         
         val state = StateManager(context)
         stateManager = state
@@ -213,6 +216,39 @@ class LocusPlugin : FlutterPlugin,
                             }
                             override fun notImplemented() {
                                 callback(null)
+                            }
+                        })
+                    }
+                }
+
+                override fun onPreSyncValidation(
+                    locations: List<Map<String, Any>>,
+                    extras: Map<String, Any>,
+                    callback: (Boolean) -> Unit
+                ) {
+                    val channel = methodChannel
+                    if (channel == null) {
+                        // If no method channel (e.g. app terminated), proceed with sync
+                        // TODO: Implement headless validation if needed
+                        callback(true)
+                        return
+                    }
+                    mainHandler.post {
+                        val args = mapOf(
+                            "locations" to locations,
+                            "extras" to extras
+                        )
+                        channel.invokeMethod("validatePreSync", args, object : MethodChannel.Result {
+                            override fun success(result: Any?) {
+                                callback(result as? Boolean ?: true)
+                            }
+                            override fun error(code: String, message: String?, details: Any?) {
+                                Log.e(TAG, "validatePreSync error: $code - $message")
+                                // Proceed on error to avoid blocking sync permanently
+                                callback(true)
+                            }
+                            override fun notImplemented() {
+                                callback(true)
                             }
                         })
                     }

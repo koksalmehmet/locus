@@ -90,6 +90,11 @@ class ConfigManager {
         startOnBoot = UserDefaults.standard.bool(forKey: ConfigManager.startOnBootKey)
         stopOnTerminate = UserDefaults.standard.bool(forKey: ConfigManager.stopOnTerminateKey)
         enableHeadless = UserDefaults.standard.bool(forKey: ConfigManager.enableHeadlessKey)
+
+        // IMPORTANT: Always reset privacy mode on init.
+        // Prevents stale persisted values from blocking location sync.
+        // Privacy mode should only be enabled explicitly via setPrivacyMode() API or config.
+        privacyModeEnabled = false
     }
     
     func apply(_ config: [String: Any]) {

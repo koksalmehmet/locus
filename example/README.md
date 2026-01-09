@@ -1,13 +1,18 @@
 # Locus Example Application
 
-This is a demonstration application for the Locus Background Geolocation SDK. It showcases key features including background tracking, motion activity detection, and geofencing.
+This is a demonstration application for the Locus Background Geolocation SDK. It showcases production-focused features and real-world tracking workflows.
 
 ## Features Demonstrated
 
 - **Permission Handling**: requesting background location and motion activity permissions.
 - **Service Lifecycle**: starting and stopping the background tracking service.
 - **Event Monitoring**: real-time display of location updates, motion state changes, and provider authorization status.
-- **Configuration**: demonstration of different tracking presets and adaptive configurations.
+- **Profiles & Automation**: profile presets, automation rules, and manual pace overrides.
+- **Geofencing**: circular, polygon geofences, and delivery workflows.
+- **Privacy Zones**: obfuscation zones and privacy events.
+- **Sync & Queues**: sync policies, queue management, and dynamic headers.
+- **Battery Optimization**: adaptive tracking presets and runway estimation.
+- **Diagnostics & History**: diagnostics snapshot, stored locations, and summary stats.
 
 ## Getting Started
 
