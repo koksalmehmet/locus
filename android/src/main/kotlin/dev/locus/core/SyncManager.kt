@@ -89,14 +89,22 @@ class SyncManager(
     }
 
     fun attemptBatchSync() {
-        if (isSyncPaused) return
+        if (isSyncPaused) {
+            Log.d("locus.SyncManager", "attemptBatchSync: skipped - sync is paused")
+            return
+        }
         
         val threshold = if (config.autoSyncThreshold > 0) config.autoSyncThreshold else config.maxBatchSize
         val effectiveThreshold = if (threshold <= 0) config.maxBatchSize else threshold
         val fetchLimit = max(effectiveThreshold, config.maxBatchSize)
         
         val records = locationStore.readLocations(fetchLimit)
-        if (records.size < effectiveThreshold) return
+        Log.d("locus.SyncManager", "attemptBatchSync: records=${records.size}, threshold=$effectiveThreshold")
+        
+        if (records.size < effectiveThreshold) {
+            Log.d("locus.SyncManager", "attemptBatchSync: skipped - need $effectiveThreshold records, have ${records.size}")
+            return
+        }
         
         val sendCount = min(config.maxBatchSize, records.size)
         val batch = records.subList(0, sendCount)
@@ -113,6 +121,7 @@ class SyncManager(
         }
         
         if (payloads.isNotEmpty()) {
+            Log.d("locus.SyncManager", "attemptBatchSync: sending ${payloads.size} locations...")
             enqueueHttpBatch(payloads, ids, 0)
         }
     }

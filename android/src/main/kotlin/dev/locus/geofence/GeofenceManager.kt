@@ -405,11 +405,13 @@ class GeofenceManager(
     @Throws(JSONException::class)
     private fun JSONObject.toMap(): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
-        keys().forEach { key ->
-            when (val value = get(key)) {
+        // Make a defensive copy of keys to prevent ConcurrentModificationException
+        val keyList = keys().asSequence().toList()
+        keyList.forEach { key ->
+            when (val value = opt(key)) {
                 is JSONArray -> map[key] = value.toList()
                 is JSONObject -> map[key] = value.toMap()
-                JSONObject.NULL -> { /* skip null values */ }
+                JSONObject.NULL, null -> { /* skip null values */ }
                 else -> map[key] = value
             }
         }

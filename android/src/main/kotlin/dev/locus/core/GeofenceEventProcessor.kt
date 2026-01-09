@@ -91,8 +91,10 @@ class GeofenceEventProcessor(
     }
 
     private fun JSONObject.toMap(): Map<String, Any> = buildMap {
-        keys().forEach { key ->
-            put(key, get(key))
+        // Make a defensive copy of keys to prevent ConcurrentModificationException
+        val keyList = keys().asSequence().toList()
+        keyList.forEach { key ->
+            opt(key)?.takeIf { it != JSONObject.NULL }?.let { put(key, it) }
         }
     }
 }
