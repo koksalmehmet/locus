@@ -150,7 +150,6 @@ class ConfigManager(context: Context) {
             schedule = scheduleList.filterNotNull().map { it.toString() }.toMutableList()
         }
 
-        // Lifecycle settings
         (config["logLevel"] as? String)?.let { logLevel = it }
         (config["logMaxDays"] as? Number)?.let { logMaxDays = it.toInt() }
         (config["enableHeadless"] as? Boolean)?.let { enableHeadless = it }
@@ -161,7 +160,16 @@ class ConfigManager(context: Context) {
         (config["motionTriggerDelay"] as? Number)?.let { motionTriggerDelay = it.toLong() }
         (config["stopDetectionDelay"] as? Number)?.let { stopDetectionDelay = it.toLong() }
         (config["desiredAccuracy"] as? String)?.let { desiredAccuracy = it }
-        (config["privacyModeEnabled"] as? Boolean)?.let { privacyModeEnabled = it }
+        
+        // Privacy mode: Reset to false unless explicitly enabled in config.
+        // This ensures that stale persisted privacy mode values don't block location sync.
+        // Use setPrivacyMode() API to explicitly enable privacy mode if needed.
+        val configPrivacyMode = config["privacyModeEnabled"] as? Boolean
+        privacyModeEnabled = configPrivacyMode ?: false
+        // Clear persisted privacy mode when config is applied (unless explicitly set to true)
+        if (configPrivacyMode != true) {
+            prefs.edit().remove("bg_privacy_mode").apply()
+        }
 
         // Apply sync policy if present
         applySyncPolicy(config["syncPolicy"] as? Map<*, *>)

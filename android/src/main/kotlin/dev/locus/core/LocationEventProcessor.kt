@@ -18,21 +18,26 @@ class LocationEventProcessor(
         eventDispatcher.sendEvent(event)
 
         Log.d("locus.EventProcessor", ">>> privacyModeEnabled=${config.privacyModeEnabled}")
-        if (!config.privacyModeEnabled) {
-            val shouldPersist = PersistencePolicy.shouldPersist(config, eventName)
-            Log.d("locus.EventProcessor", ">>> shouldPersist=$shouldPersist, batchSync=${config.batchSync}, persistMode=${config.persistMode}")
-            if (shouldPersist) {
-                Log.d("locus.EventProcessor", ">>> Storing location payload...")
-                stateManager.storeLocationPayload(payload, config.maxDaysToPersist, config.maxRecordsToPersist)
+        if (config.privacyModeEnabled) {
+            Log.w("locus.EventProcessor", ">>> Location NOT stored/synced - privacy mode is ENABLED")
+            return
+        }
+        
+        val shouldPersist = PersistencePolicy.shouldPersist(config, eventName)
+        Log.d("locus.EventProcessor", ">>> shouldPersist=$shouldPersist, batchSync=${config.batchSync}, persistMode=${config.persistMode}")
+        if (shouldPersist) {
+            Log.d("locus.EventProcessor", ">>> Storing location payload...")
+            stateManager.storeLocationPayload(payload, config.maxDaysToPersist, config.maxRecordsToPersist)
+        }
+        if (config.autoSync && !config.httpUrl.isNullOrEmpty() && autoSyncChecker.isAutoSyncAllowed()) {
+            Log.d("locus.EventProcessor", ">>> Auto sync triggered")
+            if (config.batchSync) {
+                syncManager.attemptBatchSync()
+            } else {
+                syncManager.syncNow(payload)
             }
-            if (config.autoSync && !config.httpUrl.isNullOrEmpty() && autoSyncChecker.isAutoSyncAllowed()) {
-                Log.d("locus.EventProcessor", ">>> Auto sync triggered")
-                if (config.batchSync) {
-                    syncManager.attemptBatchSync()
-                } else {
-                    syncManager.syncNow(payload)
-                }
-            }
+        } else {
+            Log.d("locus.EventProcessor", ">>> Auto sync NOT triggered - autoSync=${config.autoSync}, httpUrl=${config.httpUrl}, isAutoSyncAllowed=${autoSyncChecker.isAutoSyncAllowed()}")
         }
     }
 

@@ -111,10 +111,16 @@ class LocusPlugin : FlutterPlugin,
         val context = androidContext ?: return
         val preferences = prefs ?: return
 
+        // NOTE: privacyModeEnabled from SharedPreferences is only used as initial default.
+        // The config from Locus.ready() will override this if privacyModeEnabled is explicitly set.
         val config = ConfigManager(context).also {
+            // Initially set from persisted value, but ready() will override if configured
             it.privacyModeEnabled = privacyModeEnabled
         }
         configManager = config
+        
+        // Log the initial privacy mode state for debugging
+        Log.d(TAG, "LocusPlugin initialized - privacyModeEnabled=${privacyModeEnabled} (from SharedPreferences)")
         
         val state = StateManager(context)
         stateManager = state
