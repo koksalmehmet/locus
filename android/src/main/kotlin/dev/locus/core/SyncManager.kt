@@ -44,6 +44,18 @@ class SyncManager(
         ) {
             callback(null)
         }
+
+        /**
+         * Called before sync to validate context.
+         * Default implementation returns true to proceed.
+         */
+        fun onPreSyncValidation(
+            locations: List<Map<String, Any>>,
+            extras: Map<String, Any>,
+            callback: (Boolean) -> Unit
+        ) {
+            callback(true)
+        }
     }
 
     private val executor: ExecutorService = Executors.newFixedThreadPool(4)
@@ -184,17 +196,34 @@ class SyncManager(
         return scheduled
     }
 
-    fun enqueueHttp(locationPayload: Map<String, Any>, idsToDelete: List<String>?, attempt: Int) {
+    private fun enqueueHttp(payload: Map<String, Any>, idsToDelete: List<String>?, attempt: Int) {
         if (isSyncPaused) return
 
-        if (syncBodyBuilderEnabled) {
-            // Ask Dart to build the sync body asynchronously
-            listener.buildSyncBody(listOf(locationPayload), config.extras) { customBody ->
-                if (isReleased) return@buildSyncBody
+        val locationPayload = buildPayloadFromRecord(payload)
+        if (locationPayload.isEmpty()) return
 
+        listener.onPreSyncValidation(listOf(locationPayload), config.extras) { proceed ->
+            if (!proceed || isReleased) return@onPreSyncValidation
+
+            if (syncBodyBuilderEnabled) {
+                // Ask Dart to build the sync body asynchronously
+                listener.buildSyncBody(listOf(locationPayload), config.extras) { customBody ->
+                    if (isReleased) return@buildSyncBody
+
+                    executor.execute {
+                        listener.onSyncRequest()
+                        val body = (customBody ?: buildHttpBody(locationPayload, null)).apply {
+                            config.httpParams.forEach { (key, value) ->
+                                put(key, value)
+                            }
+                        }
+                        performHttpRequest(body, idsToDelete, attempt, locationPayload)
+                    }
+                }
+            } else {
                 executor.execute {
                     listener.onSyncRequest()
-                    val body = (customBody ?: buildHttpBody(locationPayload, null)).apply {
+                    val body = buildHttpBody(locationPayload, null).apply {
                         config.httpParams.forEach { (key, value) ->
                             put(key, value)
                         }
@@ -202,46 +231,40 @@ class SyncManager(
                     performHttpRequest(body, idsToDelete, attempt, locationPayload)
                 }
             }
-        } else {
-            executor.execute {
-                listener.onSyncRequest()
-                val body = buildHttpBody(locationPayload, null).apply {
-                    config.httpParams.forEach { (key, value) ->
-                        put(key, value)
-                    }
-                }
-                performHttpRequest(body, idsToDelete, attempt, locationPayload)
-            }
         }
     }
 
     private fun enqueueHttpBatch(payloads: List<Map<String, Any>>, idsToDelete: List<String>, attempt: Int) {
         if (isSyncPaused) return
 
-        if (syncBodyBuilderEnabled) {
-            // Ask Dart to build the sync body asynchronously
-            listener.buildSyncBody(payloads, config.extras) { customBody ->
-                if (isReleased) return@buildSyncBody
+        listener.onPreSyncValidation(payloads, config.extras) { proceed ->
+            if (!proceed || isReleased) return@onPreSyncValidation
 
+            if (syncBodyBuilderEnabled) {
+                // Ask Dart to build the sync body asynchronously
+                listener.buildSyncBody(payloads, config.extras) { customBody ->
+                    if (isReleased) return@buildSyncBody
+
+                    executor.execute {
+                        listener.onSyncRequest()
+                        val body = (customBody ?: buildHttpBody(null, payloads)).apply {
+                            config.httpParams.forEach { (key, value) ->
+                                put(key, value)
+                            }
+                        }
+                        performBatchHttpRequest(body, idsToDelete, attempt, payloads)
+                    }
+                }
+            } else {
                 executor.execute {
                     listener.onSyncRequest()
-                    val body = (customBody ?: buildHttpBody(null, payloads)).apply {
+                    val body = buildHttpBody(null, payloads).apply {
                         config.httpParams.forEach { (key, value) ->
                             put(key, value)
                         }
                     }
                     performBatchHttpRequest(body, idsToDelete, attempt, payloads)
                 }
-            }
-        } else {
-            executor.execute {
-                listener.onSyncRequest()
-                val body = buildHttpBody(null, payloads).apply {
-                    config.httpParams.forEach { (key, value) ->
-                        put(key, value)
-                    }
-                }
-                performBatchHttpRequest(body, idsToDelete, attempt, payloads)
             }
         }
     }

@@ -4,7 +4,7 @@
 library;
 
 export 'async_helpers.dart';
-export 'base_test.dart';
+export 'base_test_helper.dart';
 export 'config_factory.dart';
 export 'geofence_factory.dart';
 export 'location_factory.dart';

@@ -5,10 +5,15 @@ protocol SyncManagerDelegate: AnyObject {
     /// Called when SyncManager needs Dart to build a custom sync body.
     /// Returns nil to use default native body building.
     func buildSyncBody(locations: [[String: Any]], extras: [String: Any], completion: @escaping ([String: Any]?) -> Void)
+    
+    /// Called before sync to validate context.
+    func onPreSyncValidation(locations: [[String: Any]], extras: [String: Any], completion: @escaping (Bool) -> Void)
+    
     func onHttpEvent(_ event: [String: Any])
     func onSyncEvent(_ event: [String: Any])
     func onLog(level: String, message: String)
 }
+
 
 class SyncManager {
     
@@ -105,6 +110,11 @@ class SyncManager {
         if let payload = currentPayload {
             enqueueHttp(locationPayload: payload, idsToDelete: nil, attempt: 0)
         }
+    }
+
+    func pause() {
+        isSyncPaused = true
+        delegate?.onLog(level: "info", message: "Sync paused via API")
     }
 
     func resumeSync() {
@@ -214,12 +224,28 @@ class SyncManager {
         guard let urlString = config.httpUrl else { return }
         guard !isSyncPaused else { return }
         
-        // If sync body builder is enabled, ask Dart to build the body
-        if syncBodyBuilderEnabled {
-            delegate?.buildSyncBody(locations: [locationPayload], extras: config.extras) { [weak self] customBody in
-                guard let self = self else { return }
+        let proceedBlock = { [weak self] (proceed: Bool) in
+            guard let self = self, proceed else { return }
+            
+            // If sync body builder is enabled, ask Dart to build the body
+            if self.syncBodyBuilderEnabled {
+                self.delegate?.buildSyncBody(locations: [locationPayload], extras: self.config.extras) { [weak self] customBody in
+                    guard let self = self else { return }
+                    self.queue.async {
+                        let body = customBody ?? self.buildHttpBody(locationPayload: locationPayload, locations: nil)
+                        guard let request = self.makeRequest(urlString, body: body) else { return }
+                        
+                        let task = self.urlSession.dataTask(with: request) { data, response, error in
+                            self.handleResponse(data: data, response: response, error: error,
+                                              payload: locationPayload, idsToDelete: idsToDelete,
+                                              attempt: attempt, isBatch: false)
+                        }
+                        task.resume()
+                    }
+                }
+            } else {
                 self.queue.async {
-                    let body = customBody ?? self.buildHttpBody(locationPayload: locationPayload, locations: nil)
+                    let body = self.buildHttpBody(locationPayload: locationPayload, locations: nil)
                     guard let request = self.makeRequest(urlString, body: body) else { return }
                     
                     let task = self.urlSession.dataTask(with: request) { data, response, error in
@@ -230,18 +256,12 @@ class SyncManager {
                     task.resume()
                 }
             }
+        }
+        
+        if let delegate = delegate {
+            delegate.onPreSyncValidation(locations: [locationPayload], extras: config.extras, completion: proceedBlock)
         } else {
-            queue.async {
-                let body = self.buildHttpBody(locationPayload: locationPayload, locations: nil)
-                guard let request = self.makeRequest(urlString, body: body) else { return }
-                
-                let task = self.urlSession.dataTask(with: request) { data, response, error in
-                    self.handleResponse(data: data, response: response, error: error,
-                                      payload: locationPayload, idsToDelete: idsToDelete,
-                                      attempt: attempt, isBatch: false)
-                }
-                task.resume()
-            }
+            proceedBlock(true)
         }
     }
     
@@ -249,12 +269,28 @@ class SyncManager {
         guard let urlString = config.httpUrl else { return }
         guard !isSyncPaused else { return }
         
-        // If sync body builder is enabled, ask Dart to build the body
-        if syncBodyBuilderEnabled {
-            delegate?.buildSyncBody(locations: payloads, extras: config.extras) { [weak self] customBody in
-                guard let self = self else { return }
+        let proceedBlock = { [weak self] (proceed: Bool) in
+            guard let self = self, proceed else { return }
+            
+            // If sync body builder is enabled, ask Dart to build the body
+            if self.syncBodyBuilderEnabled {
+                self.delegate?.buildSyncBody(locations: payloads, extras: self.config.extras) { [weak self] customBody in
+                    guard let self = self else { return }
+                    self.queue.async {
+                        let body = customBody ?? self.buildHttpBody(locationPayload: nil, locations: payloads)
+                        guard let request = self.makeRequest(urlString, body: body) else { return }
+                        
+                        let task = self.urlSession.dataTask(with: request) { data, response, error in
+                            self.handleResponse(data: data, response: response, error: error,
+                                              payload: nil, idsToDelete: idsToDelete,
+                                              attempt: attempt, isBatch: true, batchPayloads: payloads)
+                        }
+                        task.resume()
+                    }
+                }
+            } else {
                 self.queue.async {
-                    let body = customBody ?? self.buildHttpBody(locationPayload: nil, locations: payloads)
+                    let body = self.buildHttpBody(locationPayload: nil, locations: payloads)
                     guard let request = self.makeRequest(urlString, body: body) else { return }
                     
                     let task = self.urlSession.dataTask(with: request) { data, response, error in
@@ -265,18 +301,12 @@ class SyncManager {
                     task.resume()
                 }
             }
+        }
+        
+        if let delegate = delegate {
+            delegate.onPreSyncValidation(locations: payloads, extras: config.extras, completion: proceedBlock)
         } else {
-            queue.async {
-                let body = self.buildHttpBody(locationPayload: nil, locations: payloads)
-                guard let request = self.makeRequest(urlString, body: body) else { return }
-                
-                let task = self.urlSession.dataTask(with: request) { data, response, error in
-                    self.handleResponse(data: data, response: response, error: error,
-                                      payload: nil, idsToDelete: idsToDelete,
-                                      attempt: attempt, isBatch: true, batchPayloads: payloads)
-                }
-                task.resume()
-            }
+            proceedBlock(true)
         }
     }
     

@@ -59,6 +59,30 @@ extension SwiftLocusPlugin {
     }
   }
 
+  public func onPreSyncValidation(locations: [[String: Any]], extras: [String: Any], completion: @escaping (Bool) -> Void) {
+    guard let channel = methodChannel else {
+      // If channel is missing (e.g. app terminated), proceed by default
+      completion(true)
+      return
+    }
+    
+    let args: [String: Any] = [
+      "locations": locations,
+      "extras": extras
+    ]
+    
+    DispatchQueue.main.async {
+      channel.invokeMethod("validatePreSync", arguments: args) { result in
+        if let proceed = result as? Bool {
+          completion(proceed)
+        } else {
+          // Default to true on error/null
+          completion(true)
+        }
+      }
+    }
+  }
+
   // MARK: - SchedulerDelegate
   public func onScheduleCheck(shouldBeEnabled: Bool) {
     if shouldBeEnabled {

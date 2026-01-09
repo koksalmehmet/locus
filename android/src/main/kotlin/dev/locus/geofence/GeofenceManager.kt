@@ -188,7 +188,11 @@ class GeofenceManager(
         for (i in 0 until array.length()) {
             val obj = array.optJSONObject(i) ?: continue
             try {
-                list.add(obj.toMap())
+                val map = obj.toMap()
+                // Validate required fields before returning to Dart
+                if (isValidGeofenceMap(map)) {
+                    list.add(map)
+                }
             } catch (e: JSONException) {
                 // ignore malformed entries
             }
@@ -203,12 +207,32 @@ class GeofenceManager(
         for (i in 0 until array.length()) {
             val obj = array.optJSONObject(i) ?: continue
             try {
-                list.add(obj.toMap())
+                val map = obj.toMap()
+                // Validate required fields before returning
+                if (isValidGeofenceMap(map)) {
+                    list.add(map)
+                }
             } catch (e: JSONException) {
                 // ignore malformed entries
             }
         }
         return list
+    }
+
+    /**
+     * Validates that a geofence map has all required fields with valid values.
+     * This prevents returning corrupted data to Dart that would cause warnings.
+     */
+    private fun isValidGeofenceMap(map: Map<String, Any>): Boolean {
+        val identifier = map["identifier"] as? String
+        val radius = map["radius"] as? Number
+        val latitude = map["latitude"] as? Number
+        val longitude = map["longitude"] as? Number
+
+        return !identifier.isNullOrEmpty() &&
+               radius != null && radius.toDouble() > 0 &&
+               latitude != null && latitude.toDouble() >= -90 && latitude.toDouble() <= 90 &&
+               longitude != null && longitude.toDouble() >= -180 && longitude.toDouble() <= 180
     }
 
     fun geofenceExists(identifier: Any?, result: MethodChannel.Result) {

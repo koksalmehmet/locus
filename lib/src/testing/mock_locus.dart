@@ -27,7 +27,6 @@ import 'package:locus/src/core/locus_interface.dart';
 import 'package:locus/src/shared/events.dart';
 import 'package:locus/src/models.dart';
 import 'package:locus/src/services.dart';
-import 'package:locus/src/services/sync_service.dart';
 
 // Testing module exports the full LocusInterface for mock implementations.
 // The main library only exports: SyncBodyBuilder, SyncBodyContext, HeadlessEventCallback
@@ -59,8 +58,8 @@ export 'package:locus/src/core/locus_interface.dart';
 class MockLocus implements LocusInterface {
   /// Creates a new MockLocus instance.
   MockLocus({GeolocationState? initialState, Config? initialConfig})
-    : _state = initialState ?? const GeolocationState(enabled: false),
-      _config = initialConfig ?? const Config();
+      : _state = initialState ?? const GeolocationState(enabled: false),
+        _config = initialConfig ?? const Config();
 
   GeolocationState _state;
   Config _config;
@@ -1447,8 +1446,7 @@ extension MockGeofenceExtension on Geofence {
     Map<String, dynamic>? extras,
   }) {
     return Geofence(
-      identifier:
-          identifier ??
+      identifier: identifier ??
           'mock-geofence-${DateTime.now().millisecondsSinceEpoch}',
       latitude: latitude,
       longitude: longitude,

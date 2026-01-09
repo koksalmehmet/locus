@@ -77,17 +77,11 @@ class MockSyncService implements SyncService {
     _isPaused = true;
   }
 
-  PreSyncValidator? _preSyncValidator;
+  @override
+  void setPreSyncValidator(PreSyncValidator? validator) {}
 
   @override
-  void setPreSyncValidator(PreSyncValidator? validator) {
-    _preSyncValidator = validator;
-  }
-
-  @override
-  void clearPreSyncValidator() {
-    _preSyncValidator = null;
-  }
+  void clearPreSyncValidator() {}
 
   @override
   Future<void> setPolicy(SyncPolicy policy) async {

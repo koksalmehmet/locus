@@ -19,21 +19,25 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 ## Request and response
+
 - Body: JSON array of location payloads by default (each with coords, activity, extras).
 - Headers: `content-type: application/json`, auth header, optional idempotency key.
 - Success: 200/204 → remove batch from queue. Non-2xx → retry with backoff.
 
 ## Batching and thresholds
+
 - `autoSyncThreshold`: Fire sync when queue length reaches N.
 - `maxBatchSize`: Cap payload size to protect servers and mobile radios.
 - `maxRetry` / `retryDelay` / `retryDelayMultiplier`: Define backoff envelope.
 
 ## Offline handling
+
 - Queue persists in SQLite until connectivity returns.
 - Set `disableAutoSyncOnCellular` to enforce Wi‑Fi-only uploads.
 - Call `syncQueue(limit: n)` on foreground/resume to flush early.
 
 ## Custom body
+
 Use `setSyncBodyBuilder` to send domain-specific payloads:
 
 ```dart
@@ -44,16 +48,23 @@ Future<JsonMap?> buildBody(List<Location> locations, JsonMap extras) async {
   };
 }
 
-await LocusSync.setSyncBodyBuilder(buildBody);
+await Locus.dataSync.setSyncBodyBuilder(buildBody);
 ```
 
+## Sync Control
+
+- **Pause/Resume**: `await Locus.dataSync.pause()` / `resume()` to prevent syncs during state restoration.
+- **Validation**: Use `Locus.dataSync.setPreSyncValidator(...)` to approve/reject syncs based on app state (e.g. valid user ID).
+
 ## Error handling
+
 - Surface errors via `Locus.dataSync.httpEvents`; log status and body.
-- 401/403: refresh tokens; consider pausing sync until renewed.
+- 401/403: refresh tokens; `await Locus.dataSync.pause()` until renewed.
 - Timeouts/DNS: rely on retries; avoid tight retry loops.
 - Use server-side idempotency to prevent duplicates after retries.
 
 ## Testing checklist
+
 - Cover 200/204, 4xx (auth/validation), and 5xx responses.
 - Simulate offline → online and ensure queues drain.
 - Validate batch size, ordering, and headers at the server.
