@@ -20,7 +20,7 @@ Unlike MIT or Apache licenses, the PolyForm Small Business license ensures that 
 ### Contact for Commercial Licensing
 
 For enterprise licensing inquiries, volume discounts, or custom support agreements, please contact:
-**hello@mkoksal.dev**
+**locus@mkalias.com**
 
 ## Frequently Asked Questions
 
