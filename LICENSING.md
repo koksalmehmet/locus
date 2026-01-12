@@ -1,36 +1,46 @@
 # Licensing Guide
 
-Locus is licensed under the **PolyForm Small Business License 1.0.0**. This is a professional, standardized license designed to support independent developers and small businesses while requiring a commercial relationship with larger enterprises.
+Locus is licensed under the **MIT License** and is a core component of the **WeOrbis** ecosystem. It is a permissive, developer-friendly license that allows for both personal and commercial use with minimal restrictions.
+
+## Transition to Open Source
+
+As of January 2026, Locus has transitioned from the PolyForm Small Business License to the **MIT License**. This change was made to:
+
+1. **Encourage Community Adoption**: By removing restrictions on organization size and revenue, Locus is now truly accessible to everyone.
+2. **Foster Collaboration**: A permissive license makes it easier for developers and organizations to contribute back to the project.
+3. **Establish Trust**: MIT is one of the most widely recognized and trusted licenses in the open-source community.
 
 ## Permitted Usage
 
-You may use Locus for free for any purpose, including commercial and closed-source applications, provided your organization meets the **Small Business** criteria:
+Under the MIT License, you are free to:
 
-- **Revenue**: Gross annual revenue must be less than **USD 250,000** in the prior tax year.
-- **Team Size**: Your organization must have fewer than **100 total individuals** (including employees and independent contractors).
+- Use Locus in personal and commercial applications.
+- Modify the source code to fit your needs.
+- Redistribute the software or works based on it.
+- Use Locus in closed-source proprietary software.
 
-## Enterprise Usage
+The only requirement is that the original copyright notice and permission notice are included in all copies or substantial portions of the software.
 
-Organizations that exceed the Small Business limits require a commercial license for closed-source usage.
+## Professional Support & Enterprise Services
 
-### Why this model?
+While the SDK is now free for all, we still offer professional services for organizations that need extra assurance:
 
-Unlike MIT or Apache licenses, the PolyForm Small Business license ensures that the maintainers can sustain the project by establishing a fair value exchange with large, profitable enterprises while keeping it free for the community.
+- **Priority Support**: Dedicated assistance for complex integrations.
+- **Custom Development**: Implementation of specific features tailored to your needs.
+- **Consulting**: Architecture review and optimization for large-scale deployments.
 
-### Contact for Commercial Licensing
-
-For enterprise licensing inquiries, volume discounts, or custom support agreements, please contact:
-**locus@mkalias.com**
+For inquiries regarding these services, please contact:
+**info@weorbis.com**
 
 ## Frequently Asked Questions
 
-### Is Locus "Open Source"?
+### Is Locus truly Open Source?
 
-Technically, Locus is "Source Available." Because it restricts usage based on organization size/revenue, it does not meet the strict OSI Open Source Definition. However, the source code is fully public, and it is free for the vast majority of developers.
+Yes. The MIT License is OSI-approved and meets the strict Open Source Definition.
 
-### Do I need to open-source my app?
+### Do I need to pay any fees?
 
-No. Unlike GPL or AGPL, the PolyForm Small Business license does not require your application to be open-source, even if you are an individual or a small business.
+No. There are no licensing fees, regardless of your organization's size or revenue.
 
 ### Where is the full license text?
 

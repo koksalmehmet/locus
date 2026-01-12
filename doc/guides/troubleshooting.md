@@ -64,6 +64,7 @@ print('State: ${diagnostics.state}');
 ### Tracking Not Starting
 
 #### Symptom
+
 Calling `Locus.start()` completes successfully but no location updates are received.
 
 #### Potential Causes & Solutions
@@ -144,6 +145,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### Location Updates Not Received
 
 #### Symptom
+
 Tracking started successfully, but the location stream produces no events.
 
 #### Solutions
@@ -210,6 +212,7 @@ Locus.errors.listen((error) {
 ### Background Tracking Stops
 
 #### Symptom
+
 Tracking works while app is in foreground but stops when app is backgrounded or device is locked.
 
 #### Android Solutions
@@ -322,6 +325,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### Geofences Not Triggering
 
 #### Symptom
+
 Geofences added successfully but enter/exit events are not received.
 
 #### Solutions
@@ -338,6 +342,7 @@ await Locus.start(); // Starts both tracking and geofencing
 **2. Check Geofence Radius**
 
 Minimum radius varies by platform:
+
 - **Android**: 100 meters minimum
 - **iOS**: 100 meters recommended
 
@@ -397,6 +402,7 @@ Geofencing requires background location permission on both platforms.
 ### Location Drift or Inaccuracy
 
 #### Symptom
+
 Locations are inaccurate, jump around, or drift while stationary.
 
 #### Solutions
@@ -470,6 +476,7 @@ Locus.location.stream.listen((location) {
 ### Battery Drain
 
 #### Symptom
+
 Excessive battery consumption during tracking.
 
 #### Solutions
@@ -558,6 +565,7 @@ await Locus.switchProfile(TrackingProfile.standby);
 ### HTTP Sync Failures
 
 #### Symptom
+
 Locations not syncing to server, or sync errors in logs.
 
 #### Solutions
@@ -664,6 +672,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### Permissions Issues
 
 #### Symptom
+
 Permission dialogs not showing, or permissions denied.
 
 #### Android Permissions
@@ -759,6 +768,7 @@ Settings → Apps → Your App → Battery → Unrestricted
 Some manufacturers (Xiaomi, Huawei, Samsung) have aggressive battery management.
 
 **Solution**: Guide users to manufacturer-specific settings:
+
 - **Xiaomi**: Settings → Battery → App battery saver → Your App → No restrictions
 - **Huawei**: Settings → Battery → App launch → Your App → Manual
 - **Samsung**: Settings → Device care → Battery → Background usage limits → Never sleeping apps
@@ -839,26 +849,32 @@ for (final entry in logs) {
 ### Common Log Patterns
 
 **"Location services disabled"**
+
 - User disabled location in system settings
 - Guide user to enable location services
 
 **"Permission denied"**
+
 - Location permission not granted
 - Call `Locus.requestPermission()`
 
 **"Timeout acquiring location"**
+
 - Poor GPS signal or location services slow
 - Increase `locationTimeout` or test outdoors
 
 **"Sync failed: 401"**
+
 - Authorization token expired
 - Refresh token and call `Locus.sync.resume()`
 
 **"Geofence limit exceeded"**
+
 - Too many geofences registered
 - Remove unused geofences
 
 **"Service disconnected"**
+
 - Background service killed by OS
 - Enable foreground service, disable battery optimization
 
@@ -884,6 +900,7 @@ Widget build(BuildContext context) {
 ```
 
 **Features**:
+
 - Current location and accuracy
 - Motion state and activity
 - Queue size
@@ -902,7 +919,7 @@ Locus.setErrorHandler(ErrorRecoveryConfig(
   onError: (error, context) {
     // Log to analytics
     analytics.logError(error.type.name, error.message);
-    
+
     // Return recovery action
     return error.suggestedRecovery ?? RecoveryAction.retry;
   },
@@ -925,7 +942,7 @@ Listen for errors:
 ```dart
 Locus.errors.listen((error) {
   print('Error: ${error.type.name} - ${error.message}');
-  
+
   switch (error.type) {
     case LocusErrorType.permissionDenied:
       // Show permission rationale
@@ -951,7 +968,7 @@ If you've tried these solutions and still have issues:
 1. **Enable verbose logging**: Set `logLevel: LogLevel.verbose`
 2. **Collect diagnostics**: Call `Locus.getDiagnostics()` and save output
 3. **Check logs**: Review logs for error messages
-4. **Create an issue**: Visit [GitHub Issues](https://github.com/koksalmehmet/locus/issues) with:
+4. **Create an issue**: Visit [GitHub Issues](https://github.com/weorbis/locus/issues) with:
    - Device info (model, OS version)
    - Locus version
    - Configuration (anonymize sensitive data)
@@ -961,6 +978,7 @@ If you've tried these solutions and still have issues:
 ---
 
 **Related Documentation:**
+
 - [Error Codes Reference](../api/error-codes.md)
 - [FAQ](faq.md)
 - [Configuration Reference](../core/configuration-reference.md)

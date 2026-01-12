@@ -1,34 +1,21 @@
-PolyForm Small Business License 1.0.0
+MIT License
 
-Licensor: Mehmet Koksal
-Software: Locus Background Geolocation SDK
+Copyright (c) 2026 WeOrbis
 
-Acceptance
-In order to get any license under these terms, you must agree to them as strict obligations and conditions. Any use of the software other than as permitted under these terms and conditions terminates all your rights.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Copyright License
-The licensor grants you a non-exclusive, worldwide, royalty-free, individual, non-sublicensable, non-transferable, and revocable copyright license, for any permitted purpose, to:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. reproduce and share the software; and
-2. make changes and create new works based on the software, and share them.
-
-Patent License
-The licensor grants you a non-exclusive, worldwide, royalty-free, individual, non-sublicensable, non-transferable, and revocable patent license to make, have made, use, sell, offer for sale, import, and otherwise transfer the software, as far as the licensor can, to the extent that you would otherwise infringe any patent claims that the licensor can license.
-
-Notices
-You must ensure that anyone who receives a copy of any part of the software from you also receives a copy of these terms or their URL.
-
-Small Business Limit
-Use of the software is a permitted purpose only if your company:
-
-1. has fewer than 100 total individuals, including employees and independent contractors; and
-2. has less than USD 250,000 in total revenue in its prior tax year.
-
-No Other Rights
-These terms do not allow you to sublicense or transfer the licenses. These terms do not prevent the licensor from granting licenses to others. These terms do not grant any other licenses.
-
-Defense of Claims
-If you or your company make a written claim that the software infringes a patent, your patent license ends immediately. If your company makes such a claim, your patent license also ends immediately.
-
-Disclaimer
-AS FAR AS THE LAW ALLOWS, THE SOFTWARE COMES AS IS, WITHOUT ANY WARRANTY OR CONDITION, AND THE LICENSOR WILL NOT BE LIABLE TO YOU FOR ANY DAMAGES ARISING OUT OF THESE TERMS OR THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF THE LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF THOSE DAMAGES.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

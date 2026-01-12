@@ -6,12 +6,12 @@
 
 <p align="center">
   <a href="https://pub.dev/packages/locus"><img src="https://img.shields.io/pub/v/locus?style=flat-square&logo=dart" alt="Pub Version"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-PolyForm%20Small%20Business-blue.svg?style=flat-square" alt="License"></a>
-  <a href="https://github.com/koksalmehmet/locus/actions"><img src="https://img.shields.io/github/actions/workflow/status/koksalmehmet/locus/pipeline.yml?style=flat-square&logo=github" alt="Build Status"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License"></a>
+  <a href="https://github.com/weorbis/locus/actions"><img src="https://img.shields.io/github/actions/workflow/status/weorbis/locus/pipeline.yml?style=flat-square&logo=github" alt="Build Status"></a>
 </p>
 
 <p align="center">
-  Reliable background geolocation for Flutter apps.<br>
+  Reliable background geolocation for Flutter apps. Part of the **WeOrbis** ecosystem.<br>
   Service-based v2.0.0 API covering tracking, geofencing, sync, privacy, and battery on Android and iOS.<br>
   Built for production: deterministic APIs, full test suite, and migration tooling from v1.
 </p>
@@ -177,9 +177,9 @@ lib/src/
 
 ## License
 
-Locus is licensed under the **PolyForm Small Business License 1.0.0**.
+Locus is licensed under the **MIT License**.
 
-- **Free** for individuals and small businesses (< $250k annual revenue).
-- **Professional/Enterprise** licenses available for larger organizations.
+- **Free and Open Source**: Use it for personal or commercial projects.
+- **Community Focused**: Built to be a high-quality, free alternative for Flutter background geolocation.
 
 See [LICENSE](LICENSE) and [LICENSING.md](LICENSING.md) for full terms.

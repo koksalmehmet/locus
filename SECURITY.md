@@ -4,9 +4,9 @@
 
 We provide security updates for the following versions of Locus:
 
-| Version | Supported | Notes |
-| :------ | :-------- | :---- |
-| 1.x.x   | Yes       | Current stable release |
+| Version | Supported | Notes                         |
+| :------ | :-------- | :---------------------------- |
+| 1.x.x   | Yes       | Current stable release        |
 | 2.0.x   | No        | Unreleased (work in progress) |
 
 ## Reporting a Vulnerability
@@ -16,7 +16,7 @@ We value the security of our users. If you discover a potential security vulnera
 ### How to Report
 
 1. **Do not** open a public issue for security-related findings.
-2. Email your report to **security@mkoksal.dev**.
+2. Email your report to **info@weorbis.com**.
 3. Include as much detail as possible to help us reproduce and resolve the issue:
    - Vulnerability description
    - Reproduction steps
@@ -40,12 +40,14 @@ To ensure the security of your users when using Locus:
 ## Location Data Security
 
 ### Server-Side
+
 - Enforce HTTPS for all ingestion endpoints.
 - Encrypt location data at rest and restrict access by role.
 - Implement request authentication (e.g., OAuth2 bearer tokens or signed keys).
 - Log access for auditability and set retention policies for deletion.
 
 ### Client-Side
+
 - Locations are queued in SQLite; prefer encrypted storage where available.
 - Do not start tracking before user consent; allow opt-out.
 - Keep foreground notifications visible on Android when tracking.

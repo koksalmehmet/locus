@@ -9,9 +9,9 @@ Pod::Spec.new do |s|
     Background geolocation SDK for Flutter. Native tracking, geofencing, 
     activity recognition, and HTTP sync for Android and iOS.
                        DESC
-  s.homepage         = 'https://github.com/koksalmehmet/locus'
+  s.homepage         = 'https://github.com/weorbis/locus'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Mehmet Koksal' => 'hello@mkoksal.dev' }
+  s.author           = { 'WeOrbis' => 'info@weorbis.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/LocusPlugin.{h,m}',
                    'Classes/SwiftLocusPlugin*.swift',

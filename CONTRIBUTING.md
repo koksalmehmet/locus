@@ -1,6 +1,6 @@
 # Contributing to Locus
 
-Thank you for your interest in contributing to Locus. We welcome contributions from the community to help improve the SDK.
+Thank you for your interest in contributing to Locus, a core component of the **WeOrbis** ecosystem. We welcome contributions from the community to help improve the SDK.
 
 ## Development Environment
 
@@ -33,6 +33,7 @@ Thank you for your interest in contributing to Locus. We welcome contributions f
 ## Code Style
 
 ### Dart & Flutter
+
 - Follow [Effective Dart](https://dart.dev/guides/language/effective-dart) and run `dart format` before submitting.
 - Keep lines at or under 100 characters where practical.
 - Prefer named parameters for readability; avoid positional booleans.
@@ -40,17 +41,20 @@ Thank you for your interest in contributing to Locus. We welcome contributions f
 - Avoid `print`; use structured logging utilities.
 
 ### Naming
+
 - Classes/types: PascalCase (`LocusLocation`).
 - Methods/fields: camelCase (`getCurrentPosition`).
 - Private members: underscore prefix (`_state`).
 - Constants: camelCase (`maxGeofences`).
 
 ### Commits and PRs
+
 - Use Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).
 - Example: `fix(privacy): align geofence removal return type`.
 - PRs should summarize changes, list tests run, and link issues.
 
 ### Tests
+
 - Add or update tests alongside code changes.
 - Cancel stream subscriptions in tearDown to avoid leaks.
 - Prefer async helpers and matchers from `test/helpers` and `MockLocus` for services.

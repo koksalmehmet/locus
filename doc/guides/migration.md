@@ -8,18 +8,18 @@ Locus v2.0 introduces a feature-first, service-based API. Core lifecycle methods
 remain on `Locus`, while location, geofencing, privacy, trips, sync, and battery
 methods moved to dedicated services. Deprecated facade methods are removed.
 
-| v1.x | v2.0 |
-|------|------|
-| `Locus.getCurrentPosition()` | `Locus.location.getCurrentPosition()` |
-| `Locus.getLocations()` | `Locus.location.getLocations()` |
-| `Locus.queryLocations(q)` | `Locus.location.query(q)` |
-| `Locus.getLocationSummary()` | `Locus.location.getSummary()` |
-| `Locus.addGeofence(g)` | `Locus.geofencing.add(g)` |
-| `Locus.addPolygonGeofence(p)` | `Locus.geofencing.addPolygon(p)` |
-| `Locus.addPrivacyZone(z)` | `Locus.privacy.add(z)` |
-| `Locus.startTrip(cfg)` | `Locus.trips.start(cfg)` |
-| `Locus.sync()` | `Locus.dataSync.now()` |
-| `Locus.getBatteryStats()` | `Locus.battery.getStats()` |
+| v1.x                          | v2.0                                  |
+| ----------------------------- | ------------------------------------- |
+| `Locus.getCurrentPosition()`  | `Locus.location.getCurrentPosition()` |
+| `Locus.getLocations()`        | `Locus.location.getLocations()`       |
+| `Locus.queryLocations(q)`     | `Locus.location.query(q)`             |
+| `Locus.getLocationSummary()`  | `Locus.location.getSummary()`         |
+| `Locus.addGeofence(g)`        | `Locus.geofencing.add(g)`             |
+| `Locus.addPolygonGeofence(p)` | `Locus.geofencing.addPolygon(p)`      |
+| `Locus.addPrivacyZone(z)`     | `Locus.privacy.add(z)`                |
+| `Locus.startTrip(cfg)`        | `Locus.trips.start(cfg)`              |
+| `Locus.sync()`                | `Locus.dataSync.now()`                |
+| `Locus.getBatteryStats()`     | `Locus.battery.getStats()`            |
 
 ---
 
@@ -46,15 +46,15 @@ dart run locus:migrate --skip-tests
 
 ### Migration CLI Options
 
-| Option | Abbr | Description |
-|--------|------|-------------|
-| `--dry-run` | `-n` | Preview changes without modifying files |
-| `--backup` | `-b` | Create backup before migrating |
-| `--path` | `-p` | Project path (default: current directory) |
-| `--format` | `-f` | Output format: `text` or `json` |
-| `--verbose` | `-v` | Show detailed output |
-| `--skip-tests` | N/A | Skip test files |
-| `--no-color` | N/A | Disable colored output |
+| Option         | Abbr | Description                               |
+| -------------- | ---- | ----------------------------------------- |
+| `--dry-run`    | `-n` | Preview changes without modifying files   |
+| `--backup`     | `-b` | Create backup before migrating            |
+| `--path`       | `-p` | Project path (default: current directory) |
+| `--format`     | `-f` | Output format: `text` or `json`           |
+| `--verbose`    | `-v` | Show detailed output                      |
+| `--skip-tests` | N/A  | Skip test files                           |
+| `--no-color`   | N/A  | Disable colored output                    |
 
 ---
 
@@ -65,6 +65,7 @@ If you prefer to migrate manually, follow these steps.
 ### 1. Location Service
 
 **Before (v1.x):**
+
 ```dart
 await Locus.start();
 final state = await Locus.getState();
@@ -74,6 +75,7 @@ Locus.onLocation((loc) => print(loc));
 ```
 
 **After (v2.0):**
+
 ```dart
 await Locus.start();
 final state = await Locus.getState();
@@ -91,6 +93,7 @@ await subscription.cancel();
 ### 2. Geofencing Service
 
 **Before (v1.x):**
+
 ```dart
 await Locus.addGeofence(geofence);
 await Locus.addGeofences([g1, g2]);
@@ -100,6 +103,7 @@ Locus.onGeofence((event) => print(event));
 ```
 
 **After (v2.0):**
+
 ```dart
 await Locus.geofencing.add(geofence);
 await Locus.geofencing.addAll([g1, g2]);
@@ -111,6 +115,7 @@ Locus.geofencing.events.listen((event) => print(event));
 ### 3. Privacy Service
 
 **Before (v1.x):**
+
 ```dart
 await Locus.addPrivacyZone(zone);
 await Locus.getPrivacyZones();
@@ -118,6 +123,7 @@ await Locus.removePrivacyZone('id');
 ```
 
 **After (v2.0):**
+
 ```dart
 await Locus.privacy.add(zone);
 await Locus.privacy.getAll();
@@ -127,6 +133,7 @@ await Locus.privacy.remove('id');
 ### 4. Trips Service
 
 **Before (v1.x):**
+
 ```dart
 await Locus.trips.start(config);
 final summary = await Locus.stopTrip();
@@ -135,6 +142,7 @@ Locus.tripEvents.listen((event) => print(event));
 ```
 
 **After (v2.0):**
+
 ```dart
 await Locus.trips.start(config);
 final summary = await Locus.trips.stop();
@@ -145,6 +153,7 @@ Locus.trips.events.listen((event) => print(event));
 ### 5. Data Sync Service
 
 **Before (v1.x):**
+
 ```dart
 await Locus.sync();
 await Locus.resumeSync();
@@ -155,6 +164,7 @@ Locus.httpStream.listen((event) => print(event));
 ```
 
 **After (v2.0):**
+
 ```dart
 await Locus.dataSync.now();
 await Locus.dataSync.resume();
@@ -167,6 +177,7 @@ Locus.dataSync.events.listen((event) => print(event));
 ### 6. Battery Service
 
 **Before (v1.x):**
+
 ```dart
 final stats = await Locus.getBatteryStats();
 final power = await Locus.getPowerState();
@@ -175,6 +186,7 @@ Locus.powerSaveStream.listen((enabled) => print(enabled));
 ```
 
 **After (v2.0):**
+
 ```dart
 final stats = await Locus.battery.getStats();
 final power = await Locus.battery.getPowerState();
@@ -185,6 +197,7 @@ Locus.battery.powerSaveChanges.listen((enabled) => print(enabled));
 ### 7. Diagnostics Service
 
 **Before (v1.x):**
+
 ```dart
 final diagnostics = await Locus.getDiagnostics();
 final logs = await Locus.getLog();
@@ -192,6 +205,7 @@ Locus.locationAnomalies().listen((anomaly) => print(anomaly));
 ```
 
 **After (v2.0):**
+
 ```dart
 final diagnostics = await Locus.getDiagnostics();
 final logs = await Locus.getLog();
@@ -209,6 +223,7 @@ The following features are **removed** in v2.0:
 **Removed.** Background services shouldn't spawn email intents.
 
 **Migration:**
+
 ```dart
 // Before
 await Locus.emailLog('support@example.com');
@@ -229,6 +244,7 @@ if (await canLaunchUrl(emailUri)) {
 **Removed.** Use a dedicated sound package.
 
 **Migration:**
+
 ```dart
 // Before
 await Locus.playSound('notification');
@@ -249,6 +265,7 @@ await audioPlayer.play(AssetSource('sounds/notification.wav'));
 Headless callbacks remain on `Locus`. Add `@pragma('vm:entry-point')`:
 
 **Before:**
+
 ```dart
 Future<void> myHeadlessCallback(HeadlessEvent event) async {
   // Handle background event
@@ -277,6 +294,7 @@ void main() {
 Callback-style listeners must be converted to stream subscriptions:
 
 **Before:**
+
 ```dart
 Locus.onLocation((location) {
   print(location);
@@ -285,6 +303,7 @@ Locus.onLocation((location) {
 ```
 
 **After:**
+
 ```dart
 final subscription = Locus.location.stream.listen((location) {
   print(location);
@@ -334,7 +353,7 @@ name: Locus Migration Check
 on:
   pull_request:
     paths:
-      - 'lib/**/*.dart'
+      - "lib/**/*.dart"
 
 jobs:
   migrate:
@@ -367,6 +386,7 @@ jobs:
 ### Pattern not detected
 
 If a pattern isn't being detected, check for:
+
 - Typos in method names
 - Different spacing or formatting
 - Dynamic method calls (not supported)
@@ -375,13 +395,15 @@ If a pattern isn't being detected, check for:
 ### Replacement incorrect
 
 If replacement produces incorrect code:
+
 1. Run with `--dry-run` first
 2. Manually update the problematic file
-3. Report the issue at https://github.com/koksalmehmet/locus/issues
+3. Report the issue at https://github.com/weorbis/locus/issues
 
 ### Backup not created
 
 If backup creation fails:
+
 1. Ensure you have write permissions in the project directory
 2. Check available disk space
 3. Try without backup: `dart run locus:migrate --no-backup`
@@ -405,6 +427,6 @@ If backup creation fails:
 
 ## Need Help?
 
-- **Issues:** https://github.com/koksalmehmet/locus/issues
+- **Issues:** https://github.com/weorbis/locus/issues
 - **Documentation:** https://locus.dev/docs
 - **Discord:** https://discord.gg/locus

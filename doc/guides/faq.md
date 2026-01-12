@@ -24,13 +24,15 @@ Locus is a battle-tested background geolocation SDK for Flutter. It provides rel
 
 ### Is Locus free?
 
-Locus uses the **PolyForm Small Business License**. It's free for:
-- Small businesses (under $1M annual revenue)
+Yes! Locus is licensed under the **MIT License**, which means it is free for everyone, including:
+
+- Commercial organizations of any size
+- Small businesses
 - Personal projects
 - Open-source projects
 - Educational use
 
-Larger businesses require a commercial license. See [LICENSING.md](../../LICENSING.md) for details.
+There are no organization size or revenue restrictions. See [LICENSING.md](../../LICENSING.md) for details.
 
 ### Which platforms are supported?
 
@@ -46,6 +48,7 @@ Yes! Locus is production-ready and battle-tested in fleet management, fitness, d
 ### How is Locus different from other location plugins?
 
 Locus is a **complete solution**, not just a location plugin:
+
 - Built-in HTTP synchronization with retry logic
 - Native geofencing (circular and polygon)
 - Motion recognition and activity detection
@@ -111,12 +114,14 @@ Locus.sync.setSyncBodyBuilder((locations, extras) async {
 ### How accurate are the locations?
 
 Accuracy depends on configuration and device GPS:
+
 - **Navigation preset**: 1-5 meters (highest accuracy)
 - **Tracking preset**: 5-15 meters
 - **Balanced preset**: 10-25 meters
 - **Low power preset**: 50-100 meters
 
 Real-world accuracy varies based on:
+
 - GPS signal quality
 - Device hardware
 - Environment (urban canyon, indoors)
@@ -179,6 +184,7 @@ Locus.trips.events.listen((event) {
 ### Does Locus recognize motion activity?
 
 Yes, Locus detects:
+
 - `still` - Stationary
 - `on_foot` - Walking
 - `walking` - Walking (Android)
@@ -201,14 +207,15 @@ Locus.location.stream.listen((location) {
 
 Choose based on your use case:
 
-| Use Case | Preset | Accuracy | Battery Impact |
-|----------|--------|----------|----------------|
-| Fitness tracking, running apps | `ConfigPresets.trail` | Highest | High |
-| Delivery, fleet tracking | `ConfigPresets.tracking` | High | Medium-High |
-| Social, general tracking | `ConfigPresets.balanced` | Medium | Medium |
-| Passive tracking | `ConfigPresets.lowPower` | Low | Low |
+| Use Case                       | Preset                   | Accuracy | Battery Impact |
+| ------------------------------ | ------------------------ | -------- | -------------- |
+| Fitness tracking, running apps | `ConfigPresets.trail`    | Highest  | High           |
+| Delivery, fleet tracking       | `ConfigPresets.tracking` | High     | Medium-High    |
+| Social, general tracking       | `ConfigPresets.balanced` | Medium   | Medium         |
+| Passive tracking               | `ConfigPresets.lowPower` | Low      | Low            |
 
 Customize any preset:
+
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
   distanceFilter: 25,
@@ -219,6 +226,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### How do I enable background tracking?
 
 **Android**:
+
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
   foregroundService: true,
@@ -234,6 +242,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### What is headless mode?
 
 Headless mode allows your Dart code to execute when the app is terminated. Useful for:
+
 - Processing location updates when app is killed
 - Handling geofence events in background
 - Custom sync logic
@@ -273,28 +282,31 @@ Locations are automatically synced in batches when queue reaches threshold.
 
 ### What are the key differences between Android and iOS?
 
-| Feature | Android | iOS |
-|---------|---------|-----|
-| Max geofences | 100 | 20 |
-| Background tracking after kill | Yes (with foreground service) | Limited |
-| Headless execution | Yes | Limited |
-| Motion activity | Google Play Services | Core Motion |
-| Battery optimization | Aggressive (Doze mode) | Moderate |
-| Permission flow | Multi-step (10+) | Two-step |
-| Precise location | Default | Optional (iOS 14+) |
+| Feature                        | Android                       | iOS                |
+| ------------------------------ | ----------------------------- | ------------------ |
+| Max geofences                  | 100                           | 20                 |
+| Background tracking after kill | Yes (with foreground service) | Limited            |
+| Headless execution             | Yes                           | Limited            |
+| Motion activity                | Google Play Services          | Core Motion        |
+| Battery optimization           | Aggressive (Doze mode)        | Moderate           |
+| Permission flow                | Multi-step (10+)              | Two-step           |
+| Precise location               | Default                       | Optional (iOS 14+) |
 
 ### How do background permissions differ?
 
 **Android 10+**: Three-step process
+
 1. Grant "While using app"
 2. Grant "Allow all the time" (separate dialog)
 3. Disable battery optimization (optional but recommended)
 
 **iOS 13+**: Two-step process
+
 1. Grant "When in Use"
 2. Grant "Always" (shown after some usage)
 
 Use `PermissionAssistant` for guided flow:
+
 ```dart
 await PermissionAssistant.requestBackgroundWorkflow(
   config: myConfig,
@@ -307,6 +319,7 @@ await PermissionAssistant.requestBackgroundWorkflow(
 iOS 13+ shows a blue bar when app uses background location. This is a privacy indicator.
 
 You can hide it (not recommended for transparency):
+
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
   showsBackgroundLocationIndicator: false,
@@ -316,6 +329,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### Can I use more geofences on iOS?
 
 No, iOS has a hard limit of 20 geofences. Solutions:
+
 - Use larger geofence radii
 - Dynamically swap geofences based on user location
 - Use polygon geofences to cover larger areas
@@ -328,14 +342,15 @@ No, iOS has a hard limit of 20 geofences. Solutions:
 
 Depends on configuration:
 
-| Preset | Typical Battery Drain |
-|--------|----------------------|
-| `trail` | 10-20%/hour |
-| `tracking` | 5-10%/hour |
-| `balanced` | 2-5%/hour |
-| `lowPower` | 0.5-2%/hour |
+| Preset     | Typical Battery Drain |
+| ---------- | --------------------- |
+| `trail`    | 10-20%/hour           |
+| `tracking` | 5-10%/hour            |
+| `balanced` | 2-5%/hour             |
+| `lowPower` | 0.5-2%/hour           |
 
 Factors affecting battery:
+
 - GPS vs network location
 - Update frequency (`distanceFilter`)
 - Desired accuracy
@@ -345,6 +360,7 @@ Factors affecting battery:
 ### How can I reduce battery consumption?
 
 1. **Use adaptive tracking**:
+
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
   adaptiveTracking: AdaptiveTrackingConfig.balanced,
@@ -352,6 +368,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 2. **Enable stop detection**:
+
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
   stopTimeout: 5, // Power down after 5 minutes stationary
@@ -359,6 +376,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 3. **Increase distance filter**:
+
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
   distanceFilter: 100, // Only update every 100 meters
@@ -366,6 +384,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 4. **Lower desired accuracy**:
+
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
   desiredAccuracy: DesiredAccuracy.low, // Use cell/WiFi instead of GPS
@@ -373,6 +392,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 5. **Use tracking profiles**:
+
 ```dart
 await Locus.setTrackingProfiles({
   TrackingProfile.standby: ConfigPresets.lowPower,
@@ -402,6 +422,7 @@ if (runway.hours < 2) {
 ### What is adaptive tracking?
 
 Adaptive tracking automatically adjusts location accuracy and update frequency based on:
+
 - Battery level
 - Charging state
 - Motion activity (stationary, walking, driving)
@@ -460,6 +481,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### Can I encrypt location data?
 
 Locus stores data in plain SQLite. For encryption:
+
 1. Use Flutter's `sqflite_cipher` or similar
 2. Encrypt location payload before sending to server
 3. Use secure storage for sensitive extras
@@ -469,11 +491,14 @@ Locus stores data in plain SQLite. For encryption:
 1. **Request explicit consent** before tracking
 2. **Provide clear privacy policy** explaining data usage
 3. **Allow users to delete data**:
+
 ```dart
 await Locus.clearDatabase();
 ```
+
 4. **Use privacy zones** for sensitive locations
 5. **Allow opt-out** at any time:
+
 ```dart
 await Locus.stop();
 await Locus.destroy();
@@ -482,6 +507,7 @@ await Locus.destroy();
 ### Can I anonymize location data?
 
 Yes, several approaches:
+
 - Remove or hash device identifiers in `extras`
 - Use privacy zones to obfuscate sensitive areas
 - Reduce location precision before sending to server
@@ -500,6 +526,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 View logs:
+
 ```dart
 final logs = await Locus.getLog();
 for (final entry in logs) {
@@ -510,6 +537,7 @@ for (final entry in logs) {
 ### How do I test location tracking?
 
 **Option 1: Use MockLocus**
+
 ```dart
 import 'package:locus/testing.dart';
 
@@ -525,6 +553,7 @@ test('location tracking', () async {
 ```
 
 **Option 2: Simulator/Emulator**
+
 - **Android Studio**: Extended controls → Location
 - **Xcode**: Debug → Simulate Location
 
@@ -535,6 +564,7 @@ test('location tracking', () async {
 See comprehensive [Troubleshooting Guide](troubleshooting.md#location-updates-not-received).
 
 Common causes:
+
 - Permissions not granted
 - Location services disabled
 - High `distanceFilter`
@@ -544,6 +574,7 @@ Common causes:
 ### How do I debug geofence issues?
 
 1. **Verify geofence is registered**:
+
 ```dart
 final exists = await Locus.geofencing.exists('my_geofence');
 ```
@@ -551,6 +582,7 @@ final exists = await Locus.geofencing.exists('my_geofence');
 2. **Check geofence limits**: Android (100), iOS (20)
 
 3. **Enable high-accuracy mode**:
+
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
   geofenceModeHighAccuracy: true,
@@ -558,6 +590,7 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ```
 
 4. **Use debug overlay**:
+
 ```dart
 LocusDebugOverlay()
 ```
@@ -608,6 +641,7 @@ More frequent updates may drain battery significantly.
 ### Can I customize the notification on Android?
 
 Yes:
+
 ```dart
 await Locus.ready(ConfigPresets.balanced.copyWith(
   notification: NotificationConfig(
@@ -629,11 +663,13 @@ await Locus.ready(ConfigPresets.balanced.copyWith(
 ### Should I use autoSync or manual sync?
 
 **Use autoSync** if:
+
 - You want locations sent immediately or in batches
 - Network availability is generally good
 - You don't need custom sync logic
 
 **Use manual sync** if:
+
 - You need full control over sync timing
 - You batch with other API calls
 - You implement custom retry logic
@@ -668,11 +704,13 @@ Locus.location.stream.listen((location) {
 ### Should I use stop detection?
 
 **Enable stop detection** if:
+
 - Battery life is critical
 - User is frequently stationary
 - You're okay with delayed updates after stopping
 
 **Disable stop detection** if:
+
 - You need consistent update intervals
 - Real-time tracking is critical
 - User is rarely stationary
@@ -680,6 +718,7 @@ Locus.location.stream.listen((location) {
 ### When should I use headless mode?
 
 Use headless mode when:
+
 - You need background processing after app termination
 - You handle geofence events while app is killed
 - You implement custom sync logic in background
@@ -689,6 +728,7 @@ Use headless mode when:
 ### How do I handle permission denials?
 
 1. **Show rationale before requesting**:
+
 ```dart
 await showDialog(
   context: context,
@@ -702,6 +742,7 @@ final granted = await Locus.requestPermission();
 ```
 
 2. **Handle denial gracefully**:
+
 ```dart
 if (!granted) {
   showDialog(
@@ -723,6 +764,7 @@ if (!granted) {
 ### Should I validate location accuracy?
 
 Yes, especially for critical applications:
+
 ```dart
 Locus.location.stream.listen((location) {
   if (location.coords.accuracy > 50) {
@@ -730,7 +772,7 @@ Locus.location.stream.listen((location) {
     print('Warning: Accuracy ${location.coords.accuracy}m');
     return;
   }
-  
+
   // Use location
   processLocation(location);
 });
@@ -741,13 +783,14 @@ Locus.location.stream.listen((location) {
 ## Still Have Questions?
 
 - **Check the documentation**: [Full Documentation Index](../DOCUMENTATION_INDEX.md)
-- **Search existing issues**: [GitHub Issues](https://github.com/koksalmehmet/locus/issues)
+- **Search existing issues**: [GitHub Issues](https://github.com/weorbis/locus/issues)
 - **Create a new issue**: Provide details, logs, and reproduction steps
 - **Review examples**: Check `example/` directory in the repository
 
 ---
 
 **Related Documentation:**
+
 - [Troubleshooting Guide](troubleshooting.md)
 - [Error Codes Reference](../api/error-codes.md)
 - [Configuration Reference](../core/configuration-reference.md)

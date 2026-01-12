@@ -43,7 +43,7 @@ What actually happened? (e.g., location not recorded, geofence not triggered)
 
 ## Device Logs
 
-If possible, please provide logs from `BackgroundGeolocation.getLog()` or `BackgroundGeolocation.emailLog()`:
+If possible, please provide logs from `Locus.getLog()`:
 
 ```
 Paste logs here
