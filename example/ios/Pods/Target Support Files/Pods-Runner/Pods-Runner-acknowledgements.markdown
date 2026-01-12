@@ -1,62 +1,34 @@
 # Acknowledgements
+
 This application makes use of the following third party libraries:
 
 ## integration_test
 
 Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-
 ## locus
 
-Locus Community License v1.0
+MIT License
 
-Copyright (c) 2025 Mehmet Koksal
+Copyright (c) 2026 WeOrbis
 
-Permission is hereby granted, free of charge, to any person or entity obtaining a copy
-of this software and associated documentation files (the "Software"), to use, copy,
-modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-subject to the following conditions:
-
-1. Definitions
-
-"Individual" means a natural person acting in a personal capacity or as a solo
-developer.
-
-"Enterprise" means any person or entity (including affiliates) with gross annual
-revenue of USD 250,000 or more.
-
-"Open Source" means the Software is used only within a product whose code that
-includes or links to the Software is made publicly available under an OSI-approved
-license, at no charge, for the duration of the use.
-
-2. License Grant
-
-Individuals may use the Software for any purpose, including commercial, closed-source,
-open-source, distribution, and monetization.
-
-Enterprises may use the Software only if the portion of their product that includes
-or links to the Software is Open Source. This requirement applies to each product
-that includes or links to the Software.
-
-3. Commercial License
-
-Enterprises who wish to use the Software in a closed-source product must obtain a
-commercial license. Contact: hello@mkoksal.dev
-
-4. Notices
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-5. Disclaimer
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ## path_provider_foundation
 
@@ -85,7 +57,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 
 ## permission_handler_apple
 

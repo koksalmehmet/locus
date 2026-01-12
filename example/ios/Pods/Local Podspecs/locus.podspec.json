@@ -1,14 +1,14 @@
 {
   "name": "locus",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "summary": "Background geolocation SDK for Flutter.",
   "description": "Background geolocation SDK for Flutter. Native tracking, geofencing, \nactivity recognition, and HTTP sync for Android and iOS.",
-  "homepage": "https://github.com/koksalmehmet/locus",
+  "homepage": "https://github.com/weorbis/locus",
   "license": {
     "file": "../LICENSE"
   },
   "authors": {
-    "Mehmet Koksal": "hello@mkoksal.dev"
+    "WeOrbis": "info@weorbis.com"
   },
   "source": {
     "path": "."
