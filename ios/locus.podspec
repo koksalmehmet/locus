@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'locus'
-  s.version          = '2.0.0'
+  s.version          = '2.0.1'
   s.summary          = 'Background geolocation SDK for Flutter.'
   s.description      = <<-DESC
     Background geolocation SDK for Flutter. Native tracking, geofencing, 

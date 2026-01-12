@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2026-01-12
+
+### Changed
+
+- **Transfer of Ownership**: Project ownership officially transferred to the **WeOrbis** ecosystem.
+- **License Change**: Relicensed from PolyForm Small Business License to **MIT License** for better community adoption and accessibility.
+- **Repository URLs**: Updated all repository links to point to the new location at `github.com/weorbis/locus`.
+- **Branding & Contact**: Updated contact emails to `info@weorbis.com` and `security@weorbis.com`. Removed all personal developer references to reflect organizational ownership.
+
 ## [2.0.0] - 2026-01-07
 
 ### Breaking
