@@ -22,7 +22,6 @@ import 'package:locus/src/shared/models/json_map.dart';
 /// final locations = await Locus.location.queryLocations(query);
 /// ```
 class LocationQuery {
-  /// Creates a location query.
   const LocationQuery({
     this.from,
     this.to,
