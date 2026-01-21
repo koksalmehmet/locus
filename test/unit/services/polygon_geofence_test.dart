@@ -48,10 +48,10 @@ void main() {
       validPolygon = PolygonGeofence(
         identifier: 'test-polygon',
         vertices: [
-          GeoPoint(latitude: 37.0, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -121.9),
-          GeoPoint(latitude: 37.0, longitude: -121.9),
+          const GeoPoint(latitude: 37.0, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -121.9),
+          const GeoPoint(latitude: 37.0, longitude: -121.9),
         ],
       );
     });
@@ -80,8 +80,8 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'invalid',
         vertices: [
-          GeoPoint(latitude: 37.0, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -122.0),
+          const GeoPoint(latitude: 37.0, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -122.0),
         ],
       );
       expect(polygon.isValid, false);
@@ -91,9 +91,9 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'invalid',
         vertices: [
-          GeoPoint(latitude: 91.0, longitude: -122.0), // Invalid latitude
-          GeoPoint(latitude: 37.1, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -121.9),
+          const GeoPoint(latitude: 91.0, longitude: -122.0), // Invalid latitude
+          const GeoPoint(latitude: 37.1, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -121.9),
         ],
       );
       expect(polygon.isValid, false);
@@ -190,9 +190,9 @@ void main() {
       final polygon2 = PolygonGeofence(
         identifier: 'same-id',
         vertices: [
-          GeoPoint(latitude: 0, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 1),
+          const GeoPoint(latitude: 0, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
@@ -205,9 +205,9 @@ void main() {
       final triangle = PolygonGeofence(
         identifier: 'triangle',
         vertices: [
-          GeoPoint(latitude: 0.0, longitude: 0.0),
-          GeoPoint(latitude: 1.0, longitude: 0.5),
-          GeoPoint(latitude: 0.0, longitude: 1.0),
+          const GeoPoint(latitude: 0.0, longitude: 0.0),
+          const GeoPoint(latitude: 1.0, longitude: 0.5),
+          const GeoPoint(latitude: 0.0, longitude: 1.0),
         ],
       );
 
@@ -222,12 +222,12 @@ void main() {
       final lShape = PolygonGeofence(
         identifier: 'l-shape',
         vertices: [
-          GeoPoint(latitude: 0.0, longitude: 0.0),
-          GeoPoint(latitude: 0.0, longitude: 1.0),
-          GeoPoint(latitude: 0.5, longitude: 1.0),
-          GeoPoint(latitude: 0.5, longitude: 0.5),
-          GeoPoint(latitude: 1.0, longitude: 0.5),
-          GeoPoint(latitude: 1.0, longitude: 0.0),
+          const GeoPoint(latitude: 0.0, longitude: 0.0),
+          const GeoPoint(latitude: 0.0, longitude: 1.0),
+          const GeoPoint(latitude: 0.5, longitude: 1.0),
+          const GeoPoint(latitude: 0.5, longitude: 0.5),
+          const GeoPoint(latitude: 1.0, longitude: 0.5),
+          const GeoPoint(latitude: 1.0, longitude: 0.0),
         ],
       );
 
@@ -245,9 +245,9 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'test',
         vertices: [
-          GeoPoint(latitude: 0, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 1),
+          const GeoPoint(latitude: 0, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
@@ -266,9 +266,9 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'test',
         vertices: [
-          GeoPoint(latitude: 0, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 1),
+          const GeoPoint(latitude: 0, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
@@ -297,10 +297,10 @@ void main() {
       testPolygon = PolygonGeofence(
         identifier: 'test-polygon',
         vertices: [
-          GeoPoint(latitude: 37.0, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -121.9),
-          GeoPoint(latitude: 37.0, longitude: -121.9),
+          const GeoPoint(latitude: 37.0, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -121.9),
+          const GeoPoint(latitude: 37.0, longitude: -121.9),
         ],
       );
     });
@@ -515,9 +515,9 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'test',
         vertices: [
-          GeoPoint(latitude: 0, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 1),
+          const GeoPoint(latitude: 0, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
@@ -530,9 +530,9 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'to-remove',
         vertices: [
-          GeoPoint(latitude: 0, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 1),
+          const GeoPoint(latitude: 0, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
@@ -548,9 +548,9 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'test',
         vertices: [
-          GeoPoint(latitude: 0, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 1),
+          const GeoPoint(latitude: 0, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 
@@ -565,9 +565,9 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'exists-test',
         vertices: [
-          GeoPoint(latitude: 0, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 0),
-          GeoPoint(latitude: 1, longitude: 1),
+          const GeoPoint(latitude: 0, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 0),
+          const GeoPoint(latitude: 1, longitude: 1),
         ],
       );
 

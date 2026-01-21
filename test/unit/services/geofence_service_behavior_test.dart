@@ -38,10 +38,10 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'campus',
         vertices: [
-          GeoPoint(latitude: 37.0, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -121.9),
-          GeoPoint(latitude: 37.0, longitude: -121.9),
+          const GeoPoint(latitude: 37.0, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -121.9),
+          const GeoPoint(latitude: 37.0, longitude: -121.9),
         ],
       );
 

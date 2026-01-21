@@ -1,27 +1,29 @@
+// ignore_for_file: avoid_print
+
 import 'dart:math';
 
 // --- Mocks ---
 
 class Coords {
-  final double latitude;
-  final double longitude;
-  final double accuracy;
   const Coords(
       {required this.latitude,
       required this.longitude,
       required this.accuracy});
+  final double latitude;
+  final double longitude;
+  final double accuracy;
 }
 
 class RoutePoint {
+  const RoutePoint({required this.latitude, required this.longitude});
   final double latitude;
   final double longitude;
-  const RoutePoint({required this.latitude, required this.longitude});
 }
 
 class LocationUtils {
   static double calculateDistance(Coords a, Coords b) {
     const p = 0.017453292519943295;
-    final c = cos;
+    const c = cos;
     final aVal = 0.5 -
         c((b.latitude - a.latitude) * p) / 2 +
         c(a.latitude * p) *
@@ -183,18 +185,18 @@ void main() {
   final legacy = LegacyVectorMath();
   final optimized = OptimizedVectorMath();
 
-  final point = Coords(latitude: 37.7749, longitude: -122.4194, accuracy: 5);
-  final start = RoutePoint(latitude: 37.7740, longitude: -122.4200);
-  final end = RoutePoint(latitude: 37.7760, longitude: -122.4190);
+  const point = Coords(latitude: 37.7749, longitude: -122.4194, accuracy: 5);
+  const start = RoutePoint(latitude: 37.7740, longitude: -122.4200);
+  const end = RoutePoint(latitude: 37.7760, longitude: -122.4190);
 
   // Warmup
-  print("Warming up...");
+  print('Warming up...');
   for (var i = 0; i < 10000; i++) {
     legacy.distanceToSegmentMeters(point, start, end);
     optimized.distanceToSegmentMeters(point, start, end);
   }
 
-  final iterations = 1000000;
+  const iterations = 1000000;
 
   // Measure Legacy
   final stopwatch1 = Stopwatch()..start();
@@ -202,7 +204,7 @@ void main() {
     legacy.distanceToSegmentMeters(point, start, end);
   }
   stopwatch1.stop();
-  print("Legacy: ${stopwatch1.elapsedMilliseconds}ms");
+  print('Legacy: ${stopwatch1.elapsedMilliseconds}ms');
 
   // Measure Optimized
   final stopwatch2 = Stopwatch()..start();
@@ -210,11 +212,11 @@ void main() {
     optimized.distanceToSegmentMeters(point, start, end);
   }
   stopwatch2.stop();
-  print("Optimized: ${stopwatch2.elapsedMilliseconds}ms");
+  print('Optimized: ${stopwatch2.elapsedMilliseconds}ms');
 
   final improvement =
       stopwatch1.elapsedMilliseconds - stopwatch2.elapsedMilliseconds;
   final percent =
       (improvement / stopwatch1.elapsedMilliseconds * 100).toStringAsFixed(1);
-  print("Improvement: ${improvement}ms ($percent%)");
+  print('Improvement: ${improvement}ms ($percent%)');
 }

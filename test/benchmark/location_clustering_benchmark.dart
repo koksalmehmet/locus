@@ -1,6 +1,8 @@
 /// Benchmark for location clustering algorithm performance.
 ///
 /// Run with: dart test test/benchmark/location_clustering_benchmark.dart
+// ignore_for_file: avoid_print
+
 library;
 
 import 'dart:math' as math;

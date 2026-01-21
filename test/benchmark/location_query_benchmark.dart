@@ -1,6 +1,8 @@
 /// Benchmark for LocationQuery.apply() performance.
 ///
 /// Tests the impact of reducing list allocations in location filtering.
+// ignore_for_file: avoid_print
+
 library;
 
 import 'package:locus/src/features/location/models/location_history.dart';
@@ -81,7 +83,7 @@ void main() {
     final locations = generateTestLocations(size);
 
     // Test 1: No filters (worst case for allocation)
-    final noFilterQuery = const LocationQuery();
+    const noFilterQuery = LocationQuery();
     final noFilterTime =
         runQueryBenchmark(noFilterQuery, locations, iterations);
     print(BenchmarkResults(
@@ -106,7 +108,7 @@ void main() {
     ));
 
     // Test 3: With accuracy filter + pagination
-    final filteredQuery = LocationQuery(
+    const filteredQuery = LocationQuery(
       minAccuracy: 50,
       offset: 10,
       limit: 50,

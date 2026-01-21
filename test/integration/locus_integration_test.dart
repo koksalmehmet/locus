@@ -380,10 +380,10 @@ void main() {
       final polygon = PolygonGeofence(
         identifier: 'test-polygon',
         vertices: [
-          GeoPoint(latitude: 37.0, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -122.0),
-          GeoPoint(latitude: 37.1, longitude: -122.1),
-          GeoPoint(latitude: 37.0, longitude: -122.1),
+          const GeoPoint(latitude: 37.0, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -122.0),
+          const GeoPoint(latitude: 37.1, longitude: -122.1),
+          const GeoPoint(latitude: 37.0, longitude: -122.1),
         ],
       );
 
