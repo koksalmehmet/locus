@@ -558,7 +558,7 @@ class _LocusExampleAppState extends State<LocusExampleApp> {
   }
 
   Future<void> _addPolygonGeofence() async {
-    const polygon = PolygonGeofence(
+    final polygon = PolygonGeofence(
       identifier: 'campus_zone',
       vertices: [
         GeoPoint(latitude: 37.4232, longitude: -122.0852),

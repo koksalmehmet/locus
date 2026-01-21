@@ -35,7 +35,7 @@ void main() {
     });
 
     test('polygonEvents emits enter event on location update', () async {
-      const polygon = PolygonGeofence(
+      final polygon = PolygonGeofence(
         identifier: 'campus',
         vertices: [
           GeoPoint(latitude: 37.0, longitude: -122.0),

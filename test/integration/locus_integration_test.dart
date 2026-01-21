@@ -377,7 +377,7 @@ void main() {
   group('Location Processing Integration', () {
     test('polygon geofence service is registered with streams', () async {
       // Adding a polygon geofence should work without errors
-      const polygon = PolygonGeofence(
+      final polygon = PolygonGeofence(
         identifier: 'test-polygon',
         vertices: [
           GeoPoint(latitude: 37.0, longitude: -122.0),
